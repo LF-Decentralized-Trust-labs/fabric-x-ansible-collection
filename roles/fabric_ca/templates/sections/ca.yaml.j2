@@ -21,7 +21,7 @@ ca:
   # Certificate file (default: ca-cert.pem)
   certfile: "{{ fabric_ca_server_config_dir }}/{{ fabric_ca_server_ca_cert_file }}"
   # Chain file
-{% if is_intermediate_ca %}
+{% if fabric_ca_is_intermediate_ca %}
   chainfile: "{{ fabric_ca_server_config_dir }}/ca-chain.pem"
 {% else %}
   chainfile:

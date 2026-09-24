@@ -139,6 +139,12 @@ Dispatches client enrollment to the binary or transient-container implementation
     fabric_ca_client_use_bin: false
     # Selects the enrollment type.
     fabric_ca_enrollment_type: bccsp
+    # Sets an optional enrollment profile such as `tls`.
+    fabric_ca_enrollment_profile: "tls"
+    # Sets the MSP directory used by Fabric CA client flows.
+    fabric_ca_msp_dir: "/tmp/fabricx/crypto-config/organizations/org1.example.com/users/Admin@org1.example.com/msp"
+    # Sets the Fabric CA client TLS CA certificate output path relative to `fabric_ca_msp_dir`.
+    fabric_ca_cryptogenize_tls_ca_cert_file: ca.crt
     # Base directory for remote role state on the target host.
     remote_node_dir: "/tmp/fabricx"
     # Path to the file that tracks a fingerprint of the enrollment inputs behind each BCCSP identity's certificate, keyed by `fabric_ca_msp_dir`, used to detect changes since the last run.
@@ -1547,6 +1553,14 @@ Generates the Fabric CA root CA and TLS keypairs. Writes private keys and certif
     fabric_ca_server_ca_private_key_file: priv_sk
     # Sets the server CA certificate path, relative to the Fabric CA config root.
     fabric_ca_server_ca_cert_file: ca-cert.pem
+    # Reports whether this Fabric CA is an intermediate CA, meaning its own CA certificate was signed by an external root CA rather than being self-signed. Derived from `openssl_root_ca_cert_path`, falling back to the `OPENSSL_ROOT_CA_CERT_PATH` environment variable because that variable is an `openssl` role default and is therefore out of scope here. Drives the CA chain file and the split of the fetched organization MSP into `cacerts` and `intermediatecerts`.
+    fabric_ca_is_intermediate_ca: >-
+      {{
+        lookup('vars', 'openssl_root_ca_cert_path', default=lookup('env', 'OPENSSL_ROOT_CA_CERT_PATH'))
+        | default('', true)
+        | trim('"')
+        | length > 0
+      }}
     # Sets the server TLS private key filename.
     fabric_ca_server_tls_private_key_file: tls-key.pem
     # Sets the server TLS certificate filename.
@@ -1628,6 +1642,14 @@ Fetches the Fabric CA server certificate material. Copies CA certificates from t
     remote_config_dir: "/var/hyperledger/fabricx/fabric-ca/ca-org1/config"
     # Sets the server CA certificate path, relative to the Fabric CA config root.
     fabric_ca_server_ca_cert_file: ca-cert.pem
+    # Reports whether this Fabric CA is an intermediate CA, meaning its own CA certificate was signed by an external root CA rather than being self-signed. Derived from `openssl_root_ca_cert_path`, falling back to the `OPENSSL_ROOT_CA_CERT_PATH` environment variable because that variable is an `openssl` role default and is therefore out of scope here. Drives the CA chain file and the split of the fetched organization MSP into `cacerts` and `intermediatecerts`.
+    fabric_ca_is_intermediate_ca: >-
+      {{
+        lookup('vars', 'openssl_root_ca_cert_path', default=lookup('env', 'OPENSSL_ROOT_CA_CERT_PATH'))
+        | default('', true)
+        | trim('"')
+        | length > 0
+      }}
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: server/crypto/fetch
@@ -1686,6 +1708,14 @@ Renders and transfers the Fabric CA server configuration. Includes bootstrap adm
     fabric_ca_server_ca_private_key_file: priv_sk
     # Sets the server CA certificate path, relative to the Fabric CA config root.
     fabric_ca_server_ca_cert_file: ca-cert.pem
+    # Reports whether this Fabric CA is an intermediate CA, meaning its own CA certificate was signed by an external root CA rather than being self-signed. Derived from `openssl_root_ca_cert_path`, falling back to the `OPENSSL_ROOT_CA_CERT_PATH` environment variable because that variable is an `openssl` role default and is therefore out of scope here. Drives the CA chain file and the split of the fetched organization MSP into `cacerts` and `intermediatecerts`.
+    fabric_ca_is_intermediate_ca: >-
+      {{
+        lookup('vars', 'openssl_root_ca_cert_path', default=lookup('env', 'OPENSSL_ROOT_CA_CERT_PATH'))
+        | default('', true)
+        | trim('"')
+        | length > 0
+      }}
     # Supplies the bootstrap administrator rendered into the server registry section; `name` and `secret` are required. Store the secret in Ansible Vault.
     fabric_ca_admin:
       name: "admin"

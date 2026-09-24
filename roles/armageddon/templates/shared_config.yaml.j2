@@ -10,6 +10,12 @@ Parties:
     CACerts:
 {% for orderer_organization_domain in orderer_group.organizations %}
       - {{ cryptogen_artifacts_dir }}/crypto/organizations/{{ orderer_organization_domain }}/msp/cacerts/ca.{{ orderer_organization_domain }}-cert.pem
+{#   An intermediate Fabric CA leaves its own certificate in intermediatecerts, so the orderer needs it
+     alongside the root to bridge from a node sign certificate up to the trust anchor. Tested against the
+     control node path because the emitted path is the one seen inside the container. #}
+{%   if (fetched_artifacts_dir ~ '/crypto/organizations/' ~ orderer_organization_domain ~ '/msp/intermediatecerts/ca.' ~ orderer_organization_domain ~ '-cert.pem') is exists %}
+      - {{ cryptogen_artifacts_dir }}/crypto/organizations/{{ orderer_organization_domain }}/msp/intermediatecerts/ca.{{ orderer_organization_domain }}-cert.pem
+{%   endif %}
 {% endfor %}
     TLSCACerts:
 {% for orderer_organization_domain in orderer_group.organizations %}
