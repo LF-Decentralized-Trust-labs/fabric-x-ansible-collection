@@ -321,10 +321,10 @@ argument_specs:
           }}
         description:
           - "Reports whether this Fabric CA is an intermediate CA, meaning its own CA certificate was signed by
-             an external root CA rather than being self-signed. Derived from C(openssl_root_ca_cert_path), falling
-             back to the C(OPENSSL_ROOT_CA_CERT_PATH) environment variable because that variable is an C(openssl)
-             role default and is therefore out of scope here. Drives the CA chain file and the split of the fetched
-             organization MSP into C(cacerts) and C(intermediatecerts)."
+            an external root CA rather than being self-signed. Derived from C(openssl_root_ca_cert_path), falling
+            back to the C(OPENSSL_ROOT_CA_CERT_PATH) environment variable because that variable is an C(openssl)
+            role default and is therefore out of scope here. Drives the CA chain file and the split of the fetched
+            organization MSP into C(cacerts) and C(intermediatecerts)."
       fabric_ca_server_tls_private_key_file:
         &fabric_ca_server_tls_private_key_file
         type: str
@@ -391,6 +391,16 @@ argument_specs:
         default: server.crt
         description:
           - "Sets the Fabric CA client TLS certificate output path relative to C(fabric_ca_msp_dir)."
+      fabric_ca_chain_ca_certs: &fabric_ca_chain_ca_certs
+        type: bool
+        default: true
+        description:
+          - "Rebuilds C(fabric_ca_cryptogenize_tls_ca_cert_file) as the root certificate followed by every intermediate certificate when enrolling against an intermediate Fabric CA, restoring the truststore C(fabric-ca-client) split apart at enrollment."
+      fabric_ca_chain_server_certs: &fabric_ca_chain_server_certs
+        type: bool
+        default: false
+        description:
+          - "Rebuilds C(fabric_ca_cryptogenize_tls_cert_file) as the leaf certificate followed by every intermediate certificate when enrolling against an intermediate Fabric CA, so the server presents a complete chain instead of a bare leaf."
       fabric_ca_cryptogenize_tls_key_file: &fabric_ca_cryptogenize_tls_key_file
         type: str
         default: server.key
@@ -401,14 +411,12 @@ argument_specs:
         required: true
         description:
           - "Supplies the identity used by Fabric CA client operations."
-          - "Store secrets in Ansible Vault."
           - "Example: C({'name': 'peer0', 'secret': 'peer0PWD', 'type': 'peer', 'affiliation': 'org1.department1', 'attrs': {'hf.Revoker': 'true'}})."
       fabric_ca_admin: &fabric_ca_admin
         type: dict
         required: true
         description:
           - "Supplies the bootstrap administrator rendered into the server registry section; C(name) and C(secret) are required."
-          - "Store the secret in Ansible Vault."
           - "Example: C({'name': 'admin', 'secret': 'adminPWD', 'attrs': {'hf.Registrar.Roles': '*', 'hf.Registrar.Attributes': '*'}})."
       fabric_ca_registry_identities: &fabric_ca_registry_identities
         type: list
@@ -422,7 +430,6 @@ argument_specs:
         description:
           - "Sets the TLS root certificate file used by Fabric CA client flows when TLS is enabled."
           - "Example: C(/tmp/fabricx/crypto-config/organizations/org1.example.com/ca/ca.org1.example.com-cert.pem)."
-
       fabric_ca_server_use_openshift: &fabric_ca_server_use_openshift
         type: bool
         default: false
@@ -468,9 +475,28 @@ argument_specs:
       fabric_ca_enrollment_type: *fabric_ca_enrollment_type
       fabric_ca_enrollment_profile: *fabric_ca_enrollment_profile
       fabric_ca_msp_dir: *fabric_ca_msp_dir
-      fabric_ca_cryptogenize_tls_ca_cert_file: *fabric_ca_cryptogenize_tls_ca_cert_file
+      fabric_ca_chain_ca_certs: *fabric_ca_chain_ca_certs
+      fabric_ca_chain_server_certs: *fabric_ca_chain_server_certs
       remote_node_dir: *remote_node_dir
       fabric_ca_client_state_file: *fabric_ca_client_state_file
+
+  client/intermediate_ca/build_ca_chain:
+    short_description: Rebuild the TLS CA certificate as a full chain
+    description:
+      - "Reassembles C(fabric_ca_cryptogenize_tls_ca_cert_file) as the root certificate followed by every certificate found under C(fabric_ca_msp_dir)/tlsintermediatecerts, restoring the chain C(fabric-ca-client) split apart at enrollment."
+      - "A no-op when no intermediate certificates were found."
+    options:
+      fabric_ca_msp_dir: *fabric_ca_msp_dir
+      fabric_ca_cryptogenize_tls_ca_cert_file: *fabric_ca_cryptogenize_tls_ca_cert_file
+
+  client/intermediate_ca/build_server_chain:
+    short_description: Rebuild the TLS server certificate as a full chain
+    description:
+      - "Reassembles C(fabric_ca_cryptogenize_tls_cert_file) as the leaf certificate followed by every certificate found under C(fabric_ca_msp_dir)/tlsintermediatecerts, so the server presents a complete chain instead of a bare leaf. The self-signed root is intentionally left out."
+      - "A no-op when no intermediate certificates were found."
+    options:
+      fabric_ca_msp_dir: *fabric_ca_msp_dir
+      fabric_ca_cryptogenize_tls_cert_file: *fabric_ca_cryptogenize_tls_cert_file
 
   client/register:
     short_description: Dispatch client registration

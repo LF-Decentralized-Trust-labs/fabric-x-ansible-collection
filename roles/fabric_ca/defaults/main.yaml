@@ -118,6 +118,10 @@ fabric_ca_cryptogenize_msp_signcert_file: signcerts/cert.pem
 fabric_ca_cryptogenize_tls_ca_cert_file: ca.crt
 # Sets the Fabric CA client TLS certificate output path relative to C(fabric_ca_msp_dir).
 fabric_ca_cryptogenize_tls_cert_file: server.crt
+# Rebuilds C(fabric_ca_cryptogenize_tls_ca_cert_file) as the root certificate followed by every intermediate certificate when enrolling against an intermediate Fabric CA, restoring the truststore C(fabric-ca-client) split apart at enrollment.
+fabric_ca_chain_ca_certs: true
+# Rebuilds C(fabric_ca_cryptogenize_tls_cert_file) as the leaf certificate followed by every intermediate certificate when enrolling against an intermediate Fabric CA, so the server presents a complete chain instead of a bare leaf.
+fabric_ca_chain_server_certs: false
 # Sets the Fabric CA client TLS private key output path relative to C(fabric_ca_msp_dir).
 fabric_ca_cryptogenize_tls_key_file: server.key
 # Lists additional identities rendered into the server registry section for startup registration.

@@ -1,0 +1,49 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# ca.crt is an unordered truststore, so root-then-intermediate below is only a convention, not
+# something any consumer requires. Skipped entirely when there is nothing to append.
+- name: Build the TLS CA certificate chain
+  when:
+    - fabric_ca_client_tls_intermediate_certs.files | length > 0
+  block:
+    - name: Create the TLS CA certificate chain directory
+      ansible.builtin.file:
+        path: "{{ fabric_ca_msp_dir }}/tls-ca-chain"
+        state: directory
+        mode: "0750"
+
+    - name: Copy the root certificate to the TLS CA certificate chain
+      ansible.builtin.copy:
+        src: "{{ fabric_ca_msp_dir }}/{{ fabric_ca_cryptogenize_tls_ca_cert_file }}"
+        dest: "{{ fabric_ca_msp_dir }}/tls-ca-chain/00-root.pem"
+        mode: "0644"
+        remote_src: true
+
+    - name: Copy the intermediate certificates to the TLS CA certificate chain
+      ansible.builtin.copy:
+        src: "{{ current_tls_intermediate_cert.path }}"
+        dest: "{{ fabric_ca_msp_dir }}/tls-ca-chain/01-intermediate-{{ current_tls_intermediate_cert.path | basename }}"
+        mode: "0644"
+        remote_src: true
+      loop: "{{ fabric_ca_client_tls_intermediate_certs.files }}"
+      loop_control:
+        loop_var: current_tls_intermediate_cert
+        label: "{{ current_tls_intermediate_cert.path | basename }}"
+
+    - name: Assemble the TLS CA certificate chain
+      ansible.builtin.assemble:
+        src: "{{ fabric_ca_msp_dir }}/tls-ca-chain"
+        dest: "{{ fabric_ca_msp_dir }}/{{ fabric_ca_cryptogenize_tls_ca_cert_file }}"
+        mode: "0644"
+
+    # Nothing downstream reads this directory; it is scratch space for the assemble above.
+    # Removed rather than left behind so a renamed or re-pointed CA can't leave a stale
+    # intermediate here to be silently re-assembled into a later chain.
+    - name: Remove the TLS CA certificate chain directory
+      ansible.builtin.file:
+        path: "{{ fabric_ca_msp_dir }}/tls-ca-chain"
+        state: absent
