@@ -394,7 +394,7 @@ argument_specs:
         required: true
         description:
           - Organization definition consumed by crypto, config, and Kubernetes templates.
-          - "Example: C({'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'orderer-loadgen', 'secret': 'orderer-loadgenPWD'}, 'users': [{'name': 'orderer-loadgen', 'secret': 'orderer-loadgenPWD'}], 'namespaces': [{'id': 0, 'policy': 'threshold'}]})."
+          - "Example: C({'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'orderer-loadgen', 'secret': 'orderer-loadgenPWD'}, 'user': {'name': 'orderer-loadgen', 'secret': 'orderer-loadgenPWD'}, 'namespaces': [{'id': 0, 'policy': 'threshold'}]})."
       channel_id: &channel_id
         type: str
         required: true

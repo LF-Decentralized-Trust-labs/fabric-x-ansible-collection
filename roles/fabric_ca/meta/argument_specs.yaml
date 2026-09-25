@@ -407,6 +407,11 @@ argument_specs:
         description:
           - "Supplies the identity used by Fabric CA client operations."
           - "Example: C({'name': 'peer0', 'secret': 'peer0PWD', 'type': 'peer', 'affiliation': 'org1.department1', 'attrs': {'hf.Revoker': 'true'}})."
+      fabric_ca_use_prelisted_identities: &fabric_ca_use_prelisted_identities
+        type: bool
+        default: false
+        description:
+          - "Uses the names already stored in C(fabric_ca_registered_identities_names) instead of listing identities before each registration."
       fabric_ca_admin: &fabric_ca_admin
         type: dict
         required: true
@@ -499,6 +504,7 @@ argument_specs:
       - "Registers a new Fabric CA identity such as a peer, orderer, admin, or client using an already enrolled registrar MSP."
     options:
       fabric_ca_client_use_bin: *fabric_ca_client_use_bin
+      fabric_ca_use_prelisted_identities: *fabric_ca_use_prelisted_identities
 
   client/gather_identities:
     short_description: Gather organization identities from inventory
@@ -630,6 +636,7 @@ argument_specs:
     options:
       fabric_ca_msp_dir: *fabric_ca_msp_dir
       fabric_ca_identity: *fabric_ca_identity
+      fabric_ca_use_prelisted_identities: *fabric_ca_use_prelisted_identities
       fabric_ca_client_bin_name: *fabric_ca_client_bin_name
       fabric_ca_scheme: *fabric_ca_scheme
       fabric_ca_name: *fabric_ca_name
@@ -736,6 +743,7 @@ argument_specs:
     options:
       fabric_ca_msp_dir: *fabric_ca_msp_dir
       fabric_ca_identity: *fabric_ca_identity
+      fabric_ca_use_prelisted_identities: *fabric_ca_use_prelisted_identities
       fabric_ca_image: *fabric_ca_image
       fabric_ca_registry_endpoint: *fabric_ca_registry_endpoint
       fabric_ca_image_name: *fabric_ca_image_name

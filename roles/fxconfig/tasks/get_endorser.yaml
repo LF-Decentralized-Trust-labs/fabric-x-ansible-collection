@@ -6,17 +6,24 @@
 
 - name: Define the Fabric user to use for endorsement
   vars:
-    # We default for now to the first in the list as the MSP
-    # to use for fxconfig endorsement.
-    # We may later decide to add an extra-property in the user
-    # object to identify a specific one having endorsing powers.
+    # organization.user takes priority as the single declared identity. Otherwise, fall
+    # back to an organization.users entry flagged 'endorser: true', or its first entry.
     endorser_users: >-
       {{
         organization.users
+        | default([])
         | selectattr('endorser', 'defined')
         | selectattr('endorser', 'eq', true)
         | list
       }}
     has_endorser_users: "{{ endorser_users | length > 0 }}"
   ansible.builtin.set_fact:
-    fxconfig_endorser_user: "{{ (endorser_users | first) if has_endorser_users else (organization.users | first) }}"
+    fxconfig_endorser_user: >-
+      {{
+        organization.user
+        | default(
+          endorser_users | first
+          if has_endorser_users
+          else organization.users | first
+        )
+      }}

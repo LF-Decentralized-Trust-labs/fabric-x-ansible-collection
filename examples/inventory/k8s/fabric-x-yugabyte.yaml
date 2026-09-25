@@ -365,9 +365,9 @@ all:
             peer:
               name: "{{ inventory_hostname }}"
               secret: "{{ inventory_hostname }}PWD"
-            users:
-              - name: orderer-loadgen-client
-                secret: "{{ inventory_hostname }}PWD"
+            user:
+              name: orderer-loadgen-client
+              secret: "{{ inventory_hostname }}PWD"
             namespaces:
               - id: 0
                 policy: threshold

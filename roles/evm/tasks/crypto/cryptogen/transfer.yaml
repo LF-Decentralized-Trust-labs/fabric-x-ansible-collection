@@ -19,7 +19,7 @@
     dest: "{{ evm_remote_config_dir }}"
 
 # =========================
-# Users MSP
+# User MSP
 # =========================
 - name: Ensure the EVM users config directory exists
   ansible.builtin.file:
@@ -27,14 +27,10 @@
     state: directory
     mode: "0o755"
 
-- name: Transfer the EVM users crypto material
+- name: Transfer the EVM user crypto material
   ansible.posix.synchronize:
-    src: "{{ cryptogen_artifacts_dir }}/crypto/organizations/{{ organization.domain }}/users/{{ current_user.name }}@{{ organization.domain }}"
+    src: "{{ cryptogen_artifacts_dir }}/crypto/organizations/{{ organization.domain }}/users/{{ organization.user.name }}@{{ organization.domain }}"
     dest: "{{ evm_remote_config_dir }}/users"
-  loop: "{{ organization.users }}"
-  loop_control:
-    label: "{{ current_user.name }}"
-    loop_var: current_user
 
 # =========================
 # TLS

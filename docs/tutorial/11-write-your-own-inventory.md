@@ -293,9 +293,9 @@ Finally, something to produce traffic — and, importantly, the host that declar
           organization:
             <<: *Org1
             role: peer
-            users:
-              - name: orderer-loadgen
-                secret: orderer-loadgenPWD
+            user:
+              name: orderer-loadgen
+              secret: orderer-loadgenPWD
             namespaces:
               - id: 0
                 policy: threshold
@@ -387,7 +387,7 @@ Your minimal network is a baseline. Now apply the discipline from [lesson 8](./0
 | Real identity management                   | A `fabric_cas` group, `fabric_ca_host` per organisation, and enrollment blocks                                               | yes           |
 | Observability                              | A `monitoring` group — and now those `prometheus` mTLS client lines start doing work                                         | no            |
 | Block browsing                             | A `fabric_x_block_explorer` group, plus `block-explorer` in `committer_mtls_clients`                                         | no            |
-| An Ethereum endpoint                       | A `fabric_x_evm` host in `Org1`, with a `users:` entry and its own namespace                                                 | no            |
+| An Ethereum endpoint                       | A `fabric_x_evm` host in `Org1`, with a `user:` entry and its own namespace                                                  | no            |
 | More ordering throughput                   | A second batcher shard per group                                                                                             | yes           |
 | More committing throughput                 | More verifiers and validators                                                                                                | no            |
 | Horizontal-scale storage                   | Swap `committer-db` for a `committer_dbs` YugabyteDB cluster                                                                 | yes           |

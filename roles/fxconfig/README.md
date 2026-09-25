@@ -660,7 +660,7 @@ Dispatches namespace transaction endorsement to either the host binary or a tran
 
 > Resolve the namespace endorser user
 
-Selects the preferred endorser from `organization.users` for namespace transaction endorsement and stores it in `fxconfig_endorser_user`.
+Selects the namespace endorser and stores it in `fxconfig_endorser_user`: `organization.user` if declared, otherwise the `organization.users` entry flagged `endorser: true`, otherwise the first entry in `organization.users`.
 
 ```yaml
 - name: Resolve the namespace endorser user
