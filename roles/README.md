@@ -37,6 +37,7 @@ The roles that come within such collection are listed hereafter. Click on them t
 - [`hyperledger.fabricx.cryptogen`](./cryptogen);
 - [`hyperledger.fabricx.evm`](./evm);
 - [`hyperledger.fabricx.fabric_ca`](./fabric_ca);
+- [`hyperledger.fabricx.fxadmin`](./fxadmin);
 - [`hyperledger.fabricx.fxconfig`](./fxconfig);
 - [`hyperledger.fabricx.git`](./git);
 - [`hyperledger.fabricx.go`](./go);

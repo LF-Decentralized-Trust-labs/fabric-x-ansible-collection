@@ -1,0 +1,26 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Ensure fxadmin output directory exists
+  ansible.builtin.file:
+    path: "{{ fxadmin_output | dirname }}"
+    state: directory
+    mode: "0o755"
+
+- name: Compute the Fabric-X ConfigUpdate between the current and modified configuration
+  vars:
+    bin_command: >-
+      {{ fxadmin_bin_name }} compute-update
+      {{ fxadmin_current_config_json }}
+      {{ fxadmin_modified_config_json }}
+      --current-block={{ fxadmin_current_block }}
+      --output={{ fxadmin_output }}
+    bin_remote_dir: "{{ cli_bin_dir }}"
+    bin_run_with_tmux: false
+    bin_collect_logs: false
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.bin
+    tasks_from: start

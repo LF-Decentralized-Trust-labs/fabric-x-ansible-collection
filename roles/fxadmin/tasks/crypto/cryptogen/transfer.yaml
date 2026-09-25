@@ -1,0 +1,35 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# cryptogen generates organization.user as a named identity under
+# Users.Specs with Admin: true (see roles/cryptogen/templates/crypto-config.yaml.j2),
+# giving it OU=admin under its own declared name -- required to satisfy the
+# channel's per-org Admins policy -- but roles/cryptogen/tasks/fetch.yaml
+# only ever fetches the organization's root MSP, never this user identity.
+# Fetch it directly here instead, mirroring that same fetch task's
+# direct-synchronize pattern (no intermediate "deploy to a running host" hop
+# is needed, since fxadmin only ever reads identities from the control node).
+- name: Ensure the fxadmin {{ fxadmin_identity_name }} identity directory exists
+  ansible.builtin.file:
+    path: "{{ fetched_artifacts_dir }}/crypto/ordererOrganizations/{{ organization.domain }}/users/{{ fxadmin_identity_name }}@{{ organization.domain }}"
+    state: directory
+    mode: "0o755"
+
+- name: Fetch the cryptogen-generated {{ fxadmin_identity_name }} identity
+  vars:
+    # Reconstructed from config_build_dir (set at the inventory level) rather
+    # than cryptogen's own cryptogen_output_dir role default, which is only
+    # merged into vars while that role's own tasks are actually executing --
+    # not the case here, since this task runs from a separate role/playbook.
+    fxadmin_cryptogen_output_dir: "{{ cryptogen_output_dir | default(config_build_dir ~ '/cryptogen-artifacts/crypto') }}"
+  ansible.posix.synchronize:
+    src: "{{ fxadmin_cryptogen_output_dir }}/organizations/{{ organization.domain }}/users/{{ fxadmin_identity_name }}@{{ organization.domain }}/{{ fxadmin_identity_material }}"
+    dest: "{{ fetched_artifacts_dir }}/crypto/ordererOrganizations/{{ organization.domain }}/users/{{ fxadmin_identity_name }}@{{ organization.domain }}"
+  loop:
+    - msp
+    - tls
+  loop_control:
+    loop_var: fxadmin_identity_material

@@ -1,0 +1,57 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# =========================
+# Configuration
+# =========================
+- name: Ensure the config directory for fxadmin exists
+  ansible.builtin.file:
+    path: "{{ fxadmin_remote_config_dir }}"
+    state: directory
+    mode: "0o755"
+
+- name: Setup the fxadmin configuration file
+  vars:
+    fxadmin_config_dir: >-
+      {{
+        fxadmin_remote_config_dir
+        if fxadmin_use_bin
+        else fxadmin_container_config_dir
+      }}
+  ansible.builtin.template:
+    src: "admin.yaml.j2"
+    dest: "{{ fxadmin_remote_config_dir }}/{{ fxadmin_config_file }}"
+    mode: "0o644"
+
+# =========================
+# MSP and TLS material
+# =========================
+# Pulled from the control node (fxadmin_msp_config_path's parent identity
+# directory, populated there by crypto/fetch) onto whichever host this task
+# actually runs on -- an organization's own reference host, per
+# playbooks/fxadmin/configs.yaml -- so a private identity never needs to be
+# persisted on the control node for signing. Mirrors
+# roles/orderer/tasks/crypto/cryptogen/transfer.yaml's own control-node ->
+# remote-node sync.
+- name: Transfer the identity material from the control node
+  ansible.posix.synchronize:
+    src: "{{ fxadmin_msp_config_path | dirname }}/{{ fxadmin_identity_material }}"
+    dest: "{{ fxadmin_remote_config_dir }}"
+  loop:
+    - msp
+    - tls
+  loop_control:
+    loop_var: fxadmin_identity_material
+
+# =========================
+# mTLS material
+# =========================
+- name: Setup mTLS material for fxadmin
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fxadmin
+    tasks_from: config/mtls/transfer
+  when:
+    - fxadmin_use_mtls | default(false)
