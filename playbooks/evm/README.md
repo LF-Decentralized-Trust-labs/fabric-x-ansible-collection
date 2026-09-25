@@ -5,15 +5,15 @@ The `evm` playbooks operate the Fabric-X EVM gateway: the Ethereum JSON-RPC cont
 ## Table of Contents <!-- omit in toc -->
 
 - [Playbooks flow](#playbooks-flow)
-- [generate\_crypto.yaml](#generate_cryptoyaml)
+- [generate_crypto.yaml](#generate_cryptoyaml)
 - [configs.yaml](#configsyaml)
 - [start.yaml](#startyaml)
 - [stop.yaml](#stopyaml)
 - [teardown.yaml](#teardownyaml)
 - [wipe.yaml](#wipeyaml)
 - [ping.yaml](#pingyaml)
-- [fetch\_crypto.yaml](#fetch_cryptoyaml)
-- [fetch\_logs.yaml](#fetch_logsyaml)
+- [fetch_crypto.yaml](#fetch_cryptoyaml)
+- [fetch_logs.yaml](#fetch_logsyaml)
 
 ## Playbooks flow
 
@@ -44,7 +44,7 @@ ansible-playbook hyperledger.fabricx.evm.generate_crypto --extra-vars '{"target_
 Properties:
 
 - Target hosts: `fabric_x_evm` by default.
-- Nuance: `organization.role` must be `peer`, and `organization.users` must declare at least one entry; the first entry becomes the gateway's transaction-signing identity.
+- Nuance: `organization.role` must be `peer`, and `organization.user` must be declared; it becomes the gateway's transaction-signing identity.
 
 ## configs.yaml
 

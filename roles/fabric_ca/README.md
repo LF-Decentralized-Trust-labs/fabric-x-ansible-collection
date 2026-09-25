@@ -203,6 +203,8 @@ Dispatches identity registration to the binary or transient-container implementa
   vars:
     # Uses the binary client flow instead of the container flow.
     fabric_ca_client_use_bin: false
+    # Uses the names already stored in `fabric_ca_registered_identities_names` instead of listing identities before each registration.
+    fabric_ca_use_prelisted_identities: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: client/register
@@ -494,6 +496,8 @@ Registers a new identity with the locally installed Fabric CA client binary. Use
       affiliation: "org1.department1"
       attrs:
         hf.Revoker: "true"
+    # Uses the names already stored in `fabric_ca_registered_identities_names` instead of listing identities before each registration.
+    fabric_ca_use_prelisted_identities: false
     # Sets the client binary name.
     fabric_ca_client_bin_name: fabric-ca-client
     # Sets the client URL scheme.
@@ -750,6 +754,8 @@ Registers a new identity with a transient Fabric CA client container. Uses the m
       affiliation: "org1.department1"
       attrs:
         hf.Revoker: "true"
+    # Uses the names already stored in `fabric_ca_registered_identities_names` instead of listing identities before each registration.
+    fabric_ca_use_prelisted_identities: false
     # Sets the Fabric CA image.
     fabric_ca_image: "{{ fabric_ca_registry_endpoint }}/{{ fabric_ca_image_name }}:{{ fabric_ca_image_tag }}"
     # Sets the registry endpoint used to resolve the Fabric CA image.

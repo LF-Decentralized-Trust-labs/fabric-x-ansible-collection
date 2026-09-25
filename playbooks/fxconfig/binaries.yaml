@@ -19,7 +19,6 @@
         | default(groups['all'])
         | map('extract', hostvars)
         | selectattr('organization', 'defined')
-        | selectattr('organization.users', 'defined')
         | selectattr('organization.namespaces', 'defined')
         | selectattr('bin_build_on_control_node', 'defined')
         | selectattr('bin_build_on_control_node', '==', true)

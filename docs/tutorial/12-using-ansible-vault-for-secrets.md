@@ -243,9 +243,9 @@ Paste the result into `all.vars`, alongside `organizations:`. Then change the lo
           organization:
             <<: *Org1
             role: peer
-            users:
-              - name: orderer-loadgen
-                secret: "{{ inventory_hostname }}{{ vault_identity_secret_suffix }}"
+            user:
+              name: orderer-loadgen
+              secret: "{{ inventory_hostname }}{{ vault_identity_secret_suffix }}"
 ```
 
 Step 3:
@@ -254,7 +254,7 @@ Step 3:
 .venv/bin/ansible-inventory -i my-network/fabric-x-minimal.yaml --vault-password-file .vault_pass \
   --host orderer-loadgen | grep -A2 secret
 .venv/bin/ansible orderer-loadgen -i my-network/fabric-x-minimal.yaml --vault-password-file .vault_pass \
-  -m ansible.builtin.debug -a "msg={{ organization.users[0].secret }}"
+  -m ansible.builtin.debug -a "msg={{ organization.user.secret }}"
 ```
 
 The second prints `orderer-loadgenPWD` — identical to the plaintext version, because `vault_identity_secret_suffix` decrypts to `PWD` and the surrounding Jinja expression is unchanged.

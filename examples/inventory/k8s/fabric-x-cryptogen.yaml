@@ -258,8 +258,8 @@ all:
           organization:
             <<: *Org1
             role: peer
-            users:
-              - name: orderer-loadgen-client
+            user:
+              name: orderer-loadgen-client
             namespaces:
               - id: 0
                 policy: threshold

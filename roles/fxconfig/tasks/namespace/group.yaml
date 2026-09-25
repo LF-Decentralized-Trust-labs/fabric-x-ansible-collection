@@ -39,7 +39,17 @@
     current_host: "{{ current_host_with_namespace[0].inventory_hostname }}"
     current_namespace: "{{ current_host_with_namespace[1] }}"
     current_org_domain: "{{ hostvars[current_host].organization.domain }}"
-    fxconfig_endorser_user: "{{ current_namespace.user | default(hostvars[current_host].organization.users | map(attribute='name') | first) }}"
+    fxconfig_endorser_user: >-
+      {{
+        current_namespace.user
+        | default(
+            hostvars[current_host].organization.user.name
+            | default(
+              hostvars[current_host].organization.users
+              | map(attribute='name')
+              | first
+          ))
+      }}
     actual_policy:
       policy: "threshold:{{ fetched_artifacts_dir }}/crypto/organizations/{{ current_org_domain }}/users/{{ fxconfig_endorser_user }}@{{ current_org_domain }}/msp/signcerts/{{ fxconfig_endorser_user }}@{{ current_org_domain }}-cert.pem"
   ansible.builtin.set_fact:

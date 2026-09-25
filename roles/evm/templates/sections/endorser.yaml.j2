@@ -3,7 +3,6 @@
 # Runs this process's own endorser peer, which validates and endorses EVM
 # transactions before they are committed through Fabric-X.
 # ---------------------------------------------------------------------------
-{% set evm_gateway_user = organization.users | first %}
 endorser:
   # Label for the embedded endorser.
   name: {{ evm_endorser_name }}
@@ -11,7 +10,7 @@ endorser:
     # MSP ID identifying the organization.
     msp-id: {{ organization.name }}MSP
     # User identity backing the embedded endorser.
-    msp-dir: {{ evm_container_config_dir }}/users/{{ evm_gateway_user.name }}@{{ organization.domain }}/msp
+    msp-dir: {{ evm_container_config_dir }}/users/{{ organization.user.name }}@{{ organization.domain }}/msp
   committer:
     endpoint:
       host: {{ hostvars[sidecar_host].ansible_host }}

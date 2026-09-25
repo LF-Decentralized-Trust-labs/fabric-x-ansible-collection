@@ -83,3 +83,32 @@
   when:
     - current_user.name is defined
     - current_user.secret is defined
+
+- name: Set the single user identity per organization CA
+  vars:
+    fabric_ca_gathered_identity:
+      name: "{{ current_user.name }}"
+      secret: "{{ current_user.secret }}"
+      attrs: "{{ current_user.attrs | default({}) }}"
+      type: "{{ current_user.type | default('client') }}"
+  ansible.builtin.set_fact:
+    fabric_ca_gathered_identities: "{{ fabric_ca_gathered_identities + [fabric_ca_gathered_identity] }}"
+  loop: >-
+    {{
+      groups['all']
+      | map('extract', hostvars)
+      | map('to_json')
+      | map('from_json')
+      | selectattr('organization', 'defined')
+      | map(attribute='organization')
+      | selectattr('domain', 'defined')
+      | selectattr('domain', '==', organization.domain)
+      | selectattr('user', 'defined')
+      | map(attribute='user')
+    }}
+  loop_control:
+    loop_var: current_user
+    label: "{{ organization.domain }}:{{ current_user.name | default('unknown') }}"
+  when:
+    - current_user.name is defined
+    - current_user.secret is defined

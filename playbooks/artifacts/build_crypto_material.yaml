@@ -89,6 +89,36 @@
         loop_var: current_host
         label: "{{ current_host }}"
 
+    - name: Add the single user to the Hyperledger Fabric-X organizations
+      vars:
+        org_domain: "{{ hostvars[current_host].organization.domain }}"
+        org_name: "{{ hostvars[current_host].organization.name }}"
+        users: "{{ [hostvars[current_host].organization.user] }}"
+      ansible.builtin.set_fact:
+        cryptogen_orgs_by_domain: >-
+          {{
+            cryptogen_orgs_by_domain | default({}) | combine({
+              org_domain: {
+                'name': org_name,
+                'domain': org_domain,
+                'nodes': (cryptogen_orgs_by_domain | default({})).get(org_domain, {}).get('nodes', []),
+                'users': (cryptogen_orgs_by_domain | default({})).get(org_domain, {}).get('users', []) + users
+              }
+            })
+          }}
+      loop: >-
+        {{
+          groups['all']
+          | map('extract', hostvars)
+          | selectattr('organization', 'defined')
+          | selectattr('organization.fabric_ca_host', 'undefined')
+          | selectattr('organization.user', 'defined')
+          | map(attribute='inventory_hostname')
+        }}
+      loop_control:
+        loop_var: current_host
+        label: "{{ current_host }}"
+
     - name: Generate crypto-config.yaml
       ansible.builtin.include_role:
         name: hyperledger.fabricx.cryptogen

@@ -19,7 +19,7 @@
     dest: "{{ loadgen_remote_config_dir }}"
 
 # =========================
-# Users MSP
+# User MSP
 # =========================
 - name: Ensure the load-generator users config directory exists
   ansible.builtin.file:
@@ -27,18 +27,14 @@
     state: directory
     mode: "0o755"
   when:
-    - organization.users is defined
+    - organization.user is defined
 
-- name: Transfer the Fabric-X Loadgen users crypto material
+- name: Transfer the Fabric-X Loadgen user crypto material
   ansible.posix.synchronize:
-    src: "{{ cryptogen_artifacts_dir }}/crypto/organizations/{{ organization.domain }}/users/{{ user.name }}@{{ organization.domain }}"
+    src: "{{ cryptogen_artifacts_dir }}/crypto/organizations/{{ organization.domain }}/users/{{ organization.user.name }}@{{ organization.domain }}"
     dest: "{{ loadgen_remote_config_dir }}/users"
-  loop: "{{ organization.users }}"
-  loop_control:
-    label: "{{ user.name }}"
-    loop_var: user
   when:
-    - organization.users is defined
+    - organization.user is defined
 
 # =========================
 # TLS

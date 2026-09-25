@@ -168,7 +168,8 @@ argument_specs:
         description:
           - "Maps namespace IDs to the fingerprint computed by C(namespace/inspect) for each namespace's declared policy."
           - "Example: C({'payments': 'a1b2c3'})."
-      fxconfig_namespace_fingerprints_to_record: &fxconfig_namespace_fingerprints_to_record
+      fxconfig_namespace_fingerprints_to_record:
+        &fxconfig_namespace_fingerprints_to_record
         type: dict
         required: true
         description:
@@ -542,7 +543,7 @@ argument_specs:
   get_endorser:
     short_description: Resolve the namespace endorser user
     description:
-      - "Selects the preferred endorser from C(organization.users) for namespace transaction endorsement and stores it in C(fxconfig_endorser_user)."
+      - "Selects the namespace endorser and stores it in C(fxconfig_endorser_user): C(organization.user) if declared, otherwise the C(organization.users) entry flagged C(endorser: true), otherwise the first entry in C(organization.users)."
     options:
       organization:
         <<: *organization

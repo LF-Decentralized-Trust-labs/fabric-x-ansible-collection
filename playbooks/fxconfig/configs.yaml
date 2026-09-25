@@ -27,7 +27,7 @@
       when:
         - organization is defined
         - organization.namespaces is defined
-        - organization.users is defined
+        - organization.user is defined or organization.users is defined
       block:
         - name: Get the endorser user
           ansible.builtin.include_role:
