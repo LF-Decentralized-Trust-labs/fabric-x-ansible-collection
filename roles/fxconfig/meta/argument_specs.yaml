@@ -96,7 +96,7 @@ argument_specs:
           - "Example: C(/tmp/fabricx/config-build/fxconfig-artifacts/mychannel/endorsed)."
       fxconfig_git_commit: &fxconfig_git_commit
         type: str
-        default: "v1.0.0"
+        default: "v1.0.2"
         description:
           - "Selects the Git ref used by build and install workflows."
       fxconfig_git_hub_url: &fxconfig_git_hub_url
@@ -128,7 +128,7 @@ argument_specs:
           - "Defines the image name used by the fxconfig container image."
       fxconfig_image_tag: &fxconfig_image_tag
         type: str
-        default: "1.0.0"
+        default: "1.0.2"
         description:
           - "Defines the image tag used by the fxconfig container image."
       fxconfig_log_format: &fxconfig_log_format
@@ -146,7 +146,7 @@ argument_specs:
         required: true
         description:
           - "Defines the source MSP directory copied into the fxconfig configuration directory."
-          - "Example: C(/opt/hyperledger/fabricx/crypto/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp)."
+          - "Example: C(/opt/hyperledger/fabricx/crypto/organizations/org1.example.com/users/User1@org1.example.com/msp)."
       fxconfig_msp_id: &fxconfig_msp_id
         type: str
         default: "{{ organization.name }}MSP"
@@ -168,7 +168,8 @@ argument_specs:
         description:
           - "Maps namespace IDs to the fingerprint computed by C(namespace/inspect) for each namespace's declared policy."
           - "Example: C({'payments': 'a1b2c3'})."
-      fxconfig_namespace_fingerprints_to_record: &fxconfig_namespace_fingerprints_to_record
+      fxconfig_namespace_fingerprints_to_record:
+        &fxconfig_namespace_fingerprints_to_record
         type: dict
         required: true
         description:
@@ -185,7 +186,7 @@ argument_specs:
         required: true
         description:
           - "Defines the namespace endorsement policy."
-          - "Example: C(threshold:/tmp/fabricx/config-build/crypto/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/User1@org1.example.com-cert.pem)."
+          - "Example: C(threshold:/tmp/fabricx/config-build/crypto/organizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/User1@org1.example.com-cert.pem)."
       fxconfig_namespace_version: &fxconfig_namespace_version
         type: int
         required: true
@@ -243,7 +244,7 @@ argument_specs:
         type: dict
         description:
           - "Provides organization metadata used by tasks that read C(organization.*), including names, users, domains, and namespace declarations."
-          - "Example: C({'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'users': [{'name': 'endorser', 'cert': '/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp/signcerts/cert.pem'}], 'namespaces': [{'id': 'payments', 'policy': 'threshold'}]})."
+          - "Example: C({'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'users': [{'name': 'endorser', 'cert': '/tmp/fabricx/crypto-config/organizations/org1.example.com/users/Admin@org1.example.com/msp/signcerts/cert.pem'}], 'namespaces': [{'id': 'payments', 'policy': 'threshold'}]})."
       orderer_router_host: &orderer_router_host
         type: str
         required: true
@@ -542,7 +543,7 @@ argument_specs:
   get_endorser:
     short_description: Resolve the namespace endorser user
     description:
-      - "Selects the preferred endorser from C(organization.users) for namespace transaction endorsement and stores it in C(fxconfig_endorser_user)."
+      - "Selects the namespace endorser and stores it in C(fxconfig_endorser_user): C(organization.user) if declared, otherwise the C(organization.users) entry flagged C(endorser: true), otherwise the first entry in C(organization.users)."
     options:
       organization:
         <<: *organization

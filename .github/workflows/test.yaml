@@ -27,6 +27,7 @@ jobs:
           - inventory: "fabric-x-cryptogen"
           - inventory: "fabric-x-no-tls"
           - inventory: "fabric-x-no-mtls"
+          - inventory: "fabric-x-vault"
       fail-fast: false
 
     steps:
@@ -80,6 +81,18 @@ jobs:
           ANSIBLE_CACHE_PLUGIN_CONNECTION: /tmp/ansible_fact_cache
         run: |
           make install install-remote-node-deps
+
+      # fabric-x-vault.yaml encrypts its credentials with Ansible Vault; provide the
+      # tutorial's documented demo password so this and later steps can decrypt
+      # them. ANSIBLE_VAULT_PASSWORD_FILE is exported to GITHUB_ENV (not set in
+      # examples/ansible.cfg) so it only applies to this matrix job and never
+      # affects the other, non-Vaulted inventories tested alongside it.
+      - name: Configure the Ansible Vault password for the fabric-x-vault inventory
+        if: matrix.inventory == 'fabric-x-vault'
+        run: |
+          echo -n 'fabricx-vault-demo' > .vault_pass
+          chmod 600 .vault_pass
+          echo "ANSIBLE_VAULT_PASSWORD_FILE=${{ github.workspace }}/.vault_pass" >> "$GITHUB_ENV"
 
       # Run the Hyperledger Fabric-X inventory
       - name: Test the (${{ matrix.inventory }}) inventory

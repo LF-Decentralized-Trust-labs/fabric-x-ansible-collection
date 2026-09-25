@@ -1,0 +1,50 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# server.crt is the chain a TLS handshake actually sends, so unlike ca.crt the order here is
+# mandatory: the leaf first, then its issuers upward. The self-signed root is deliberately left
+# out, since a client that doesn't already trust it gains nothing from having it re-served to
+# them. Skipped entirely when there is nothing to append.
+- name: Build the TLS server certificate chain
+  when:
+    - fabric_ca_client_tls_intermediate_certs.files | length > 0
+  block:
+    - name: Create the TLS server certificate chain directory
+      ansible.builtin.file:
+        path: "{{ fabric_ca_msp_dir }}/tls-server-chain"
+        state: directory
+        mode: "0750"
+
+    - name: Copy the leaf certificate to the TLS server certificate chain
+      ansible.builtin.copy:
+        src: "{{ fabric_ca_msp_dir }}/{{ fabric_ca_cryptogenize_tls_cert_file }}"
+        dest: "{{ fabric_ca_msp_dir }}/tls-server-chain/00-leaf.pem"
+        mode: "0644"
+        remote_src: true
+
+    - name: Copy the intermediate certificates to the TLS server certificate chain
+      ansible.builtin.copy:
+        src: "{{ current_tls_intermediate_cert.path }}"
+        dest: "{{ fabric_ca_msp_dir }}/tls-server-chain/01-intermediate-{{ current_tls_intermediate_cert.path | basename }}"
+        mode: "0644"
+        remote_src: true
+      loop: "{{ fabric_ca_client_tls_intermediate_certs.files }}"
+      loop_control:
+        loop_var: current_tls_intermediate_cert
+        label: "{{ current_tls_intermediate_cert.path | basename }}"
+
+    - name: Assemble the TLS server certificate chain
+      ansible.builtin.assemble:
+        src: "{{ fabric_ca_msp_dir }}/tls-server-chain"
+        dest: "{{ fabric_ca_msp_dir }}/{{ fabric_ca_cryptogenize_tls_cert_file }}"
+        mode: "0644"
+
+    # Same reasoning as the TLS CA certificate chain directory: scratch space only, removed so
+    # it can't leave a stale intermediate behind for a future CA change.
+    - name: Remove the TLS server certificate chain directory
+      ansible.builtin.file:
+        path: "{{ fabric_ca_msp_dir }}/tls-server-chain"
+        state: absent

@@ -4,35 +4,31 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Determine if the current organization is an orderer organization
-  ansible.builtin.set_fact:
-    fabric_ca_orderer_organization: >-
-      {{
-        groups['all']
-        | map('extract', hostvars)
-        | selectattr('organization', 'defined')
-        | selectattr('organization.domain', '==', organization.domain)
-        | selectattr('organization.role', 'defined')
-        | selectattr('organization.role', '==', 'orderer')
-        | length > 0
-      }}
-
 - name: Set the MSP folder
-  vars:
-    org_dir: >-
-      {{
-        'ordererOrganizations'
-        if fabric_ca_orderer_organization is defined and fabric_ca_orderer_organization
-        else 'peerOrganizations'
-      }}
   ansible.builtin.set_fact:
-    fabric_ca_org_dir: "{{ fetched_artifacts_dir }}/crypto/{{ org_dir }}/{{ organization.domain }}"
+    fabric_ca_org_dir: "{{ fetched_artifacts_dir }}/crypto/organizations/{{ organization.domain }}"
 
+# A self-signed Fabric CA is itself the trust anchor, so its certificate goes straight into cacerts.
 - name: Fetch the CA certificate
   ansible.builtin.fetch:
     src: "{{ fabric_ca_server_remote_config_dir }}/{{ fabric_ca_server_ca_cert_file }}"
     dest: "{{ fabric_ca_org_dir }}/msp/cacerts/ca.{{ organization.domain }}-cert.pem"
     flat: true
+  when: not fabric_ca_is_intermediate_ca
+
+- name: Fetch the root and intermediate CA certificates
+  when: fabric_ca_is_intermediate_ca
+  block:
+    - name: Fetch the root CA certificate
+      ansible.builtin.fetch:
+        src: "{{ fabric_ca_server_remote_config_dir }}/ca.crt"
+        dest: "{{ fabric_ca_org_dir }}/msp/cacerts/ca.{{ organization.domain }}-cert.pem"
+        flat: true
+    - name: Fetch the intermediate CA certificate
+      ansible.builtin.fetch:
+        src: "{{ fabric_ca_server_remote_config_dir }}/{{ fabric_ca_server_ca_cert_file }}"
+        dest: "{{ fabric_ca_org_dir }}/msp/intermediatecerts/ca.{{ organization.domain }}-cert.pem"
+        flat: true
 
 - name: Fetch the TLS CA certificate
   ansible.builtin.fetch:

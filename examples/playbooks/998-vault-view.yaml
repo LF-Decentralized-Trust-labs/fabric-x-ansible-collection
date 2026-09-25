@@ -1,0 +1,28 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# Ansible only decrypts a Vault-protected value when a task or template
+# actually reads it; `ansible-inventory` leaves it wrapped and encrypted, and
+# `ansible-vault view` only works on a whole-file-encrypted file, not on an
+# inventory with inline `!vault` blocks like fabric-x-vault.yaml. Reading a
+# host's variables through this play's Jinja templating is what forces the
+# decryption, so the values printed below are the real, decrypted ones.
+
+- name: Print host variable(s), decrypted
+  hosts: "{{ target_hosts | default('all') }}"
+  gather_facts: false
+  vars:
+    vault_var_name: "{{ vault_var_name | default('') }}"
+  tasks:
+    - name: Show a single variable
+      ansible.builtin.debug:
+        var: hostvars[inventory_hostname][vault_var_name]
+      when: vault_var_name | length > 0
+
+    - name: Show every variable
+      ansible.builtin.debug:
+        var: hostvars[inventory_hostname]
+      when: vault_var_name | length == 0

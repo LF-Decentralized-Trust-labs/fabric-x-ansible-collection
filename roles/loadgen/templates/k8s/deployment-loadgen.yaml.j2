@@ -68,24 +68,22 @@ spec:
               mountPath: {{ loadgen_container_config_dir }}/msp/config.yaml
               subPath: msp-config.yaml
               readOnly: true
-{% if organization.users is defined %}
-{% for user in organization.users %}
-            # MSP private signing key for user {{ user.name }}.
+{% if organization.user is defined %}
+            # MSP private signing key for user {{ organization.user.name }}.
             - name: secret
-              mountPath: {{ loadgen_container_config_dir }}/users/{{ user.name }}@{{ organization.domain }}/msp/keystore/priv_sk
-              subPath: user-{{ user.name }}-msp-keystore-priv-sk
+              mountPath: {{ loadgen_container_config_dir }}/users/{{ organization.user.name }}@{{ organization.domain }}/msp/keystore/priv_sk
+              subPath: user-{{ organization.user.name }}-msp-keystore-priv-sk
               readOnly: true
-            # MSP signing certificate for user {{ user.name }}.
+            # MSP signing certificate for user {{ organization.user.name }}.
             - name: secret
-              mountPath: {{ loadgen_container_config_dir }}/users/{{ user.name }}@{{ organization.domain }}/msp/signcerts/{{ user.name }}@{{ organization.domain }}-cert.pem
-              subPath: user-{{ user.name }}-msp-signcert.pem
+              mountPath: {{ loadgen_container_config_dir }}/users/{{ organization.user.name }}@{{ organization.domain }}/msp/signcerts/{{ organization.user.name }}@{{ organization.domain }}-cert.pem
+              subPath: user-{{ organization.user.name }}-msp-signcert.pem
               readOnly: true
-            # MSP CA certificate for user {{ user.name }}.
+            # MSP CA certificate for user {{ organization.user.name }}.
             - name: secret
-              mountPath: {{ loadgen_container_config_dir }}/users/{{ user.name }}@{{ organization.domain }}/msp/cacerts/ca.{{ organization.domain }}-cert.pem
-              subPath: user-{{ user.name }}-msp-cacert.pem
+              mountPath: {{ loadgen_container_config_dir }}/users/{{ organization.user.name }}@{{ organization.domain }}/msp/cacerts/ca.{{ organization.domain }}-cert.pem
+              subPath: user-{{ organization.user.name }}-msp-cacert.pem
               readOnly: true
-{% endfor %}
 {% endif %}
 {% if loadgen_use_tls or loadgen_monitoring_use_tls %}
             # TLS private key.

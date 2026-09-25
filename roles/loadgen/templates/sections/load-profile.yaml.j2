@@ -2,9 +2,6 @@
 # Load profile configuration defining transaction characteristics and generation parameters
 # ---------------------------------------------------------------------------
 load-profile:
-  key:
-    # Size of generated keys in bytes. Affects transaction payload size and storage requirements.
-    size: {{ loadgen_key_size | default(32) }}
   # Random seed for reproducible transaction generation. Same seed produces same transaction sequence.
   seed: {{ loadgen_tx_seed | default(12345) }}
   # Number of worker goroutines for parallel transaction generation.
@@ -32,32 +29,41 @@ load-profile:
   #   - read-only: Reads a key without writing (version is nil).
   #   - read-write: Reads and writes a key (read version is nil).
   #   - blind-write (write-count): Writes a key without reading it first.
-  # The count for each type is specified using a distribution (see below).
-  # Supported distributions:
-  #   const: N                          - Exactly N operations.
-  #   uniform: {min: M, max: N}         - Uniformly distributed between M and N.
-  #   normal: {mean: M, std: S}         - Normal distribution with mean M and std S.
-  #   bernoulli: P                      - 1 with probability P, 0 otherwise.
-  #   discrete: [{value: V, probability: P}, ...] - Discrete distribution.
   transaction:
+    # Size of generated keys in bytes. Affects transaction payload size and storage requirements.
+    key-size: {{ loadgen_key_size | default(32) }}
 {% if loadgen_generate_read_only_tx | default(false) %}
     # Number of read-only operations per transaction.
-    read-only-count:
-      const: {{ loadgen_read_only_tx_keys | default(2) }}
+    read-only-count: {{ loadgen_read_only_tx_keys | default(2) }}
 {% endif %}
 {% if loadgen_generate_write_only_tx | default(false) %}
     # Number of blind-write operations per transaction.
-    write-count:
-      const: {{ loadgen_write_only_tx_keys | default(2) }}
+    write-count: {{ loadgen_write_only_tx_keys | default(2) }}
     # Size in bytes of the value written for each blind-write operation (0 means nil value).
     blind-write-value-size: {{ loadgen_write_only_tx_val_size | default(32) }}
 {% endif %}
 {% if loadgen_generate_read_write_tx | default(true) %}
     # Number of read-write operations per transaction.
-    read-write-count:
-      const: {{ loadgen_read_write_tx_keys | default(2) }}
+    read-write-count: {{ loadgen_read_write_tx_keys | default(2) }}
     # Size in bytes of the value written for each read-write operation (0 means nil value).
     read-write-value-size: {{ loadgen_read_write_tx_val_size | default(32) }}
+{% endif %}
+{% if loadgen_invalid_signatures_rate is defined %}
+    # Fraction of transactions to generate with invalid signatures (0.0 to 1.0).
+    invalid-signatures: {{ loadgen_invalid_signatures_rate }}
+{% endif %}
+{% if loadgen_key_backref_rate is defined %}
+    # Fraction of transactions whose keys back-reference an earlier transaction.
+    key-backref-rate: {{ loadgen_key_backref_rate }}
+{% endif %}
+{% if loadgen_tx_reference_gap is defined %}
+    # Distance, in transaction count, between a transaction and the earlier one
+    # it back-references.
+    tx-reference-gap: {{ loadgen_tx_reference_gap }}
+{% endif %}
+{% if loadgen_key_lookback_window is defined %}
+    # Number of prior transactions eligible as a back-reference source.
+    key-lookback-window: {{ loadgen_key_lookback_window }}
 {% endif %}
   # Policy configuration for transaction endorsement and validation
   policy:
@@ -83,11 +89,10 @@ load-profile:
           scheme: {{ loadgen_key_scheme | default('ECDSA') }}
           # How to find/generate the signature keys.
           key-path:
-{% set namespace_user = (organization.users | first) %}
             # Path to the signing key.
-            signing-key: {{ loadgen_config_dir }}/users/{{ namespace_user.name }}@{{ organization.domain }}/msp/keystore/priv_sk
+            signing-key: {{ loadgen_config_dir }}/users/{{ organization.user.name }}@{{ organization.domain }}/msp/keystore/priv_sk
             # Path to the signing certificate.
-            sign-certificate: {{ loadgen_config_dir }}/users/{{ namespace_user.name }}@{{ organization.domain }}/msp/signcerts/{{ namespace_user.name }}@{{ organization.domain }}-cert.pem
+            sign-certificate: {{ loadgen_config_dir }}/users/{{ organization.user.name }}@{{ organization.domain }}/msp/signcerts/{{ organization.user.name }}@{{ organization.domain }}-cert.pem
 {% endfor %}
 {% endif %}
 {% if loadgen_generate_config_block %}
@@ -113,31 +118,4 @@ load-profile:
     # If Shuffle=false, the valid keys will be placed first.
     # Otherwise, they will be shuffled.
     shuffle: {{ loadgen_query_settings.shuffle | default(false) | bool | lower }}
-{% endif %}
-{% if loadgen_conflicts_settings is defined %}
-  # Conflict and error injection configuration for testing system resilience.
-  conflicts:
-    # Fraction of transactions to generate with invalid signatures (0.0 to 1.0).
-    # Used to test signature verification and error handling. 0.1 = 10% invalid.
-    invalid-signatures: {{ loadgen_conflicts_settings.invalid_signatures | default(0) }}
-{% if loadgen_conflicts_settings.dependencies is defined %}
-    # Dependencies inject read-write conflicts between transactions to test MVCC validation.
-    # Each dependency type is an independent Bernoulli trial applied per transaction.
-    # 'src' and 'dst' specify the operation types that create the dependency:
-    #   "read", "write", or "read-write" (both read and write the same key).
-    # 'gap' controls the distance (in transaction count) between dependent transactions.
-    dependencies:
-{% for dependency in loadgen_conflicts_settings.dependencies %}
-      # 0.05 -> 5% of transactions will have this dependency
-      - probability: {{ dependency.probability | default(0) }}
-        # Source transaction reads and writes a key
-        src: {{ dependency.src | default('read-write') }}
-        # Destination transaction reads and writes the same key
-        dst: {{ dependency.dst | default('read-write') }}
-        # Gap is the distance between the dependent TXs
-        gap:
-          # Dependent transaction is the immediately next one
-          const: {{ dependency.gap | default(500) }}
-{% endfor %}
-{% endif %}
 {% endif %}

@@ -16,7 +16,7 @@
         mode: "0o755"
     - name: Copy TLS CA certificate of Fabric CA
       ansible.builtin.copy:
-        src: "{{ fetched_artifacts_dir }}/crypto/peerOrganizations/{{ organization.domain }}/msp/tlscacerts/tlsca.{{ organization.domain }}-cert.pem"
+        src: "{{ fetched_artifacts_dir }}/crypto/organizations/{{ organization.domain }}/msp/tlscacerts/tlsca.{{ organization.domain }}-cert.pem"
         dest: "{{ loadgen_remote_config_dir }}/tlscacerts"
         mode: "preserve"
 
@@ -40,33 +40,29 @@
     tasks_from: client/enroll
 
 # =========================
-# Users MSP
+# User MSP
 # =========================
 - name: Generate Hyperledger Fabric-X Load generator MSP user crypto material
   vars:
     fabric_ca_host: "{{ organization.fabric_ca_host }}"
     fabric_ca_use_tls: "{{ hostvars[organization.fabric_ca_host].fabric_ca_use_tls | default(false) }}"
     fabric_ca_name: "{{ hostvars[organization.fabric_ca_host].fabric_ca_name }}"
-    fabric_ca_msp_dir: "{{ loadgen_remote_config_dir }}/users/{{ current_user.name }}@{{ organization.domain }}/msp"
-    fabric_ca_cryptogenize_msp_signcert_file: "signcerts/{{ current_user.name }}@{{ organization.domain }}-cert.pem"
+    fabric_ca_msp_dir: "{{ loadgen_remote_config_dir }}/users/{{ organization.user.name }}@{{ organization.domain }}/msp"
+    fabric_ca_cryptogenize_msp_signcert_file: "signcerts/{{ organization.user.name }}@{{ organization.domain }}-cert.pem"
     fabric_ca_tls_certfile: "{{ loadgen_remote_config_dir }}/tlscacerts/tlsca.{{ organization.domain }}-cert.pem"
     fabric_ca_csr_hosts:
       - "{{ inventory_hostname }}"
       - "{{ ansible_host }}"
       - "{{ actual_host }}"
-      - "{{ current_user.name }}"
+      - "{{ organization.user.name }}"
     fabric_ca_identity:
-      name: "{{ current_user.name }}"
-      secret: "{{ current_user.secret }}"
+      name: "{{ organization.user.name }}"
+      secret: "{{ organization.user.secret }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: client/enroll
-  loop: "{{ organization.users }}"
-  loop_control:
-    loop_var: current_user
-    label: "{{ organization.domain }}:{{ current_user.name }}"
   when:
-    - organization.users is defined
+    - organization.user is defined
 
 # =========================
 # TLS

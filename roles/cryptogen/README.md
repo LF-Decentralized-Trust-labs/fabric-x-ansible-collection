@@ -1,6 +1,6 @@
 # hyperledger.fabricx.cryptogen
 
-> Renders cryptogen configuration, generates Fabric-X crypto material, and fetches MSP artifacts for orderer and peer organizations.
+> Renders cryptogen configuration, generates Fabric-X crypto material, and fetches MSP artifacts for organizations that can own both orderer and peer nodes.
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -58,7 +58,7 @@ Inspect the existing crypto material, then run cryptogen only for the components
 
 > Detect missing or changed cryptogen components
 
-Read back the rendered `crypto-config.yaml` and the persisted state file, then determine which orderer, peer, and user components are missing from `cryptogen_output_dir` or have a spec (Common Name, SANS, key algorithm) that no longer matches the one recorded for them. Publishes `cryptogen_expected_components` and `cryptogen_must_run`, plus `cryptogen_drifted_components` when a previous state file exists, as facts for the rest of the role to consume. A component already on disk with no recorded fingerprint is treated as adopted rather than drifted, so an existing network is recognized without being regenerated.
+Read back the rendered `crypto-config.yaml` and the persisted state file, then determine which orderer, peer, and user components are missing from `cryptogen_output_dir` or have a spec (Common Name, SANS, key algorithm, or administrator status) that no longer matches the one recorded for them. Publishes `cryptogen_expected_components` and `cryptogen_must_run`, plus `cryptogen_drifted_components` when a previous state file exists, as facts for the rest of the role to consume. A component already on disk with no recorded fingerprint is treated as adopted rather than drifted, so an existing network is recognized without being regenerated.
 
 ```yaml
 - name: Detect missing or changed cryptogen components
@@ -82,7 +82,7 @@ Read back the rendered `crypto-config.yaml` and the persisted state file, then d
 
 > Fetch generated MSP directories
 
-Copy generated MSP directories for orderer and peer organizations into the fetched artifacts directory. The role mirrors each organization MSP subtree from `cryptogen_output_dir` into `{{ fetched_artifacts_dir }}/crypto/ordererOrganizations` and `{{ fetched_artifacts_dir }}/crypto/peerOrganizations`. Run this after crypto material has already been generated so downstream roles can consume the fetched artifacts.
+Copy generated MSP directories for every organization into the fetched artifacts directory. The role mirrors each organization MSP subtree from `cryptogen_output_dir` into `{{ fetched_artifacts_dir }}/crypto/organizations`. Run this after crypto material has already been generated so downstream roles can consume the fetched artifacts.
 
 ```yaml
 - name: Fetch generated MSP directories
@@ -95,10 +95,8 @@ Copy generated MSP directories for orderer and peer organizations into the fetch
     fetched_artifacts_dir: "/opt/hyperledger/fabricx/build/fetched-artifacts"
     # Sets the directory where cryptogen writes generated crypto material.
     cryptogen_output_dir: "{{ cryptogen_artifacts_dir }}/crypto"
-    # Maps orderer organization domains to their organization definitions.
-    cryptogen_orderers_by_org: {}
-    # Maps peer organization domains to their organization definitions.
-    cryptogen_peers_by_org: {}
+    # Maps organization domains to their organization definitions, each node carrying its own organizational unit (orderer or peer). Users default to client identities; setting `type: admin` generates an administrator identity.
+    cryptogen_orgs_by_domain: {}
   ansible.builtin.include_role:
     name: hyperledger.fabricx.cryptogen
     tasks_from: fetch
@@ -108,7 +106,7 @@ Copy generated MSP directories for orderer and peer organizations into the fetch
 
 > Build the cryptogen configuration file
 
-Render `crypto-config.yaml` for the cryptogen CLI. This entry point gathers host IPv4 facts for referenced orderer and peer hosts before templating `{{ cryptogen_artifacts_dir }}/{{ cryptogen_config_file }}`. The rendered file captures the Fabric-X organization layout that cryptogen uses to generate orderer and peer MSP and TLS material.
+Render `crypto-config.yaml` for the cryptogen CLI. This entry point gathers host IPv4 facts for every referenced node before templating `{{ cryptogen_artifacts_dir }}/{{ cryptogen_config_file }}`. The rendered file captures the Fabric-X organization layout, as a single `GenericOrgs` list, that cryptogen uses to generate orderer and peer MSP and TLS material.
 
 ```yaml
 - name: Build the cryptogen configuration file
@@ -119,10 +117,8 @@ Render `crypto-config.yaml` for the cryptogen CLI. This entry point gathers host
     cryptogen_artifacts_dir: "{{ config_build_dir }}/cryptogen-artifacts"
     # Sets the cryptogen configuration filename.
     cryptogen_config_file: crypto-config.yaml
-    # Maps orderer organization domains to their organization definitions.
-    cryptogen_orderers_by_org: {}
-    # Maps peer organization domains to their organization definitions.
-    cryptogen_peers_by_org: {}
+    # Maps organization domains to their organization definitions, each node carrying its own organizational unit (orderer or peer). Users default to client identities; setting `type: admin` generates an administrator identity.
+    cryptogen_orgs_by_domain: {}
   ansible.builtin.include_role:
     name: hyperledger.fabricx.cryptogen
     tasks_from: config/build
@@ -148,7 +144,7 @@ Clean the output directory and run the cryptogen CLI in a container. The contain
     # Sets the cryptogen image name.
     cryptogen_image_name: fabric-x-tools
     # Sets the cryptogen image tag.
-    cryptogen_image_tag: 1.0.0
+    cryptogen_image_tag: 1.0.2
     # Sets the full cryptogen image reference.
     cryptogen_image: "{{ cryptogen_registry_endpoint }}/{{ cryptogen_image_name }}:{{ cryptogen_image_tag }}"
     # Sets the container name used for the cryptogen run.
@@ -184,7 +180,7 @@ Install the cryptogen binary through `hyperledger.fabricx.bin`. This entry point
     # Sets the cryptogen source repository path.
     cryptogen_git_repo: hyperledger/fabric-x
     # Pins the cryptogen source revision.
-    cryptogen_git_commit: v1.0.0
+    cryptogen_git_commit: v1.0.2
     # Sets the Go package path that contains the cryptogen source.
     cryptogen_source_code_package: tools/cryptogen
     # Sets the Go package path used to install cryptogen.
@@ -212,7 +208,7 @@ Build the cryptogen binary from the configured source repository through `hyperl
     # Sets the cryptogen source repository path.
     cryptogen_git_repo: hyperledger/fabric-x
     # Pins the cryptogen source revision.
-    cryptogen_git_commit: v1.0.0
+    cryptogen_git_commit: v1.0.2
     # Sets the Go package path that contains the cryptogen source.
     cryptogen_source_code_package: tools/cryptogen
   ansible.builtin.include_role:

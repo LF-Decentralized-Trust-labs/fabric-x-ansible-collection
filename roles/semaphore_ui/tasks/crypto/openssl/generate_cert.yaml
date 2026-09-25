@@ -11,4 +11,4 @@
     openssl_cert_path: "{{ semaphore_ui_remote_config_dir }}/tls/{{ semaphore_ui_tls_cert_file }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.openssl
-    tasks_from: generate_self_signed_cert
+    tasks_from: generate_signed_cert

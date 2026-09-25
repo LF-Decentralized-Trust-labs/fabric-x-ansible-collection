@@ -9,8 +9,8 @@ endorser:
   identity:
     # MSP ID identifying the organization.
     msp-id: {{ organization.name }}MSP
-    # Peer identity backing the embedded endorser.
-    msp-dir: {{ evm_container_config_dir }}/msp
+    # User identity backing the embedded endorser.
+    msp-dir: {{ evm_container_config_dir }}/users/{{ organization.user.name }}@{{ organization.domain }}/msp
   committer:
     endpoint:
       host: {{ hostvars[sidecar_host].ansible_host }}

@@ -8,6 +8,7 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: client/bin/identity_list
+  when: not fabric_ca_use_prelisted_identities
 
 - name: Check if identity is already registered
   ansible.builtin.set_fact:

@@ -4,37 +4,42 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-{% if cryptogen_orderers_by_org.items() | length > 0 %}
+{% if cryptogen_orgs_by_domain.items() | length > 0 %}
 # ---------------------------------------------------------------------------
-# "OrdererOrgs" - Definition of organizations managing orderer nodes
+# "GenericOrgs" - Definition of organizations managing any organizational unit.
+# Each node's organizational unit (OU) is set explicitly, allowing a single
+# organization to own both orderer and peer nodes.
 # ---------------------------------------------------------------------------
-OrdererOrgs:
-{% for orderer_org_domain, orderer_org_info in cryptogen_orderers_by_org.items() %}
+GenericOrgs:
+{% for org_domain, org_info in cryptogen_orgs_by_domain.items() %}
   # ---------------------------------------------------------------------------
-  # {{ orderer_org_info.name }}
+  # {{ org_info.name }}
   # ---------------------------------------------------------------------------
-  - Name: {{ orderer_org_info.name }}
-    Domain: {{ orderer_org_info.domain }}
+  - Name: {{ org_info.name }}
+    Domain: {{ org_info.domain }}
     EnableNodeOUs: true
-{% if orderer_org_info.orderers is defined and orderer_org_info.orderers | length > 0 %}
+{% if org_info.nodes is defined and org_info.nodes | length > 0 %}
     # ---------------------------------------------------------------------------
     # "Specs"
     # ---------------------------------------------------------------------------
-    # Specs is an array of Spec entries.  Each Spec entry consists of two fields:
-    #   - Hostname:   (Required) The desired hostname, sans the domain.
-    #   - CommonName: (Optional) Specifies the template or explicit override for
-    #                 the CN.  By default, this is the template:
+    # Specs is an array of Spec entries.  Each Spec entry consists of three fields:
+    #   - Hostname:           (Required) The desired hostname, sans the domain.
+    #   - OrganizationalUnit: (Required) Selects the node's OU ("orderer" or "peer"),
+    #                         which also selects its output subtree.
+    #   - CommonName:         (Optional) Specifies the template or explicit override
+    #                         for the CN.  By default, this is the template:
     #
     #                              "Hostname.Domain"
     #
-    #                 which obtains its values from the Spec.Hostname and
-    #                 Org.Domain, respectively.
+    #                         which obtains its values from the Spec.Hostname and
+    #                         Org.Domain, respectively.
     Specs:
-{% for orderer in orderer_org_info.orderers %}
-      - Hostname: {{ hostvars[orderer.name].organization.orderer.name | default(orderer.name) }}
+{% for node in org_info.nodes %}
+      - Hostname: {{ hostvars[node.name].organization[node.ou].name | default(node.name) }}
+        OrganizationalUnit: {{ node.ou }}
         SANS:
-{% for orderer_ip in (hostvars[orderer.name].ansible_facts.all_ipv4_addresses | sort) %}
-          - {{ orderer_ip }}
+{% for node_ip in (hostvars[node.name].ansible_facts.all_ipv4_addresses | sort) %}
+          - {{ node_ip }}
 {% endfor %}
           - {{ hostvars[orderer.name].ansible_host }}
           - {{ hostvars[orderer.name].actual_host }}
@@ -130,8 +135,8 @@ PeerOrgs:
 {% endfor %}
           - {{ hostvars[peer.name].ansible_host }}
           - {{ hostvars[peer.name].actual_host }}
-{% if hostvars[peer.name].organization.peer.additional_sans is defined %}
-{% for additional_san in hostvars[peer.name].organization.peer.additional_sans %}
+{% if hostvars[node.name].organization[node.ou].additional_sans is defined %}
+{% for additional_san in hostvars[node.name].organization[node.ou].additional_sans %}
           - {{ additional_san }}
 {% endfor %}
 {% endif %}
@@ -144,18 +149,21 @@ PeerOrgs:
     Users:
       # Count: The number of user accounts _in addition_ to Admin
       Count: 1
-{% if peer_org_info.users is defined and peer_org_info.users | length > 0 %}
+{% if org_info.users is defined and org_info.users | length > 0 %}
       # ---------------------------------------------------------------------------
       # "Specs"
       # ---------------------------------------------------------------------------
       # Specs is an array of Spec entries.  Each Spec entry consists of two fields:
-      #   - Name:   (Required) The desired name for the user.
+      #   - Name:  (Required) The desired name for the user.
+      #   - Admin: (Optional) Generates an administrator when true.
       #
       # ---------------------------------------------------------------------------
       Specs:
-{% for user in (peer_org_info.users | unique) %}
+{% for user in (org_info.users | unique) %}
         - Name: {{ user.name }}
-          HSM: false
+{% if user.type | default('client') == 'admin' %}
+          Admin: true
+{% endif %}
 {% endfor %}
 {% endif %}
 {% endfor %}

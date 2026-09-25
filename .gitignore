@@ -18,6 +18,7 @@ __pycache__/
 
 # ansible
 .ansible/
+.vault_pass*
 # tests/integration/inventory
 tests/output
 

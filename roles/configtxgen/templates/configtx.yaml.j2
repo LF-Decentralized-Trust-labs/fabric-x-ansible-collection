@@ -14,13 +14,16 @@
 ################################################################################
 ---
 Organizations:
-{% for orderer_org_domain, orderer_org_info in configtxgen_orderers_by_org.items() %}
-  - &{{ orderer_org_info.name }}MSP
+{% for org_domain, org_info in configtxgen_orgs_by_domain.items() %}
+{% set has_orderers = org_info.orderers | default([]) | length > 0 %}
+{% set has_peers = org_info.peers | default([]) | length > 0 %}
+  - &{{ org_info.name }}MSP
     # Name is the key by which this org will be referenced in channel
     # configuration transactions.
     # Name can include alphanumeric characters as well as dots and dashes.
-    Name: {{ orderer_org_info.name }}
+    Name: {{ org_info.name }}
 
+{% if has_orderers %}
     # SkipAsForeign can be set to true for org definitions which are to be
     # inherited from the orderer system channel during channel creation.  This
     # is especially useful when an admin of a single org without access to the
@@ -29,90 +32,72 @@ Organizations:
     # creation.
     SkipAsForeign: false
 
+{% endif %}
     # ID is the key by which this org's MSP definition will be referenced.
     # ID can include alphanumeric charaters as well as dots and dashes.
-    ID: {{ orderer_org_info.name }}MSP
+    ID: {{ org_info.name }}MSP
 
     # MSPDir is the filesystem path which contains the MSP configuration.
-    MSPDir: {{ crypto_artifacts_dir }}/crypto/ordererOrganizations/{{ orderer_org_info.domain }}/msp
+    MSPDir: {{ crypto_artifacts_dir }}/crypto/organizations/{{ org_info.domain }}/msp
 
     # Policies defines the set of policies at this level of the config tree
     # For organization policies, their canonical path is usually
     #   /Channel/<Application|Orderer>/<OrgName>/<PolicyName>
-    Policies: &{{ orderer_org_info.name }}Policies
+    Policies: &{{ org_info.name }}Policies
+{% set msp_id = org_info.name ~ 'MSP' %}
+{% if has_orderers %}
       Readers:
-        Type: Signature
-        Rule: "{{ configtxgen_orderer_org_policies_readers_operator | default('OR') }}('{{ orderer_org_info.name }}MSP.member')"
+        Type: {{ configtxgen_orderer_org_policies_readers_type }}
+        Rule: "{{ configtxgen_orderer_org_policies_readers_rule | replace('{msp_id}', msp_id) }}"
         # If your MSP is configured with the new NodeOUs, you might
         # want to use a more specific rule like the following:
         # Rule: "OR('SampleOrg.admin', 'SampleOrg.peer', 'SampleOrg.client')"
       Writers:
-        Type: Signature
-        Rule: "{{ configtxgen_orderer_org_policies_writers_operator | default('OR') }}('{{ orderer_org_info.name }}MSP.member')"
+        Type: {{ configtxgen_orderer_org_policies_writers_type }}
+        Rule: "{{ configtxgen_orderer_org_policies_writers_rule | replace('{msp_id}', msp_id) }}"
         # If your MSP is configured with the new NodeOUs, you might
         # want to use a more specific rule like the following:
         # Rule: "OR('SampleOrg.admin', 'SampleOrg.client')"
       Admins:
-        Type: Signature
-        Rule: "{{ configtxgen_orderer_org_policies_admins_operator | default('OR') }}('{{ orderer_org_info.name }}MSP.admin')"
+        Type: {{ configtxgen_orderer_org_policies_admins_type }}
+        Rule: "{{ configtxgen_orderer_org_policies_admins_rule | replace('{msp_id}', msp_id) }}"
       Endorsement:
-        Type: Signature
-        Rule: "{{ configtxgen_orderer_org_policies_endorsement_operator | default('OR') }}('{{ orderer_org_info.name }}MSP.member')"
+        Type: {{ configtxgen_orderer_org_policies_endorsement_type }}
+        Rule: "{{ configtxgen_orderer_org_policies_endorsement_rule | replace('{msp_id}', msp_id) }}"
+{% else %}
+      Readers:
+        Type: {{ configtxgen_peer_org_policies_readers_type }}
+        Rule: "{{ configtxgen_peer_org_policies_readers_rule | replace('{msp_id}', msp_id) }}"
+        # If your MSP is configured with the new NodeOUs, you might
+        # want to use a more specific rule like the following:
+        # Rule: "OR('SampleOrg.admin', 'SampleOrg.peer', 'SampleOrg.client')"
+      Writers:
+        Type: {{ configtxgen_peer_org_policies_writers_type }}
+        Rule: "{{ configtxgen_peer_org_policies_writers_rule | replace('{msp_id}', msp_id) }}"
+        # If your MSP is configured with the new NodeOUs, you might
+        # want to use a more specific rule like the following:
+        # Rule: "OR('SampleOrg.admin', 'SampleOrg.client')"
+      Endorsement:
+        Type: {{ configtxgen_peer_org_policies_endorsement_type }}
+        Rule: "{{ configtxgen_peer_org_policies_endorsement_rule | replace('{msp_id}', msp_id) }}"
+      Admins:
+        Type: {{ configtxgen_peer_org_policies_admins_type }}
+        Rule: "{{ configtxgen_peer_org_policies_admins_rule | replace('{msp_id}', msp_id) }}"
+{% endif %}
 
+{% if has_orderers %}
     # OrdererEndpoints is a list of all orderers this org runs which clients
     # and peers may to connect to to push transactions and receive blocks respectively.
     OrdererEndpoints:
-{% for orderer in orderer_org_info.orderers %}
+{% for orderer in org_info.orderers %}
 {% if hostvars[orderer.name].orderer_component_type == 'router' %}
       - id={{ hostvars[orderer.name].orderer_group }},broadcast,{{ hostvars[orderer.name].ansible_host }}:{{ hostvars[orderer.name].orderer_rpc_port }}
 {% elif hostvars[orderer.name].orderer_component_type == 'assembler' %}
       - id={{ hostvars[orderer.name].orderer_group }},deliver,{{ hostvars[orderer.name].ansible_host }}:{{ hostvars[orderer.name].orderer_rpc_port }}
 {% endif %}
 {% endfor %}
-{% endfor %}
-{% for peer_org_domain, peer_org_info in configtxgen_peers_by_org.items() %}
-  - &{{ peer_org_info.name }}MSP
-    # Name is the key by which this org will be referenced in channel
-    # configuration transactions.
-    # Name can include alphanumeric characters as well as dots and dashes.
-    Name: {{ peer_org_info.name }}
-
-    # ID is the key by which this org's MSP definition will be referenced.
-    # ID can include alphanumeric charaters as well as dots and dashes.
-    ID: {{ peer_org_info.name }}MSP
-
-{% if peer_org_info.type is defined and peer_org_info.type == 'idemix' %}
-    # MSPDir is the filesystem path which contains the MSP configuration.
-    MSPDir: {{ crypto_artifacts_dir }}/crypto/peerOrganizations/{{ peer_org_info.domain }}
-    MSPType: {{ peer_org_info.type }}
-{% else %}
-    # MSPDir is the filesystem path which contains the MSP configuration.
-    MSPDir: {{ crypto_artifacts_dir }}/crypto/peerOrganizations/{{ peer_org_info.domain }}/msp
 {% endif %}
-
-    # Policies defines the set of policies at this level of the config tree
-    # For organization policies, their canonical path is usually
-    #   /Channel/<Application|Orderer>/<OrgName>/<PolicyName>
-    Policies: &{{ peer_org_info.name }}Policies
-      Readers:
-        Type: Signature
-        Rule: "{{ configtxgen_peer_org_policies_readers_operator | default('OR') }}('{{ peer_org_info.name }}MSP.member')"
-        # If your MSP is configured with the new NodeOUs, you might
-        # want to use a more specific rule like the following:
-        # Rule: "OR('SampleOrg.admin', 'SampleOrg.peer', 'SampleOrg.client')"
-      Writers:
-        Type: Signature
-        Rule: "{{ configtxgen_peer_org_policies_writers_operator | default('OR') }}('{{ peer_org_info.name }}MSP.member')"
-        # If your MSP is configured with the new NodeOUs, you might
-        # want to use a more specific rule like the following:
-        # Rule: "OR('SampleOrg.admin', 'SampleOrg.client')"
-      Endorsement:
-        Type: Signature
-        Rule: "{{ configtxgen_peer_org_policies_endorsement_operator | default('OR') }}('{{ peer_org_info.name }}MSP.member')"
-      Admins:
-        Type: Signature
-        Rule: "{{ configtxgen_peer_org_policies_admins_operator | default('OR') }}('{{ peer_org_info.name }}MSP.admin')"
-
+{% if has_peers %}
     # AnchorPeers defines the location of peers which can be used for
     # cross-org gossip communication.
     #
@@ -121,12 +106,13 @@ Organizations:
     # to instead use the channel configuration update process to set the
     # anchor peers for each organization.
     AnchorPeers:
-{% for peer in peer_org_info.peers %}
+{% for peer in org_info.peers %}
 {% if hostvars[peer.name].sc_rpc_port is defined %}
       - Host: {{ hostvars[peer.name].ansible_host }}
         Port: {{ hostvars[peer.name].sc_rpc_port }}
 {% endif %}
 {% endfor %}
+{% endif %}
 {% endfor %}
 
 ################################################################################
@@ -152,12 +138,14 @@ Capabilities:
   # Channel capabilities apply to both the orderers and the peers and must be
   # supported by both.
   # Set the value of the capability to true to require it.
-  Channel: &ChannelCapabilities {}
+  Channel: &ChannelCapabilities
+    V2_0: true
 
   # Orderer capabilities apply only to the orderers, and may be safely
   # used with prior release peers.
   # Set the value of the capability to true to require it.
-  Orderer: &OrdererCapabilities {}
+  Orderer: &OrdererCapabilities
+    V2_0: true
 
   # Application capabilities apply only to the peer network, and may be safely
   # used with prior release orderers.
@@ -176,8 +164,10 @@ Application: &ApplicationDefaults
   # Organizations lists the orgs participating on the application side of the
   # network.
   Organizations:
-{% for peer_org_domain, peer_org_info in configtxgen_peers_by_org.items() %}
-    - *{{ peer_org_info.name }}MSP
+{% for org_domain, org_info in configtxgen_orgs_by_domain.items() %}
+{% if org_info.peers | default([]) | length > 0 %}
+    - *{{ org_info.name }}MSP
+{% endif %}
 {% endfor %}
 
   # Policies defines the set of policies at this level of the config tree
@@ -185,24 +175,60 @@ Application: &ApplicationDefaults
   #   /Channel/Application/<PolicyName>
   Policies:
     Readers:
-      Type: ImplicitMeta
-      Rule: "{{ configtxgen_application_policies_readers_operator | default('ANY') }} Readers"
+      Type: {{ configtxgen_application_policies_readers_type }}
+      Rule: "{{ configtxgen_application_policies_readers_rule }}"
     Writers:
-      Type: ImplicitMeta
-      Rule: "{{ configtxgen_application_policies_writers_operator | default('ANY') }} Writers"
+      Type: {{ configtxgen_application_policies_writers_type }}
+      Rule: "{{ configtxgen_application_policies_writers_rule }}"
     Admins:
-      Type: ImplicitMeta
-      Rule: "{{ configtxgen_application_policies_admins_operator | default('MAJORITY') }} Admins"
+      Type: {{ configtxgen_application_policies_admins_type }}
+      Rule: "{{ configtxgen_application_policies_admins_rule }}"
     Endorsement:
-      Type: ImplicitMeta
-      Rule: "{{ configtxgen_application_policies_endorsement_operator | default('MAJORITY') }} Endorsement"
-    LifecycleEndorsement:
-{% if configtxgen_peers_by_org.items() | length > 0 %}
-      Type: Signature
+      Type: {{ configtxgen_application_policies_endorsement_type }}
+      Rule: "{{ configtxgen_application_policies_endorsement_rule }}"
+{% set application_orgs = configtxgen_orgs_by_domain.values() | selectattr('peers', 'defined') | selectattr('peers', '!=', []) | list %}
+    SnapshotEndorsement:
+{% if configtxgen_application_policies_snapshot_endorsement_rule is defined %}
+      Type: {{ configtxgen_application_policies_snapshot_endorsement_type }}
+      Rule: "{{ configtxgen_application_policies_snapshot_endorsement_rule }}"
+{% elif application_orgs | length > 0 %}
+      Type: {{ configtxgen_application_policies_snapshot_endorsement_type }}
       Rule: >
-        OR (
-{% for peer_org_domain, peer_org_info in configtxgen_peers_by_org.items() %}
-        '{{ peer_org_info.name }}MSP.member'{% if not loop.last %},{% endif +%}
+        {{ configtxgen_application_policies_snapshot_endorsement_operator }} (
+{% for org_info in application_orgs %}
+        '{{ org_info.name }}MSP.{{ configtxgen_application_policies_snapshot_endorsement_ou }}'{% if not loop.last %},{% endif +%}
+{% endfor %}
+        )
+{% else %}
+      Type: ImplicitMeta
+      Rule: ANY Admins
+{% endif %}
+    CheckpointEndorsement:
+{% if configtxgen_application_policies_checkpoint_endorsement_rule is defined %}
+      Type: {{ configtxgen_application_policies_checkpoint_endorsement_type }}
+      Rule: "{{ configtxgen_application_policies_checkpoint_endorsement_rule }}"
+{% elif application_orgs | length > 0 %}
+      Type: {{ configtxgen_application_policies_checkpoint_endorsement_type }}
+      Rule: >
+        {{ configtxgen_application_policies_checkpoint_endorsement_operator }} (
+{% for org_info in application_orgs %}
+        '{{ org_info.name }}MSP.{{ configtxgen_application_policies_checkpoint_endorsement_ou }}'{% if not loop.last %},{% endif +%}
+{% endfor %}
+        )
+{% else %}
+      Type: ImplicitMeta
+      Rule: ANY Admins
+{% endif %}
+    LifecycleEndorsement:
+{% if configtxgen_application_policies_lifecycle_endorsement_rule is defined %}
+      Type: {{ configtxgen_application_policies_lifecycle_endorsement_type }}
+      Rule: "{{ configtxgen_application_policies_lifecycle_endorsement_rule }}"
+{% elif application_orgs | length > 0 %}
+      Type: {{ configtxgen_application_policies_lifecycle_endorsement_type }}
+      Rule: >
+        {{ configtxgen_application_policies_lifecycle_endorsement_operator }} (
+{% for org_info in application_orgs %}
+        '{{ org_info.name }}MSP.{{ configtxgen_application_policies_lifecycle_endorsement_ou }}'{% if not loop.last %},{% endif +%}
 {% endfor %}
         )
 {% else %}
@@ -336,16 +362,17 @@ Orderer: &OrdererDefaults
   # org definition) map 1:1 to the Orderer/ConsenterMapping (for cluster consensus). That is, every consenter should
   # be represented by a delivery endpoint. Note that in BFT (V3) global Orderer/Addresses are no longer supported.
   ConsenterMapping:
-{% for orderer_org_domain, orderer_org_info in configtxgen_orderers_by_org.items() %}
-{% for orderer in orderer_org_info.orderers %}
+{% for org_domain, org_info in configtxgen_orgs_by_domain.items() %}
+{% for orderer in org_info.orderers | default([]) %}
 {% if hostvars[orderer.name].orderer_component_type == 'consensus' %}
+{% set orderer_name = hostvars[orderer.name].organization.orderer.name | default(orderer.name) %}
     - ID: {{ hostvars[orderer.name].orderer_group }}
       Host: {{ hostvars[orderer.name].ansible_host }}
       Port: {{ hostvars[orderer.name].orderer_rpc_port }}
-      MSPID: {{ orderer_org_info.name }}MSP
-      Identity: {{ crypto_artifacts_dir }}/crypto/ordererOrganizations/{{ orderer_org_info.domain }}/orderers/{{ hostvars[orderer.name].organization.orderer.name | default(orderer.name) }}.{{ orderer_org_info.domain }}/msp/signcerts/{{ hostvars[orderer.name].organization.orderer.name | default(orderer.name) }}.{{ orderer_org_info.domain }}-cert.pem
-      ClientTLSCert: {{ crypto_artifacts_dir }}/crypto/ordererOrganizations/{{ orderer_org_info.domain }}/orderers/{{ hostvars[orderer.name].organization.orderer.name | default(orderer.name) }}.{{ orderer_org_info.domain }}/tls/server.crt
-      ServerTLSCert: {{ crypto_artifacts_dir }}/crypto/ordererOrganizations/{{ orderer_org_info.domain }}/orderers/{{ hostvars[orderer.name].organization.orderer.name | default(orderer.name) }}.{{ orderer_org_info.domain }}/tls/server.crt
+      MSPID: {{ org_info.name }}MSP
+      Identity: {{ crypto_artifacts_dir }}/crypto/organizations/{{ org_info.domain }}/orderers/{{ orderer_name }}.{{ org_info.domain }}/msp/signcerts/{{ orderer_name }}.{{ org_info.domain }}-cert.pem
+      ClientTLSCert: {{ crypto_artifacts_dir }}/crypto/organizations/{{ org_info.domain }}/orderers/{{ orderer_name }}.{{ org_info.domain }}/tls/server.crt
+      ServerTLSCert: {{ crypto_artifacts_dir }}/crypto/organizations/{{ org_info.domain }}/orderers/{{ orderer_name }}.{{ org_info.domain }}/tls/server.crt
 {% endif %}
 {% endfor %}
 {% endfor %}
@@ -358,8 +385,10 @@ Orderer: &OrdererDefaults
   # Organizations lists the orgs participating on the orderer side of the
   # network.
   Organizations:
-{% for orderer_org_domain, orderer_org_info in configtxgen_orderers_by_org.items() %}
-    - *{{ orderer_org_info.name }}MSP
+{% for org_domain, org_info in configtxgen_orgs_by_domain.items() %}
+{% if org_info.orderers | default([]) | length > 0 %}
+    - *{{ org_info.name }}MSP
+{% endif %}
 {% endfor %}
 
   # Policies defines the set of policies at this level of the config tree
@@ -367,19 +396,19 @@ Orderer: &OrdererDefaults
   #   /Channel/Orderer/<PolicyName>
   Policies:
     Readers:
-      Type: ImplicitMeta
-      Rule: "{{ configtxgen_orderer_policies_readers_operator | default('ANY') }} Readers"
+      Type: {{ configtxgen_orderer_policies_readers_type }}
+      Rule: "{{ configtxgen_orderer_policies_readers_rule }}"
     Writers:
-      Type: ImplicitMeta
-      Rule: "{{ configtxgen_orderer_policies_writers_operator | default('ANY') }} Writers"
+      Type: {{ configtxgen_orderer_policies_writers_type }}
+      Rule: "{{ configtxgen_orderer_policies_writers_rule }}"
     Admins:
-      Type: ImplicitMeta
-      Rule: "{{ configtxgen_orderer_policies_admins_operator | default('MAJORITY') }} Admins"
+      Type: {{ configtxgen_orderer_policies_admins_type }}
+      Rule: "{{ configtxgen_orderer_policies_admins_rule }}"
     # BlockValidation specifies what signatures must be included in the block
     # from the orderer for the peer to validate it.
     BlockValidation:
-      Type: ImplicitMeta
-      Rule: "{{ configtxgen_orderer_policies_block_validation_operator | default('MAJORITY') }} Writers"
+      Type: {{ configtxgen_orderer_policies_block_validation_type }}
+      Rule: "{{ configtxgen_orderer_policies_block_validation_rule }}"
 
   # Capabilities describes the orderer level capabilities, see the
   # dedicated Capabilities section elsewhere in this file for a full
@@ -402,16 +431,16 @@ Channel: &ChannelDefaults
   Policies: &DefaultPolicies
     # Who may invoke the 'Deliver' API
     Readers:
-      Type: ImplicitMeta
-      Rule: "{{ configtxgen_channel_policies_readers_operator | default('ANY') }} Readers"
+      Type: {{ configtxgen_channel_policies_readers_type }}
+      Rule: "{{ configtxgen_channel_policies_readers_rule }}"
     # Who may invoke the 'Broadcast' API
     Writers:
-      Type: ImplicitMeta
-      Rule: "{{ configtxgen_channel_policies_writers_operator | default('ANY') }} Writers"
+      Type: {{ configtxgen_channel_policies_writers_type }}
+      Rule: "{{ configtxgen_channel_policies_writers_rule }}"
     # By default, who may modify elements at this config level
     Admins:
-      Type: ImplicitMeta
-      Rule: "{{ configtxgen_channel_policies_admins_operator | default('MAJORITY') }} Admins"
+      Type: {{ configtxgen_channel_policies_admins_type }}
+      Rule: "{{ configtxgen_channel_policies_admins_rule }}"
 
   # Capabilities describes the channel level capabilities, see the
   # dedicated Capabilities section elsewhere in this file for a full

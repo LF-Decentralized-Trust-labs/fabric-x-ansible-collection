@@ -61,6 +61,33 @@
         - fabric_ca_client_use_bin
 
 # =========================
+# TLS trust chain
+# =========================
+- name: Rebuild the TLS certificate chains for an intermediate Fabric CA
+  when:
+    - fabric_ca_enrollment_type == 'bccsp'
+    - fabric_ca_enrollment_profile | default('') == 'tls'
+    - fabric_ca_client_must_enroll or fabric_ca_client_must_reenroll
+  block:
+    - name: Find the enrolled TLS intermediate certificates
+      ansible.builtin.find:
+        paths: "{{ fabric_ca_msp_dir }}/tlsintermediatecerts"
+        patterns: "*.pem"
+      register: fabric_ca_client_tls_intermediate_certs
+
+    - name: Build the TLS CA certificate chain
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fabric_ca
+        tasks_from: client/intermediate_ca/build_ca_chain
+
+    - name: Build the TLS server certificate chain
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fabric_ca
+        tasks_from: client/intermediate_ca/build_server_chain
+      when:
+        - fabric_ca_chain_tls_server_certs
+
+# =========================
 # State
 # =========================
 - name: Write the Fabric CA enrollment state file

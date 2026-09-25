@@ -56,9 +56,9 @@ fabric_x_evm:
         peer:
           name: "{{ inventory_hostname }}"
           secret: "{{ inventory_hostname }}PWD"
-        users:
-          - name: fabric-x-evm
-            secret: "{{ inventory_hostname }}PWD"
+        user:
+          name: fabric-x-evm
+          secret: "{{ inventory_hostname }}PWD"
         namespaces:
           - id: basic
             policy: threshold
@@ -68,7 +68,7 @@ Four things in that block are worth reading closely, because each one teaches so
 
 **`role: peer` with a `peer:` block.** The gateway embeds an _endorser_, so it needs a peer identity — not a client identity. That is what backs the endorsement it produces for its own transactions.
 
-**A `users:` list.** The first entry becomes the gateway's transaction-signing identity. Without at least one user the gateway has nothing to sign with, and `generate_crypto` fails by design.
+**A `user:` mapping.** It becomes the gateway's transaction-signing identity. Without it the gateway has nothing to sign with, and `generate_crypto` fails by design.
 
 **A `namespaces:` list.** The gateway declares that it needs a namespace called `basic` with a `threshold` policy. This is the same mechanism the load generator uses for namespace `0`, and it is what `make init` acts on: `fxconfig` reads the declaration from the inventory and creates the namespace from this user's signing certificate. Declare the namespace your application needs on the host that will use it.
 
@@ -285,7 +285,7 @@ Step 4 — a second gateway in a new organisation needs considerably more than o
 4. **The committer must trust it**: add the new gateway host to `committer_mtls_clients`.
 5. **The orderers must trust it**: add it to `orderer_mtls_clients`, or the organisation to `orderer_mtls_orgs`.
 6. **Unique ports** — the second gateway cannot also use 8545.
-7. Its own `users:` entry and, if it needs isolated state, its own `namespaces:` entry.
+7. Its own `user:` entry and, if it needs isolated state, its own `namespaces:` entry.
 
 Which is exactly why the shipped sample puts the gateway in `Org1`: reusing an organisation the network already trusts turns a genesis-level change into a one-host change. When you are adding a client component, always ask first whether an existing organisation can own it.
 

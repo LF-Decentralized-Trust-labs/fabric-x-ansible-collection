@@ -4,6 +4,13 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Check prelisted identities are available
+  ansible.builtin.fail:
+    msg: "fabric_ca_use_prelisted_identities requires fabric_ca_registered_identities_names to be set."
+  when:
+    - fabric_ca_use_prelisted_identities
+    - fabric_ca_registered_identities_names is undefined
+
 - name: Register identities with Fabric CA client container
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca

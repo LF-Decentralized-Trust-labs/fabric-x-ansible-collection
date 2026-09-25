@@ -1,0 +1,19 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Initialize the committer database with a Kubernetes Job
+  vars:
+    committer_k8s_db_ca_path: "{{ committer_remote_config_dir }}/tls/db/ca.crt"
+  kubernetes.core.k8s:
+    state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
+    template:
+      path: k8s/job-init-db.yaml.j2
+    wait: true
+    wait_condition:
+      type: Complete
+      status: "True"
+    wait_timeout: "{{ committer_k8s_init_db_wait_timeout }}"

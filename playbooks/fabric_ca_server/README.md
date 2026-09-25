@@ -116,7 +116,7 @@ ansible-playbook hyperledger.fabricx.fabric_ca_server.register_identities --extr
 Properties:
 
 - Target hosts: `fabric_ca_servers` by default.
-- Nuance: derives registration requests from orderer, committer, load generator, and organization metadata. The playbook lists registered identities once per CA host, filters out existing names, and registers only missing identities, so it must run after `init.yaml` and before component crypto generation when used for incremental updates.
+- Nuance: derives registration requests from orderer, committer, load generator, and organization metadata. The playbook lists registered identities once per CA host, removes duplicate requests by name, and registers only missing identities without listing them again for each registration. Run it after `init.yaml` and before component crypto generation when used for incremental updates.
 
 ## stop.yaml
 

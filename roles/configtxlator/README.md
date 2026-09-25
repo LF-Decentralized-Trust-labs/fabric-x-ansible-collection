@@ -47,7 +47,7 @@ Build the `configtxlator` binary from the Fabric-X source tree on the control no
     # Executable name used by the binary and container entry points.
     configtxlator_bin_name: configtxlator
     # Git reference used by the binary build and install entry points.
-    configtxlator_git_commit: v1.0.0
+    configtxlator_git_commit: v1.0.2
     # Git host for `configtxlator_bin_package`.
     configtxlator_git_hub_url: github.com
     # Repository path for `configtxlator_bin_package`.
@@ -75,7 +75,7 @@ Install the `configtxlator` Go package through the shared `bin` role. The instal
     # Go package reference used by `bin/install`.
     configtxlator_bin_package: "{{ configtxlator_git_hub_url }}/{{ configtxlator_git_repo }}/{{ configtxlator_source_code_package }}"
     # Git reference used by the binary build and install entry points.
-    configtxlator_git_commit: v1.0.0
+    configtxlator_git_commit: v1.0.2
     # Git host for `configtxlator_bin_package`.
     configtxlator_git_hub_url: github.com
     # Repository path for `configtxlator_bin_package`.
@@ -197,7 +197,7 @@ Run `configtxlator proto_encode` as a one-shot auto-removing container. Mounts `
     # Image repository name for `configtxlator_image`.
     configtxlator_image_name: fabric-x-tools
     # Image tag for `configtxlator_image`.
-    configtxlator_image_tag: 1.0.0
+    configtxlator_image_tag: 1.0.2
     # Filename of the input file within `configtxlator_artifacts_dir` for `proto_encode` and `proto_decode`.
     configtxlator_input_file: "config.json"
     # Filename of the output file within `configtxlator_artifacts_dir` written by `proto_encode`, `proto_decode`, and `compute_update`.
@@ -235,7 +235,7 @@ Run `configtxlator proto_decode` as a one-shot auto-removing container. Mounts `
     # Image repository name for `configtxlator_image`.
     configtxlator_image_name: fabric-x-tools
     # Image tag for `configtxlator_image`.
-    configtxlator_image_tag: 1.0.0
+    configtxlator_image_tag: 1.0.2
     # Filename of the input file within `configtxlator_artifacts_dir` for `proto_encode` and `proto_decode`.
     configtxlator_input_file: "config.json"
     # Filename of the output file within `configtxlator_artifacts_dir` written by `proto_encode`, `proto_decode`, and `compute_update`.
@@ -275,7 +275,7 @@ Run `configtxlator compute_update` as a one-shot auto-removing container. Mounts
     # Image repository name for `configtxlator_image`.
     configtxlator_image_name: fabric-x-tools
     # Image tag for `configtxlator_image`.
-    configtxlator_image_tag: 1.0.0
+    configtxlator_image_tag: 1.0.2
     # Filename of the original config proto within `configtxlator_artifacts_dir` passed to `compute_update`.
     configtxlator_original_file: "original_config.pb"
     # Filename of the output file within `configtxlator_artifacts_dir` written by `proto_encode`, `proto_decode`, and `compute_update`.

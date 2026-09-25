@@ -377,8 +377,8 @@ all:
           role: peer
           peer:
             name: orderer-loadgen
-          users:
-            - name: orderer-loadgen
+          user:
+            name: orderer-loadgen-client
           namespaces:
             - id: 0
               policy: threshold

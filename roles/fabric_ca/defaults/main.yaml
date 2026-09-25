@@ -90,6 +90,14 @@ fabric_ca_server_openssl_curve: P-256
 fabric_ca_server_ca_private_key_file: priv_sk
 # Sets the server CA certificate path, relative to the Fabric CA config root.
 fabric_ca_server_ca_cert_file: ca-cert.pem
+# Reports whether this Fabric CA is an intermediate CA, meaning its own CA certificate was signed by an external root CA rather than being self-signed. Derived from C(openssl_root_ca_cert_path), falling back to the C(OPENSSL_ROOT_CA_CERT_PATH) environment variable because that variable is an C(openssl) role default and is therefore out of scope here. Drives the CA chain file and the split of the fetched organization MSP into C(cacerts) and C(intermediatecerts).
+fabric_ca_is_intermediate_ca: >-
+  {{
+    lookup('vars', 'openssl_root_ca_cert_path', default=lookup('env', 'OPENSSL_ROOT_CA_CERT_PATH'))
+    | default('', true)
+    | trim('"')
+    | length > 0
+  }}
 # Sets the server TLS private key filename.
 fabric_ca_server_tls_private_key_file: tls-key.pem
 # Sets the server TLS certificate filename.
@@ -110,8 +118,12 @@ fabric_ca_cryptogenize_msp_signcert_file: signcerts/cert.pem
 fabric_ca_cryptogenize_tls_ca_cert_file: ca.crt
 # Sets the Fabric CA client TLS certificate output path relative to C(fabric_ca_msp_dir).
 fabric_ca_cryptogenize_tls_cert_file: server.crt
+# Rebuilds C(fabric_ca_cryptogenize_tls_cert_file) as the leaf certificate followed by every intermediate certificate when enrolling against an intermediate Fabric CA, so the server presents a complete chain instead of a bare leaf.
+fabric_ca_chain_tls_server_certs: false
 # Sets the Fabric CA client TLS private key output path relative to C(fabric_ca_msp_dir).
 fabric_ca_cryptogenize_tls_key_file: server.key
+# Uses the names already stored in C(fabric_ca_registered_identities_names) instead of listing identities before each registration.
+fabric_ca_use_prelisted_identities: false
 # Lists additional identities rendered into the server registry section for startup registration.
 # Each identity uses C(name), C(secret), C(type), optional C(affiliation), and optional C(attrs).
 fabric_ca_registry_identities: []

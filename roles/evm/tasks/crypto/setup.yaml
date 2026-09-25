@@ -10,11 +10,11 @@
   when:
     - (organization.role is undefined) or (organization.role != 'peer')
 
-- name: Check that at least one user is declared
+- name: Check that a signing identity is declared
   ansible.builtin.fail:
-    msg: "Cannot setup crypto material for the Fabric-X EVM gateway without a signing identity. Please declare at least one entry under 'organization.users'."
+    msg: "Cannot setup crypto material for the Fabric-X EVM gateway without a signing identity. Please declare 'organization.user'."
   when:
-    - (organization.users is undefined) or (organization.users | length == 0)
+    - organization.user is undefined
 
 # =========================
 # With cryptogen

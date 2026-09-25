@@ -310,6 +310,21 @@ argument_specs:
         default: ca-cert.pem
         description:
           - "Sets the server CA certificate path, relative to the Fabric CA config root."
+      fabric_ca_is_intermediate_ca: &fabric_ca_is_intermediate_ca
+        type: bool
+        default: >-
+          {{
+            lookup('vars', 'openssl_root_ca_cert_path', default=lookup('env', 'OPENSSL_ROOT_CA_CERT_PATH'))
+            | default('', true)
+            | trim('"')
+            | length > 0
+          }}
+        description:
+          - "Reports whether this Fabric CA is an intermediate CA, meaning its own CA certificate was signed by
+            an external root CA rather than being self-signed. Derived from C(openssl_root_ca_cert_path), falling
+            back to the C(OPENSSL_ROOT_CA_CERT_PATH) environment variable because that variable is an C(openssl)
+            role default and is therefore out of scope here. Drives the CA chain file and the split of the fetched
+            organization MSP into C(cacerts) and C(intermediatecerts)."
       fabric_ca_server_tls_private_key_file:
         &fabric_ca_server_tls_private_key_file
         type: str
@@ -342,7 +357,7 @@ argument_specs:
         required: true
         description:
           - "Sets the MSP directory used by Fabric CA client flows."
-          - "Example: C(/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp)."
+          - "Example: C(/tmp/fabricx/crypto-config/organizations/org1.example.com/users/Admin@org1.example.com/msp)."
       fabric_ca_cryptogenize_msp_private_key_file:
         &fabric_ca_cryptogenize_msp_private_key_file
         type: str
@@ -376,6 +391,11 @@ argument_specs:
         default: server.crt
         description:
           - "Sets the Fabric CA client TLS certificate output path relative to C(fabric_ca_msp_dir)."
+      fabric_ca_chain_tls_server_certs: &fabric_ca_chain_tls_server_certs
+        type: bool
+        default: false
+        description:
+          - "Rebuilds C(fabric_ca_cryptogenize_tls_cert_file) as the leaf certificate followed by every intermediate certificate when enrolling against an intermediate Fabric CA, so the server presents a complete chain instead of a bare leaf."
       fabric_ca_cryptogenize_tls_key_file: &fabric_ca_cryptogenize_tls_key_file
         type: str
         default: server.key
@@ -386,14 +406,17 @@ argument_specs:
         required: true
         description:
           - "Supplies the identity used by Fabric CA client operations."
-          - "Store secrets in Ansible Vault."
           - "Example: C({'name': 'peer0', 'secret': 'peer0PWD', 'type': 'peer', 'affiliation': 'org1.department1', 'attrs': {'hf.Revoker': 'true'}})."
+      fabric_ca_use_prelisted_identities: &fabric_ca_use_prelisted_identities
+        type: bool
+        default: false
+        description:
+          - "Uses the names already stored in C(fabric_ca_registered_identities_names) instead of listing identities before each registration."
       fabric_ca_admin: &fabric_ca_admin
         type: dict
         required: true
         description:
           - "Supplies the bootstrap administrator rendered into the server registry section; C(name) and C(secret) are required."
-          - "Store the secret in Ansible Vault."
           - "Example: C({'name': 'admin', 'secret': 'adminPWD', 'attrs': {'hf.Registrar.Roles': '*', 'hf.Registrar.Attributes': '*'}})."
       fabric_ca_registry_identities: &fabric_ca_registry_identities
         type: list
@@ -406,8 +429,7 @@ argument_specs:
         type: path
         description:
           - "Sets the TLS root certificate file used by Fabric CA client flows when TLS is enabled."
-          - "Example: C(/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/ca/ca.org1.example.com-cert.pem)."
-
+          - "Example: C(/tmp/fabricx/crypto-config/organizations/org1.example.com/ca/ca.org1.example.com-cert.pem)."
       fabric_ca_server_use_openshift: &fabric_ca_server_use_openshift
         type: bool
         default: false
@@ -451,8 +473,29 @@ argument_specs:
     options:
       fabric_ca_client_use_bin: *fabric_ca_client_use_bin
       fabric_ca_enrollment_type: *fabric_ca_enrollment_type
+      fabric_ca_enrollment_profile: *fabric_ca_enrollment_profile
+      fabric_ca_msp_dir: *fabric_ca_msp_dir
+      fabric_ca_chain_tls_server_certs: *fabric_ca_chain_tls_server_certs
       remote_node_dir: *remote_node_dir
       fabric_ca_client_state_file: *fabric_ca_client_state_file
+
+  client/intermediate_ca/build_ca_chain:
+    short_description: Rebuild the TLS CA certificate as a full chain
+    description:
+      - "Reassembles C(fabric_ca_cryptogenize_tls_ca_cert_file) as the root certificate followed by every certificate found under C(fabric_ca_msp_dir)/tlsintermediatecerts, restoring the chain C(fabric-ca-client) split apart at enrollment."
+      - "A no-op when no intermediate certificates were found."
+    options:
+      fabric_ca_msp_dir: *fabric_ca_msp_dir
+      fabric_ca_cryptogenize_tls_ca_cert_file: *fabric_ca_cryptogenize_tls_ca_cert_file
+
+  client/intermediate_ca/build_server_chain:
+    short_description: Rebuild the TLS server certificate as a full chain
+    description:
+      - "Reassembles C(fabric_ca_cryptogenize_tls_cert_file) as the leaf certificate followed by every certificate found under C(fabric_ca_msp_dir)/tlsintermediatecerts, so the server presents a complete chain instead of a bare leaf. The self-signed root is intentionally left out."
+      - "A no-op when no intermediate certificates were found."
+    options:
+      fabric_ca_msp_dir: *fabric_ca_msp_dir
+      fabric_ca_cryptogenize_tls_cert_file: *fabric_ca_cryptogenize_tls_cert_file
 
   client/register:
     short_description: Dispatch client registration
@@ -461,6 +504,7 @@ argument_specs:
       - "Registers a new Fabric CA identity such as a peer, orderer, admin, or client using an already enrolled registrar MSP."
     options:
       fabric_ca_client_use_bin: *fabric_ca_client_use_bin
+      fabric_ca_use_prelisted_identities: *fabric_ca_use_prelisted_identities
 
   client/gather_identities:
     short_description: Gather organization identities from inventory
@@ -592,6 +636,7 @@ argument_specs:
     options:
       fabric_ca_msp_dir: *fabric_ca_msp_dir
       fabric_ca_identity: *fabric_ca_identity
+      fabric_ca_use_prelisted_identities: *fabric_ca_use_prelisted_identities
       fabric_ca_client_bin_name: *fabric_ca_client_bin_name
       fabric_ca_scheme: *fabric_ca_scheme
       fabric_ca_name: *fabric_ca_name
@@ -698,6 +743,7 @@ argument_specs:
     options:
       fabric_ca_msp_dir: *fabric_ca_msp_dir
       fabric_ca_identity: *fabric_ca_identity
+      fabric_ca_use_prelisted_identities: *fabric_ca_use_prelisted_identities
       fabric_ca_image: *fabric_ca_image
       fabric_ca_registry_endpoint: *fabric_ca_registry_endpoint
       fabric_ca_image_name: *fabric_ca_image_name
@@ -1094,6 +1140,7 @@ argument_specs:
       actual_host: *actual_host
       fabric_ca_server_ca_private_key_file: *fabric_ca_server_ca_private_key_file
       fabric_ca_server_ca_cert_file: *fabric_ca_server_ca_cert_file
+      fabric_ca_is_intermediate_ca: *fabric_ca_is_intermediate_ca
       fabric_ca_server_tls_private_key_file: *fabric_ca_server_tls_private_key_file
       fabric_ca_server_tls_cert_file: *fabric_ca_server_tls_cert_file
       fabric_ca_server_openssl_curve: *fabric_ca_server_openssl_curve
@@ -1126,6 +1173,7 @@ argument_specs:
       fabric_ca_server_remote_config_dir: *fabric_ca_server_remote_config_dir
       remote_config_dir: *remote_config_dir
       fabric_ca_server_ca_cert_file: *fabric_ca_server_ca_cert_file
+      fabric_ca_is_intermediate_ca: *fabric_ca_is_intermediate_ca
 
   server/crypto/rm:
     short_description: Remove server Secret
@@ -1155,6 +1203,7 @@ argument_specs:
       fabric_ca_name: *fabric_ca_name
       fabric_ca_server_ca_private_key_file: *fabric_ca_server_ca_private_key_file
       fabric_ca_server_ca_cert_file: *fabric_ca_server_ca_cert_file
+      fabric_ca_is_intermediate_ca: *fabric_ca_is_intermediate_ca
       fabric_ca_admin: *fabric_ca_admin
       fabric_ca_registry_identities: *fabric_ca_registry_identities
       fabric_ca_csr_cn: *fabric_ca_csr_cn

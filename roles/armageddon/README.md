@@ -64,7 +64,7 @@ Render `shared_config.yaml` for the Fabric-X orderer topology. This entry point 
 
 > Detect whether Armageddon needs to run
 
-Fingerprint the rendered `shared_config.yaml` together with every fetched orderer crypto artifact, then compare it against the fingerprint recorded by the previous run. Only `fetched_artifacts_dir`/crypto/ordererOrganizations is walked, not the whole crypto tree, since `shared_config.yaml` never references peer organization material, only orderer CAs, TLS CAs, and per-orderer certs. Publishes `armageddon_input_fingerprint` and `armageddon_must_run` as facts for `create_shared_config` to consume. Without a previous state file there is no baseline, so `armageddon_must_run` is set unconditionally, and Armageddon runs once to establish one.
+Fingerprint the rendered `shared_config.yaml` together with every fetched crypto artifact, then compare it against the fingerprint recorded by the previous run. `fetched_artifacts_dir`/crypto/organizations is walked in full, since an organization can now own both orderer and peer nodes side by side and `shared_config.yaml` still only references the orderer CAs, TLS CAs, and per-orderer certs within it. Publishes `armageddon_input_fingerprint` and `armageddon_must_run` as facts for `create_shared_config` to consume. Without a previous state file there is no baseline, so `armageddon_must_run` is set unconditionally, and Armageddon runs once to establish one.
 
 ```yaml
 - name: Detect whether Armageddon needs to run
