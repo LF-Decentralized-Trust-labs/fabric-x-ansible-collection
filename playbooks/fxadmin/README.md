@@ -46,13 +46,13 @@ ansible-playbook hyperledger.fabricx.fxadmin.binaries
 
 Properties:
 
-- Target hosts: `localhost` for the initial build/install, then `fabric_x_orderers` (hosts whose `organization.users` is defined) for the remote-node install/build/transfer.
+- Target hosts: `localhost` for the initial build/install, then `fabric_x_orderers` (hosts whose `organization.user` is defined) for the remote-node install/build/transfer.
 - Binary activation: only runs when `fxadmin_use_bin: true`.
 - Build location: set `fxadmin_build_bin: true` to build on the control node and transfer the binary out instead of each host installing it independently via `go install`.
 
 ## configs.yaml
 
-[`configs.yaml`](./configs.yaml) picks one reference orderer host per organization (the lowest-sorted orderer host in `fabric_x_orderers`) and renders `fxadmin`'s admin configuration (MSP identity, TLS/mTLS material) directly on it, once per identity declared in `organization.users` -- the admin identity `generate_crypto.yaml` provisioned, and the reader identity used for non-governance operations. The identity's private key material is synced from the control node onto that reference host and never persists on the control node itself.
+[`configs.yaml`](./configs.yaml) picks one reference orderer host per organization (its alphabetically-first consenter in `fabric_x_orderers`) and renders `fxadmin`'s admin configuration (MSP identity, TLS/mTLS material) directly on it, for the single identity declared in `organization.user` -- the admin identity `generate_crypto.yaml` provisioned, used for every `fxadmin` operation. The identity's private key material is synced from the control node onto that reference host and never persists on the control node itself.
 
 ```shell
 ansible-playbook hyperledger.fabricx.fxadmin.configs
@@ -98,4 +98,4 @@ ansible-playbook hyperledger.fabricx.fxadmin.wipe
 
 Properties:
 
-- Target hosts: `fabric_x_orderers` (hosts whose `organization.users` is defined) for the binary, then `localhost` for control-node artifacts.
+- Target hosts: `fabric_x_orderers` (hosts whose `organization.user` is defined) for the binary, then `localhost` for control-node artifacts.

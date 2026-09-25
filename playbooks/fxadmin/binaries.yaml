@@ -48,7 +48,7 @@
         - fxadmin_use_bin is defined
         - fxadmin_use_bin
         - organization is defined
-        - organization.users is defined
+        - organization.user is defined
       block:
         - name: Setup fxadmin binary using appropriate method
           vars:

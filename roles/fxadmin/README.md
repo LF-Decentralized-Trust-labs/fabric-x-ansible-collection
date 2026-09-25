@@ -374,9 +374,9 @@ Copies the client certificate and key consumed by fxadmin for mTLS connections i
 ```yaml
 - name: Transfer fxadmin mTLS client material
   vars:
-    # Defines the certificate path used for fxadmin mTLS, local to the host this task runs on (see `fxadmin_remote_config_dir`). Unlike `hyperledger.fabricx.fxconfig`, fxadmin has no single deployed host to borrow a default TLS identity from -- every organization.users identity gets its own dedicated TLS material, synced onto that identity's own reference host by `config/transfer` before this path is read, so the caller (see playbooks/fxadmin/configs.yaml) always supplies this explicitly.
+    # Defines the certificate path used for fxadmin mTLS, local to the host this task runs on (see `fxadmin_remote_config_dir`). Unlike `hyperledger.fabricx.fxconfig`, fxadmin has no single deployed host to borrow a default TLS identity from -- the organization's identity gets its own dedicated TLS material, synced onto that identity's own reference host by `config/transfer` before this path is read, so the caller (see playbooks/fxadmin/configs.yaml) always supplies this explicitly.
     fxadmin_mtls_client_cert_path: "{{ fxadmin_remote_config_dir }}/tls/client.crt"
-    # Defines the private key path used for fxadmin mTLS, local to the host this task runs on (see `fxadmin_remote_config_dir`). Unlike `hyperledger.fabricx.fxconfig`, fxadmin has no single deployed host to borrow a default TLS identity from -- every organization.users identity gets its own dedicated TLS material, synced onto that identity's own reference host by `config/transfer` before this path is read, so the caller (see playbooks/fxadmin/configs.yaml) always supplies this explicitly.
+    # Defines the private key path used for fxadmin mTLS, local to the host this task runs on (see `fxadmin_remote_config_dir`). Unlike `hyperledger.fabricx.fxconfig`, fxadmin has no single deployed host to borrow a default TLS identity from -- the organization's identity gets its own dedicated TLS material, synced onto that identity's own reference host by `config/transfer` before this path is read, so the caller (see playbooks/fxadmin/configs.yaml) always supplies this explicitly.
     fxadmin_mtls_client_key_path: "{{ fxadmin_remote_config_dir }}/tls/client.key"
     # Defines the fxadmin remote configuration directory.
     fxadmin_remote_config_dir: "{{ remote_config_dir }}/fxadmin"
@@ -412,8 +412,14 @@ Creates the remote fxadmin configuration directory, renders the admin configurat
     fxadmin_use_mtls: false
     # Enables TLS in the rendered admin configuration, mirroring the target Fabric-X network's TLS setting.
     fxadmin_use_tls: false
-    # Provides organization metadata used by tasks that read `organization.*`, including names and users.
-    organization:{'name': 'Org1', 'domain': 'org1.example.com', 'users': [{'name': 'Admin', 'endorser': true}]}
+    # Provides organization metadata used by tasks that read `organization.*`, including names and the org's fxadmin identity. `organization.user` must carry `type: admin`, since it is used for every fxadmin operation, endorsement included.
+    organization:
+      name: "OrdererOrg1"
+      domain: "ordererorg1.example.com"
+      user:
+        name: "ordererorg1-admin"
+        secret: "ordererorg1-adminPWD"
+        type: "admin"
     # Provides the base remote configuration directory used by the role.
     remote_config_dir: "/opt/hyperledger/fabricx/config"
   ansible.builtin.include_role:
@@ -442,8 +448,8 @@ Mounts the current and modified configuration JSON files and the reference block
     fxadmin_image: "{{ fxadmin_registry_endpoint }}/{{ fxadmin_image_name }}:{{ fxadmin_image_tag }}"
     # Defines the image name used by the fxadmin container image.
     fxadmin_image_name: fabric-x-tools
-    # Defines the image tag used by the fxadmin container image.
-    fxadmin_image_tag: 1.0.0
+    # Defines the image tag used by the fxadmin container image. Must be at least 1.0.2: earlier fabric-x-tools tags do not bundle the fxadmin binary.
+    fxadmin_image_tag: 1.0.2
     # Defines the local modified channel configuration JSON file, produced by `patch_config_value` and consumed by `compute_update`.
     fxadmin_modified_config_json: "/tmp/fabricx/config-build/fxadmin-artifacts/modified_config.json"
     # Defines the output artifact path written by the current fxadmin command, local to the host the task runs on.
@@ -474,8 +480,8 @@ Mounts the configuration block into a transient fxadmin container and runs `fxad
     fxadmin_image: "{{ fxadmin_registry_endpoint }}/{{ fxadmin_image_name }}:{{ fxadmin_image_tag }}"
     # Defines the image name used by the fxadmin container image.
     fxadmin_image_name: fabric-x-tools
-    # Defines the image tag used by the fxadmin container image.
-    fxadmin_image_tag: 1.0.0
+    # Defines the image tag used by the fxadmin container image. Must be at least 1.0.2: earlier fabric-x-tools tags do not bundle the fxadmin binary.
+    fxadmin_image_tag: 1.0.2
     # Defines the output artifact path written by the current fxadmin command, local to the host the task runs on.
     fxadmin_output: "string"
     # Defines the registry endpoint used by the fxadmin container image.
@@ -510,8 +516,8 @@ Mounts the rendered admin configuration and the reference block into a transient
     fxadmin_image: "{{ fxadmin_registry_endpoint }}/{{ fxadmin_image_name }}:{{ fxadmin_image_tag }}"
     # Defines the image name used by the fxadmin container image.
     fxadmin_image_name: fabric-x-tools
-    # Defines the image tag used by the fxadmin container image.
-    fxadmin_image_tag: 1.0.0
+    # Defines the image tag used by the fxadmin container image. Must be at least 1.0.2: earlier fabric-x-tools tags do not bundle the fxadmin binary.
+    fxadmin_image_tag: 1.0.2
     # Defines the output artifact path written by the current fxadmin command, local to the host the task runs on.
     fxadmin_output: "string"
     # Defines the control-node destination path that `fxadmin_output` is fetched back to once the command completes on a remote organization reference host.
@@ -550,8 +556,8 @@ Mounts the rendered admin configuration and the reference block into a transient
     fxadmin_image: "{{ fxadmin_registry_endpoint }}/{{ fxadmin_image_name }}:{{ fxadmin_image_tag }}"
     # Defines the image name used by the fxadmin container image.
     fxadmin_image_name: fabric-x-tools
-    # Defines the image tag used by the fxadmin container image.
-    fxadmin_image_tag: 1.0.0
+    # Defines the image tag used by the fxadmin container image. Must be at least 1.0.2: earlier fabric-x-tools tags do not bundle the fxadmin binary.
+    fxadmin_image_tag: 1.0.2
     # Defines the output artifact path written by the current fxadmin command, local to the host the task runs on.
     fxadmin_output: "string"
     # Defines the control-node destination path that `fxadmin_output` is fetched back to once the command completes on a remote organization reference host.
@@ -592,8 +598,8 @@ Copies a ConfigUpdate protobuf file to the managed host, mounts the rendered adm
     fxadmin_image: "{{ fxadmin_registry_endpoint }}/{{ fxadmin_image_name }}:{{ fxadmin_image_tag }}"
     # Defines the image name used by the fxadmin container image.
     fxadmin_image_name: fabric-x-tools
-    # Defines the image tag used by the fxadmin container image.
-    fxadmin_image_tag: 1.0.0
+    # Defines the image tag used by the fxadmin container image. Must be at least 1.0.2: earlier fabric-x-tools tags do not bundle the fxadmin binary.
+    fxadmin_image_tag: 1.0.2
     # Defines the output artifact path written by the current fxadmin command, local to the host the task runs on.
     fxadmin_output: "string"
     # Defines the registry endpoint used by the fxadmin container image.
@@ -626,8 +632,8 @@ Mounts the shared endorsements directory into a transient fxadmin container and 
     fxadmin_image: "{{ fxadmin_registry_endpoint }}/{{ fxadmin_image_name }}:{{ fxadmin_image_tag }}"
     # Defines the image name used by the fxadmin container image.
     fxadmin_image_name: fabric-x-tools
-    # Defines the image tag used by the fxadmin container image.
-    fxadmin_image_tag: 1.0.0
+    # Defines the image tag used by the fxadmin container image. Must be at least 1.0.2: earlier fabric-x-tools tags do not bundle the fxadmin binary.
+    fxadmin_image_tag: 1.0.2
     # Defines the output artifact path written by the current fxadmin command, local to the host the task runs on.
     fxadmin_output: "string"
     # Defines the registry endpoint used by the fxadmin container image.
@@ -660,8 +666,8 @@ Mounts the endorsed ConfigUpdate envelope and the rendered admin configuration i
     fxadmin_image: "{{ fxadmin_registry_endpoint }}/{{ fxadmin_image_name }}:{{ fxadmin_image_tag }}"
     # Defines the image name used by the fxadmin container image.
     fxadmin_image_name: fabric-x-tools
-    # Defines the image tag used by the fxadmin container image.
-    fxadmin_image_tag: 1.0.0
+    # Defines the image tag used by the fxadmin container image. Must be at least 1.0.2: earlier fabric-x-tools tags do not bundle the fxadmin binary.
+    fxadmin_image_tag: 1.0.2
     # Defines the output artifact path written by the current fxadmin command, local to the host the task runs on.
     fxadmin_output: "string"
     # Defines the control-node destination path that `fxadmin_output` is fetched back to once the command completes on a remote organization reference host.
@@ -702,8 +708,8 @@ Mounts the prepared transaction and the reference block into a transient fxadmin
     fxadmin_image: "{{ fxadmin_registry_endpoint }}/{{ fxadmin_image_name }}:{{ fxadmin_image_tag }}"
     # Defines the image name used by the fxadmin container image.
     fxadmin_image_name: fabric-x-tools
-    # Defines the image tag used by the fxadmin container image.
-    fxadmin_image_tag: 1.0.0
+    # Defines the image tag used by the fxadmin container image. Must be at least 1.0.2: earlier fabric-x-tools tags do not bundle the fxadmin binary.
+    fxadmin_image_tag: 1.0.2
     # Defines the registry endpoint used by the fxadmin container image.
     fxadmin_registry_endpoint: "{{ lookup('env', 'FXADMIN_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
     # Defines the fxadmin remote configuration directory.
@@ -719,7 +725,7 @@ Mounts the prepared transaction and the reference block into a transient fxadmin
 
 > Fetch a cryptogen-generated identity
 
-Fetches the `<fxadmin_identity_name>@<domain>` identity (MSP and TLS material) cryptogen unconditionally generates for an orderer organization, which `hyperledger.fabricx.cryptogen`'s own fetch task never copies to the control node.
+Fetches the `<fxadmin_identity_name>@<domain>` identity (MSP and TLS material) cryptogen generates under that name for an orderer organization's declared `organization.user`, which `hyperledger.fabricx.cryptogen`'s own fetch task never copies to the control node.
 
 ```yaml
 - name: Fetch a cryptogen-generated identity
@@ -730,12 +736,16 @@ Fetches the `<fxadmin_identity_name>@<domain>` identity (MSP and TLS material) c
     cryptogen_output_dir: "string"
     # Defines the local directory that stores fetched crypto artifacts consumed by fxadmin.
     fetched_artifacts_dir: "/tmp/fabricx/config-build"
-    # Selects which of organization.users a crypto provisioning task acts on, by name.
+    # Selects the organization.user a crypto provisioning task acts on, by name.
     fxadmin_identity_name: "ordererorg1-admin"
-    # Defines the Fabric CA `--id.type` used to register the identity (for example `admin` or `client`), which drives its NodeOU role classification. Sourced from the identity's organization.users entry.
-    fxadmin_identity_type: "string"
-    # Provides organization metadata used by tasks that read `organization.*`, including names and users.
-    organization:{'name': 'Org1', 'domain': 'org1.example.com', 'users': [{'name': 'Admin', 'endorser': true}]}
+    # Provides organization metadata used by tasks that read `organization.*`, including names and the org's fxadmin identity. `organization.user` must carry `type: admin`, since it is used for every fxadmin operation, endorsement included.
+    organization:
+      name: "OrdererOrg1"
+      domain: "ordererorg1.example.com"
+      user:
+        name: "ordererorg1-admin"
+        secret: "ordererorg1-adminPWD"
+        type: "admin"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fxadmin
     tasks_from: crypto/cryptogen/transfer
@@ -752,14 +762,20 @@ Registers and enrolls an org-level identity (MSP and a dedicated TLS identity) f
   vars:
     # Defines the local directory that stores fetched crypto artifacts consumed by fxadmin.
     fetched_artifacts_dir: "/tmp/fabricx/config-build"
-    # Selects which of organization.users a crypto provisioning task acts on, by name.
+    # Selects the organization.user a crypto provisioning task acts on, by name.
     fxadmin_identity_name: "ordererorg1-admin"
-    # Defines the Fabric CA enrollment secret for the identity, sourced from its organization.users entry.
+    # Defines the Fabric CA enrollment secret for the identity, sourced from its organization.user entry.
     fxadmin_identity_secret: "string"
-    # Defines the Fabric CA `--id.type` used to register the identity (for example `admin` or `client`), which drives its NodeOU role classification. Sourced from the identity's organization.users entry.
+    # Defines the Fabric CA `--id.type` used to register the identity (always `admin`, since organization.user must carry OU=admin), which drives its NodeOU role classification. Sourced from the identity's organization.user entry.
     fxadmin_identity_type: "string"
-    # Provides organization metadata used by tasks that read `organization.*`, including names and users.
-    organization:{'name': 'Org1', 'domain': 'org1.example.com', 'users': [{'name': 'Admin', 'endorser': true}]}
+    # Provides organization metadata used by tasks that read `organization.*`, including names and the org's fxadmin identity. `organization.user` must carry `type: admin`, since it is used for every fxadmin operation, endorsement included.
+    organization:
+      name: "OrdererOrg1"
+      domain: "ordererorg1.example.com"
+      user:
+        name: "ordererorg1-admin"
+        secret: "ordererorg1-adminPWD"
+        type: "admin"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fxadmin
     tasks_from: crypto/fabric_ca/enroll
@@ -767,15 +783,21 @@ Registers and enrolls an org-level identity (MSP and a dedicated TLS identity) f
 
 ### crypto/fetch
 
-> Provision every identity declared in an orderer organization's users
+> Provision the identity declared in an orderer organization's user
 
-Dispatches identity provisioning for every entry in `organization.users` to either the cryptogen or Fabric CA path based on whether `organization.fabric_ca_host` is defined.
+Dispatches identity provisioning for `organization.user` to either the cryptogen or Fabric CA path based on whether `organization.fabric_ca_host` is defined.
 
 ```yaml
-- name: Provision every identity declared in an orderer organization's users
+- name: Provision the identity declared in an orderer organization's user
   vars:
-    # Provides organization metadata used by tasks that read `organization.*`, including names and users.
-    organization:{'name': 'Org1', 'domain': 'org1.example.com', 'users': [{'name': 'Admin', 'endorser': true}]}
+    # Provides organization metadata used by tasks that read `organization.*`, including names and the org's fxadmin identity. `organization.user` must carry `type: admin`, since it is used for every fxadmin operation, endorsement included.
+    organization:
+      name: "OrdererOrg1"
+      domain: "ordererorg1.example.com"
+      user:
+        name: "ordererorg1-admin"
+        secret: "ordererorg1-adminPWD"
+        type: "admin"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fxadmin
     tasks_from: crypto/fetch

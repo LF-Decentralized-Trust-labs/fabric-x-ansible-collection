@@ -36,18 +36,18 @@ argument_specs:
         type: str
         required: true
         description:
-          - "Selects which of organization.users a crypto provisioning task acts on, by name."
+          - "Selects the organization.user a crypto provisioning task acts on, by name."
           - "Example: C(ordererorg1-admin)."
       fxadmin_identity_secret: &fxadmin_identity_secret
         type: str
         required: true
         description:
-          - "Defines the Fabric CA enrollment secret for the identity, sourced from its organization.users entry."
+          - "Defines the Fabric CA enrollment secret for the identity, sourced from its organization.user entry."
       fxadmin_identity_type: &fxadmin_identity_type
         type: str
         required: true
         description:
-          - "Defines the Fabric CA C(--id.type) used to register the identity (for example C(admin) or C(client)), which drives its NodeOU role classification. Sourced from the identity's organization.users entry."
+          - "Defines the Fabric CA C(--id.type) used to register the identity (always C(admin), since organization.user must carry OU=admin), which drives its NodeOU role classification. Sourced from the identity's organization.user entry."
       fxadmin_bin_package: &fxadmin_bin_package
         type: str
         default: "{{ fxadmin_git_hub_url }}/{{ fxadmin_git_repo }}/{{ fxadmin_source_code_package }}"
@@ -146,9 +146,10 @@ argument_specs:
           - "Defines the image name used by the fxadmin container image."
       fxadmin_image_tag: &fxadmin_image_tag
         type: str
-        default: "1.0.0"
+        default: "1.0.2"
         description:
           - "Defines the image tag used by the fxadmin container image."
+          - "Must be at least 1.0.2: earlier fabric-x-tools tags do not bundle the fxadmin binary."
       fxadmin_json_patch: &fxadmin_json_patch
         type: dict
         required: true
@@ -162,14 +163,14 @@ argument_specs:
         required: true
         description:
           - "Defines the certificate path used for fxadmin mTLS, local to the host this task runs on (see C(fxadmin_remote_config_dir))."
-          - "Unlike C(hyperledger.fabricx.fxconfig), fxadmin has no single deployed host to borrow a default TLS identity from -- every organization.users identity gets its own dedicated TLS material, synced onto that identity's own reference host by C(config/transfer) before this path is read, so the caller (see playbooks/fxadmin/configs.yaml) always supplies this explicitly."
+          - "Unlike C(hyperledger.fabricx.fxconfig), fxadmin has no single deployed host to borrow a default TLS identity from -- the organization's identity gets its own dedicated TLS material, synced onto that identity's own reference host by C(config/transfer) before this path is read, so the caller (see playbooks/fxadmin/configs.yaml) always supplies this explicitly."
           - "Example: C({{ fxadmin_remote_config_dir }}/tls/client.crt)."
       fxadmin_mtls_client_key_path: &fxadmin_mtls_client_key_path
         type: path
         required: true
         description:
           - "Defines the private key path used for fxadmin mTLS, local to the host this task runs on (see C(fxadmin_remote_config_dir))."
-          - "Unlike C(hyperledger.fabricx.fxconfig), fxadmin has no single deployed host to borrow a default TLS identity from -- every organization.users identity gets its own dedicated TLS material, synced onto that identity's own reference host by C(config/transfer) before this path is read, so the caller (see playbooks/fxadmin/configs.yaml) always supplies this explicitly."
+          - "Unlike C(hyperledger.fabricx.fxconfig), fxadmin has no single deployed host to borrow a default TLS identity from -- the organization's identity gets its own dedicated TLS material, synced onto that identity's own reference host by C(config/transfer) before this path is read, so the caller (see playbooks/fxadmin/configs.yaml) always supplies this explicitly."
           - "Example: C({{ fxadmin_remote_config_dir }}/tls/client.key)."
       fxadmin_modified_config_json: &fxadmin_modified_config_json
         type: path
@@ -231,8 +232,9 @@ argument_specs:
       organization: &organization
         type: dict
         description:
-          - "Provides organization metadata used by tasks that read C(organization.*), including names and users."
-          - "Example: C({'name': 'Org1', 'domain': 'org1.example.com', 'users': [{'name': 'Admin', 'endorser': true}]})."
+          - "Provides organization metadata used by tasks that read C(organization.*), including names and the org's fxadmin identity."
+          - "C(organization.user) must carry C(type: admin), since it is used for every fxadmin operation, endorsement included."
+          - "Example: C({'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com', 'user': {'name': 'ordererorg1-admin', 'secret': 'ordererorg1-adminPWD', 'type': 'admin'}})."
       remote_config_dir: &remote_config_dir
         type: path
         description:
@@ -548,13 +550,12 @@ argument_specs:
   crypto/cryptogen/transfer:
     short_description: Fetch a cryptogen-generated identity
     description:
-      - "Fetches the C(<fxadmin_identity_name>@<domain>) identity (MSP and TLS material) cryptogen unconditionally generates for an orderer organization, which C(hyperledger.fabricx.cryptogen)'s own fetch task never copies to the control node."
+      - "Fetches the C(<fxadmin_identity_name>@<domain>) identity (MSP and TLS material) cryptogen generates under that name for an orderer organization's declared C(organization.user), which C(hyperledger.fabricx.cryptogen)'s own fetch task never copies to the control node."
     options:
       config_build_dir: *config_build_dir
       cryptogen_output_dir: *cryptogen_output_dir
       fetched_artifacts_dir: *fetched_artifacts_dir
       fxadmin_identity_name: *fxadmin_identity_name
-      fxadmin_identity_type: *fxadmin_identity_type
       organization: *organization
 
   crypto/fabric_ca/enroll:
@@ -570,9 +571,9 @@ argument_specs:
       organization: *organization
 
   crypto/fetch:
-    short_description: Provision every identity declared in an orderer organization's users
+    short_description: Provision the identity declared in an orderer organization's user
     description:
-      - "Dispatches identity provisioning for every entry in C(organization.users) to either the cryptogen or Fabric CA path based on whether C(organization.fabric_ca_host) is defined."
+      - "Dispatches identity provisioning for C(organization.user) to either the cryptogen or Fabric CA path based on whether C(organization.fabric_ca_host) is defined."
     options:
       organization: *organization
 

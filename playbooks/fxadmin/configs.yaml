@@ -5,19 +5,19 @@
 #
 
 # Renders fxadmin's configuration for every Fabric-X orderer organization on
-# that organization's own reference orderer host (one per org, the lowest
-# -sorted inventory_hostname among its orderer nodes) -- never on the control
-# node -- so a private identity's key material is only ever synced to a real
-# node, matching how roles/orderer/tasks/crypto/cryptogen/transfer.yaml and
+# that organization's own reference orderer host (one per org, its
+# alphabetically-first consenter -- the core node type actually running the
+# consensus algorithm, even though this playbook itself never drives
+# consensus) -- never on the control node -- so a private identity's key
+# material is only ever synced to a real node, matching how
+# roles/orderer/tasks/crypto/cryptogen/transfer.yaml and
 # playbooks/fxconfig/configs.yaml handle their own per-organization material.
 #
-# One config is rendered per identity declared in each organization's
-# organization.users (provisioned by
-# hyperledger.fabricx.fxadmin.generate_crypto): by convention an "admin"-type
-# identity used strictly for tx/endorse -- the only step that needs to
-# satisfy the channel's per-org Admins policy -- and a "client"-type identity
-# used for everything else (ledger reads, follow, tx/prepare, tx/submit),
-# none of which need admin rights.
+# One config is rendered per organization, for the single identity declared
+# in organization.user (provisioned by hyperledger.fabricx.fxadmin.generate_crypto).
+# It must carry OU=admin (the only role able to satisfy the channel's per-org
+# Admins policy), and is used for every fxadmin operation -- there is no
+# separate least-privileged identity for the read-only operations.
 - name: Resolve fxadmin configuration inputs on the control node
   hosts: localhost
   vars:
@@ -30,29 +30,7 @@
         | unique
         | list
       }}
-    # Orderer organizations never needed organization.users before fxadmin,
-    # so an inventory that hasn't declared any for a given org must be a safe
-    # no-op here.
-    fxadmin_orgs_with_users: "{{ fxadmin_orderer_organizations | selectattr('users', 'defined') | list }}"
   tasks:
-    - name: Assert every organization declares exactly one admin identity
-      vars:
-        fxadmin_admin_user_count: "{{ fxadmin_users_org.users | selectattr('type', 'eq', 'admin') | list | length }}"
-      ansible.builtin.assert:
-        that:
-          - fxadmin_admin_user_count | int == 1
-        fail_msg: >-
-          {{ fxadmin_users_org.name }} declares {{ fxadmin_admin_user_count }}
-          organization.users entries with type: admin (expected exactly 1).
-          Every non-admin identity shares the same "-reader" config
-          directory, keyed only by type, so more than one admin entry would
-          make config rendering pick one arbitrarily and fewer than one
-          leaves tx/endorse with no admin config to use.
-      loop: "{{ fxadmin_orgs_with_users }}"
-      loop_control:
-        loop_var: fxadmin_users_org
-        label: "{{ fxadmin_users_org.name }}"
-
     - name: Resolve one reference orderer host per organization
       ansible.builtin.set_fact:
         fxadmin_org_reference_hosts: >-
@@ -64,6 +42,7 @@
                 | selectattr('organization', 'defined')
                 | selectattr('organization.name', 'eq', current_org.name)
                 | selectattr('orderer_component_type', 'defined')
+                | selectattr('orderer_component_type', 'eq', 'consensus')
                 | map(attribute='inventory_hostname')
                 | sort
                 | first
@@ -78,10 +57,10 @@
 - name: Render fxadmin configuration on each organization's reference orderer host
   hosts: fabric_x_orderers
   tasks:
-    - name: Render fxadmin configuration for every identity declared by this organization
+    - name: Render fxadmin configuration for this organization's identity
       vars:
-        fxadmin_identity: "{{ fxadmin_user }}"
-        fxadmin_remote_config_dir: "{{ remote_config_dir }}/fxadmin{{ '' if fxadmin_identity.type == 'admin' else '-reader' }}"
+        fxadmin_identity: "{{ organization.user }}"
+        fxadmin_remote_config_dir: "{{ remote_config_dir }}/fxadmin"
         fxadmin_identity_dir: >-
           {{
             fetched_artifacts_dir
@@ -95,11 +74,7 @@
       ansible.builtin.include_role:
         name: hyperledger.fabricx.fxadmin
         tasks_from: config/transfer
-      loop: "{{ organization.users }}"
-      loop_control:
-        loop_var: fxadmin_user
-        label: "{{ fxadmin_user.name }}"
       when:
         - organization is defined
-        - organization.users is defined
+        - organization.user is defined
         - inventory_hostname == hostvars['localhost'].fxadmin_org_reference_hosts[organization.name]

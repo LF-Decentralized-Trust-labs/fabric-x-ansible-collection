@@ -32,7 +32,8 @@ fxadmin_image: "{{ fxadmin_registry_endpoint }}/{{ fxadmin_image_name }}:{{ fxad
 # Defines the image name used by the fxadmin container image.
 fxadmin_image_name: fabric-x-tools
 # Defines the image tag used by the fxadmin container image.
-fxadmin_image_tag: 1.0.0
+# Must be at least 1.0.2: earlier fabric-x-tools tags do not bundle the fxadmin binary.
+fxadmin_image_tag: 1.0.2
 # Defines the MSP identifier written into the rendered admin configuration.
 fxadmin_msp_id: '{{ organization.name }}MSP'
 # Defines the registry endpoint used by the fxadmin container image.

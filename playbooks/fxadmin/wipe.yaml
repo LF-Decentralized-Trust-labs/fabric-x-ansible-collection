@@ -13,7 +13,7 @@
         tasks_from: wipe
       when:
         - organization is defined
-        - organization.users is defined
+        - organization.user is defined
 
 - name: Wipe fxadmin artifacts on the control node
   hosts: localhost

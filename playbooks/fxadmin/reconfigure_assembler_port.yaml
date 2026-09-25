@@ -11,12 +11,10 @@
 # `make <affected_orderer_node> configs restart` afterwards to pick up the
 # new port on the running component.
 #
-# Identity scope: the target organization's Reader identity (NodeOU role
-# client) is used for every step except endorsement -- ledger reads, follow,
-# tx/prepare, and tx/submit only need to authenticate as a channel member, not
-# approve a governance change. Each orderer organization's Admin identity
-# (NodeOU role admin) is used strictly for tx/endorse, the one step that must
-# satisfy the channel's per-org Admins policy.
+# Identity scope: each orderer organization's single admin identity (NodeOU
+# role admin, organization.user) is used for every step, endorsement
+# included -- there is no separate least-privileged identity for the
+# non-endorsing steps (ledger reads, follow, tx/prepare, tx/submit).
 #
 # Control node vs. remote nodes: every step that authenticates as an
 # organization's identity runs on that organization's own reference orderer
@@ -96,6 +94,7 @@
                 | selectattr('organization', 'defined')
                 | selectattr('organization.name', 'eq', current_org.name)
                 | selectattr('orderer_component_type', 'defined')
+                | selectattr('orderer_component_type', 'eq', 'consensus')
                 | map(attribute='inventory_hostname')
                 | sort
                 | first
@@ -113,9 +112,9 @@
     fxadmin_artifacts_dir: "{{ config_build_dir }}/fxadmin-artifacts"
     fxadmin_target_organization: "{{ hostvars['localhost'].fxadmin_target_organization }}"
   tasks:
-    - name: Fetch the latest configuration block as the target organization's Reader identity
+    - name: Fetch the latest configuration block as the target organization's admin identity
       vars:
-        fxadmin_remote_config_dir: "{{ remote_config_dir }}/fxadmin-reader"
+        fxadmin_remote_config_dir: "{{ remote_config_dir }}/fxadmin"
         # Reconstructed from config_build_dir + channel_id (both set at the
         # inventory level) rather than configtxgen's own role defaults, which
         # are only merged into vars once that role has actually run in this
@@ -279,7 +278,7 @@
         tasks_from: tx/endorse
       when:
         - organization is defined
-        - organization.users is defined
+        - organization.user is defined
         - inventory_hostname == hostvars['localhost'].fxadmin_org_reference_hosts[organization.name]
 
 - name: Merge the collected endorsements on the control node
@@ -301,9 +300,9 @@
     fxadmin_artifacts_dir: "{{ config_build_dir }}/fxadmin-artifacts"
     fxadmin_target_organization: "{{ hostvars['localhost'].fxadmin_target_organization }}"
   tasks:
-    - name: Perform submission of the Fabric-X ConfigUpdate as the target organization's Reader identity
+    - name: Perform submission of the Fabric-X ConfigUpdate as the target organization's admin identity
       vars:
-        fxadmin_remote_config_dir: "{{ remote_config_dir }}/fxadmin-reader"
+        fxadmin_remote_config_dir: "{{ remote_config_dir }}/fxadmin"
       when:
         - inventory_hostname == hostvars['localhost'].fxadmin_org_reference_hosts[fxadmin_target_organization.name]
       block:
@@ -327,7 +326,6 @@
         - name: Follow the ledger until the new configuration commits
           vars:
             fxadmin_current_block: "{{ fxadmin_artifacts_dir }}/config.pb"
-            fxadmin_follow_timeout: "{{ fxadmin_follow_timeout | default('60s') }}"
             fxadmin_output: "{{ fxadmin_remote_config_dir }}/next_config.pb"
             fxadmin_output_fetch_dest: "{{ fxadmin_artifacts_dir }}/next_config.pb"
           ansible.builtin.include_role:
