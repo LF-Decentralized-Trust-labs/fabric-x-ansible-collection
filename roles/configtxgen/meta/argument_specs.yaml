@@ -145,7 +145,7 @@ argument_specs:
         type: dict
         default: {}
         description:
-          - Organization map rendered into `configtx.yaml`, keyed by domain, each carrying its own `orderers` and `peers` node lists so a single organization can appear on both sides of the network.
+          - "Organization map rendered into `configtx.yaml`, keyed by domain, each carrying its own `orderers` and `peers` node lists so a single organization can appear on both sides of the network."
       fetched_artifacts_dir: &fetched_artifacts_dir
         type: path
         required: true
