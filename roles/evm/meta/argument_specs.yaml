@@ -523,14 +523,13 @@ argument_specs:
   crypto/fetch:
     short_description: Fetch EVM identity certificates
     description:
-      - Fetches the EVM peer and user sign certificates so C(fxconfig) can build namespace endorsement policies that reference them.
+      - Fetches the EVM user sign certificate so C(fxconfig) can build namespace endorsement policies that reference it.
       - Also fetches the client TLS CA certificate when C(evm_use_tls) is C(true), so other Fabric-X components can be configured to trust EVM as an mTLS client.
     options:
       organization: *organization
       evm_remote_config_dir: *evm_remote_config_dir
       remote_config_dir: *remote_config_dir
       fetched_artifacts_dir: *fetched_artifacts_dir
-      evm_crypto_name: *evm_crypto_name
       evm_use_tls: *evm_use_tls
 
   crypto/rm:

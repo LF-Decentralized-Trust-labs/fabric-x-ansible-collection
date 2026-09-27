@@ -776,12 +776,11 @@ argument_specs:
   crypto/fetch:
     short_description: Fetch generated certificates
     description:
-      - Fetch generated Loadgen MSP signcerts and TLS certificates back to the control node.
+      - Fetch the generated Loadgen user MSP signcert and TLS certificates back to the control node.
       - Stores artifacts under the fetched artifacts directory so other roles can trust Loadgen endpoints or reuse generated crypto outputs.
     options:
       organization: *organization
       fetched_artifacts_dir: *fetched_artifacts_dir
-      loadgen_crypto_name: *loadgen_crypto_name
       loadgen_remote_config_dir: *loadgen_remote_config_dir
       remote_config_dir: *remote_config_dir
       loadgen_use_tls: *loadgen_use_tls
