@@ -362,28 +362,12 @@ Fetch the committer TLS CA certificate and server certificate to the control nod
   vars:
     # Remote config directory used by delegated crypto tasks.
     remote_config_dir: "/opt/fabricx/committer/config"
-    # Crypto material base name for the committer.
-    committer_crypto_name: "{{ organization.peer.name | default(inventory_hostname) }}"
     # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
     # Control-node directory that stores fetched artifacts.
     fetched_artifacts_dir: "/tmp/fabricx/artifacts"
     # Enable TLS material for the selected component.
     committer_use_tls: false
-    # Committer component handled by the entry point.
-    committer_component_type: "coordinator"
-    # Organization definition consumed by crypto and sidecar configuration tasks.
-    organization:
-      name: "Org1"
-      domain: "org1.example.com"
-      role: "peer"
-      fabric_ca_host: "fca-org1"
-      peer:
-        name: "committer-sidecar"
-        secret: "committer-sidecarPWD"
-      users:
-        - name: "committer-sidecar"
-          secret: "committer-sidecarPWD"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: crypto/fetch

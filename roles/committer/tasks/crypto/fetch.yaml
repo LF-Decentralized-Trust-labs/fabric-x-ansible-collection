@@ -5,18 +5,6 @@
 #
 
 # =========================
-# MSP certs
-# =========================
-- name: Fetch Hyperledger Fabric-X Committer sidecar sign certificate into organization knowncerts
-  ansible.builtin.fetch:
-    src: "{{ committer_remote_config_dir }}/msp/signcerts/{{ committer_crypto_name }}.{{ organization.domain }}-cert.pem"
-    dest: "{{ fetched_artifacts_dir }}/crypto/organizations/{{ organization.domain }}/msp/knowncerts/{{ committer_crypto_name }}.{{ organization.domain }}-cert.pem"
-    flat: true
-  when:
-    - organization.fabric_ca_host is defined
-    - committer_component_type == 'sidecar'
-
-# =========================
 # TLS certs
 # =========================
 - name: Fetch Hyperledger Fabric-X Committer TLS certificates

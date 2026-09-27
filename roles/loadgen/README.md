@@ -600,7 +600,7 @@ Enroll Loadgen peer, user, and optional TLS identities against Fabric CA. Writes
 
 > Fetch generated certificates
 
-Fetch generated Loadgen MSP signcerts and TLS certificates back to the control node. Stores artifacts under the fetched artifacts directory so other roles can trust Loadgen endpoints or reuse generated crypto outputs.
+Fetch the generated Loadgen user MSP signcert and TLS certificates back to the control node. Stores artifacts under the fetched artifacts directory so other roles can trust Loadgen endpoints or reuse generated crypto outputs.
 
 ```yaml
 - name: Fetch generated certificates
@@ -622,8 +622,6 @@ Fetch generated Loadgen MSP signcerts and TLS certificates back to the control n
           policy: "threshold"
     # Local artifacts directory used for fetched TLS and MSP files.
     fetched_artifacts_dir: "/tmp/fabricx-artifacts"
-    # Crypto identity name used for MSP and TLS file names.
-    loadgen_crypto_name: "{{ organization.peer.name | default(inventory_hostname) }}"
     # Remote config directory used by Loadgen.
     loadgen_remote_config_dir: "{{ remote_config_dir }}"
     # Base remote config directory that feeds `loadgen_remote_config_dir`.
