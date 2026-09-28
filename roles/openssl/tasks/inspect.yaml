@@ -19,6 +19,13 @@
     path: "{{ openssl_artifact_path }}"
   register: openssl_artifact_stat
 
+- name: Stat the OpenSSL private key
+  ansible.builtin.stat:
+    path: "{{ openssl_private_key_path }}"
+  register: openssl_private_key_stat
+  when:
+    - openssl_private_key_path is defined
+
 # =========================
 # Previous state
 # =========================
@@ -49,6 +56,7 @@
     openssl_must_run: >-
       {{
         (not openssl_artifact_stat.stat.exists)
+        or (openssl_private_key_path is defined and not openssl_private_key_stat.stat.exists)
         or (not openssl_state_stat.stat.exists)
         or (openssl_recorded_fingerprints.get(openssl_artifact_path) != openssl_current_fingerprint)
       }}
