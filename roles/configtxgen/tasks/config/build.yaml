@@ -10,6 +10,34 @@
     state: directory
     mode: "0o755"
 
+- name: Determine which side of the network each organization belongs to
+  vars:
+    current_org_type: "{{ current_org.type | default('') }}"
+    current_org_type_inferred: "{{ current_org_type not in ['orderer', 'peer'] }}"
+    current_org_has_orderers: "{{ current_org.orderers | default([]) | length > 0 }}"
+    current_org_has_peers: "{{ current_org.peers | default([]) | length > 0 }}"
+  ansible.builtin.set_fact:
+    # An org's explicit `type` (orderer/peer) wins; when unset, or set to
+    # anything else, fall back to inferring the side from its node lists.
+    configtxgen_orderer_org_names: >-
+      {{
+        (configtxgen_orderer_org_names | default([])) +
+        ([current_org.name] if (
+          current_org_type == 'orderer' or (current_org_type_inferred and current_org_has_orderers)
+        ) else [])
+      }}
+    configtxgen_application_org_names: >-
+      {{
+        (configtxgen_application_org_names | default([])) +
+        ([current_org.name] if (
+          current_org_type == 'peer' or (current_org_type_inferred and current_org_has_peers)
+        ) else [])
+      }}
+  loop: "{{ configtxgen_orgs_by_domain.values() | list }}"
+  loop_control:
+    loop_var: current_org
+    label: "{{ current_org.name }}"
+
 - name: Create configtxgen.yaml from template
   vars:
     crypto_artifacts_dir: >-
@@ -24,6 +52,8 @@
         if configtxgen_use_bin
         else configtxgen_armageddon_container_artifacts_dir
       }}
+    configtxgen_orderer_org_names: "{{ configtxgen_orderer_org_names | default([]) }}"
+    configtxgen_application_org_names: "{{ configtxgen_application_org_names | default([]) }}"
   ansible.builtin.template:
     src: configtx.yaml.j2
     dest: "{{ configtxgen_artifacts_dir }}/{{ configtxgen_config_file }}"

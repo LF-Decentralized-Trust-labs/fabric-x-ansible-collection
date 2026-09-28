@@ -32,6 +32,8 @@
               org_domain: {
                 'name': org_name,
                 'domain': org_domain,
+                'type': hostvars[orderer].organization.type
+                  | default((configtxgen_orgs_by_domain | default({})).get(org_domain, {}).get('type', '')),
                 'orderers': (
                   (configtxgen_orgs_by_domain | default({})).get(org_domain, {}).get('orderers', []) + [orderer_info]
                 ),
@@ -64,6 +66,8 @@
               org_domain: {
                 'name': org_name,
                 'domain': org_domain,
+                'type': hostvars[peer].organization.type
+                  | default((configtxgen_orgs_by_domain | default({})).get(org_domain, {}).get('type', '')),
                 'orderers': (configtxgen_orgs_by_domain | default({})).get(org_domain, {}).get('orderers', []),
                 'peers': (
                   (configtxgen_orgs_by_domain | default({})).get(org_domain, {}).get('peers', []) + [peer_info]

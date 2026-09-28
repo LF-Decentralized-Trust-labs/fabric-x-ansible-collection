@@ -528,7 +528,7 @@ Enrolls the peer identity, each user identity, and (when `evm_use_tls` is `true`
 
 > Fetch EVM identity certificates
 
-Fetches the EVM peer and user sign certificates so `fxconfig` can build namespace endorsement policies that reference them. Also fetches the client TLS CA certificate when `evm_use_tls` is `true`, so other Fabric-X components can be configured to trust EVM as an mTLS client.
+Fetches the EVM user sign certificate so `fxconfig` can build namespace endorsement policies that reference it. Also fetches the client TLS CA certificate when `evm_use_tls` is `true`, so other Fabric-X components can be configured to trust EVM as an mTLS client.
 
 ```yaml
 - name: Fetch EVM identity certificates
@@ -554,8 +554,6 @@ Fetches the EVM peer and user sign certificates so `fxconfig` can build namespac
     remote_config_dir: "/var/hyperledger/fabricx/evm/config"
     # Local artifacts directory used for fetched crypto material.
     fetched_artifacts_dir: "/tmp/fabricx-artifacts"
-    # Name of the enrolled peer identity backing the gateway.
-    evm_crypto_name: "{{ organization.peer.name | default(inventory_hostname) }}"
     # Enroll a shared client TLS key pair for EVM, used when any connected orderer or the committer sidecar requires mTLS. Set this to `true` whenever any orderer router (from `orderer_hosts`) or the committer sidecar (derived from `committer_hosts`) has `orderer_use_mtls` or `committer_use_mtls` enabled; the TLS mode used on each individual connection is still derived from that host's own flags.
     evm_use_tls: false
   ansible.builtin.include_role:

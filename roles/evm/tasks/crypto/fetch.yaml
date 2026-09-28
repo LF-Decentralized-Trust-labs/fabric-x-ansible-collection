@@ -13,14 +13,6 @@
     dest: "{{ fetched_artifacts_dir }}/crypto/organizations/{{ organization.domain }}/users/{{ organization.user.name }}@{{ organization.domain }}/msp/signcerts/{{ organization.user.name }}@{{ organization.domain }}-cert.pem"
     flat: true
 
-- name: Fetch EVM peer sign certificate into organization knowncerts
-  ansible.builtin.fetch:
-    src: "{{ evm_remote_config_dir }}/msp/signcerts/{{ evm_crypto_name }}.{{ organization.domain }}-cert.pem"
-    dest: "{{ fetched_artifacts_dir }}/crypto/organizations/{{ organization.domain }}/msp/knowncerts/{{ evm_crypto_name }}.{{ organization.domain }}-cert.pem"
-    flat: true
-  when:
-    - organization.fabric_ca_host is defined
-
 - name: Fetch EVM user sign certificate into organization knowncerts
   ansible.builtin.fetch:
     src: "{{ evm_remote_config_dir }}/users/{{ organization.user.name }}@{{ organization.domain }}/msp/signcerts/{{ organization.user.name }}@{{ organization.domain }}-cert.pem"

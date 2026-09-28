@@ -15,8 +15,8 @@
 ---
 Organizations:
 {% for org_domain, org_info in configtxgen_orgs_by_domain.items() %}
-{% set has_orderers = org_info.orderers | default([]) | length > 0 %}
-{% set has_peers = org_info.peers | default([]) | length > 0 %}
+{% set has_orderers = org_info.name in configtxgen_orderer_org_names %}
+{% set has_peers = org_info.name in configtxgen_application_org_names %}
   - &{{ org_info.name }}MSP
     # Name is the key by which this org will be referenced in channel
     # configuration transactions.
@@ -85,7 +85,7 @@ Organizations:
         Rule: "{{ configtxgen_peer_org_policies_admins_rule | replace('{msp_id}', msp_id) }}"
 {% endif %}
 
-{% if has_orderers %}
+{% if has_orderers and org_info.orderers | default([]) | length > 0 %}
     # OrdererEndpoints is a list of all orderers this org runs which clients
     # and peers may to connect to to push transactions and receive blocks respectively.
     OrdererEndpoints:
@@ -97,7 +97,7 @@ Organizations:
 {% endif %}
 {% endfor %}
 {% endif %}
-{% if has_peers %}
+{% if has_peers and org_info.peers | default([]) | length > 0 %}
     # AnchorPeers defines the location of peers which can be used for
     # cross-org gossip communication.
     #
@@ -164,10 +164,8 @@ Application: &ApplicationDefaults
   # Organizations lists the orgs participating on the application side of the
   # network.
   Organizations:
-{% for org_domain, org_info in configtxgen_orgs_by_domain.items() %}
-{% if org_info.peers | default([]) | length > 0 %}
-    - *{{ org_info.name }}MSP
-{% endif %}
+{% for org_name in configtxgen_application_org_names %}
+    - *{{ org_name }}MSP
 {% endfor %}
 
   # Policies defines the set of policies at this level of the config tree
@@ -186,17 +184,16 @@ Application: &ApplicationDefaults
     Endorsement:
       Type: {{ configtxgen_application_policies_endorsement_type }}
       Rule: "{{ configtxgen_application_policies_endorsement_rule }}"
-{% set application_orgs = configtxgen_orgs_by_domain.values() | selectattr('peers', 'defined') | selectattr('peers', '!=', []) | list %}
     SnapshotEndorsement:
 {% if configtxgen_application_policies_snapshot_endorsement_rule is defined %}
       Type: {{ configtxgen_application_policies_snapshot_endorsement_type }}
       Rule: "{{ configtxgen_application_policies_snapshot_endorsement_rule }}"
-{% elif application_orgs | length > 0 %}
+{% elif configtxgen_application_org_names | length > 0 %}
       Type: {{ configtxgen_application_policies_snapshot_endorsement_type }}
       Rule: >
         {{ configtxgen_application_policies_snapshot_endorsement_operator }} (
-{% for org_info in application_orgs %}
-        '{{ org_info.name }}MSP.{{ configtxgen_application_policies_snapshot_endorsement_ou }}'{% if not loop.last %},{% endif +%}
+{% for org_name in configtxgen_application_org_names %}
+        '{{ org_name }}MSP.{{ configtxgen_application_policies_snapshot_endorsement_ou }}'{% if not loop.last %},{% endif +%}
 {% endfor %}
         )
 {% else %}
@@ -207,12 +204,12 @@ Application: &ApplicationDefaults
 {% if configtxgen_application_policies_checkpoint_endorsement_rule is defined %}
       Type: {{ configtxgen_application_policies_checkpoint_endorsement_type }}
       Rule: "{{ configtxgen_application_policies_checkpoint_endorsement_rule }}"
-{% elif application_orgs | length > 0 %}
+{% elif configtxgen_application_org_names | length > 0 %}
       Type: {{ configtxgen_application_policies_checkpoint_endorsement_type }}
       Rule: >
         {{ configtxgen_application_policies_checkpoint_endorsement_operator }} (
-{% for org_info in application_orgs %}
-        '{{ org_info.name }}MSP.{{ configtxgen_application_policies_checkpoint_endorsement_ou }}'{% if not loop.last %},{% endif +%}
+{% for org_name in configtxgen_application_org_names %}
+        '{{ org_name }}MSP.{{ configtxgen_application_policies_checkpoint_endorsement_ou }}'{% if not loop.last %},{% endif +%}
 {% endfor %}
         )
 {% else %}
@@ -223,12 +220,12 @@ Application: &ApplicationDefaults
 {% if configtxgen_application_policies_lifecycle_endorsement_rule is defined %}
       Type: {{ configtxgen_application_policies_lifecycle_endorsement_type }}
       Rule: "{{ configtxgen_application_policies_lifecycle_endorsement_rule }}"
-{% elif application_orgs | length > 0 %}
+{% elif configtxgen_application_org_names | length > 0 %}
       Type: {{ configtxgen_application_policies_lifecycle_endorsement_type }}
       Rule: >
         {{ configtxgen_application_policies_lifecycle_endorsement_operator }} (
-{% for org_info in application_orgs %}
-        '{{ org_info.name }}MSP.{{ configtxgen_application_policies_lifecycle_endorsement_ou }}'{% if not loop.last %},{% endif +%}
+{% for org_name in configtxgen_application_org_names %}
+        '{{ org_name }}MSP.{{ configtxgen_application_policies_lifecycle_endorsement_ou }}'{% if not loop.last %},{% endif +%}
 {% endfor %}
         )
 {% else %}
@@ -385,10 +382,8 @@ Orderer: &OrdererDefaults
   # Organizations lists the orgs participating on the orderer side of the
   # network.
   Organizations:
-{% for org_domain, org_info in configtxgen_orgs_by_domain.items() %}
-{% if org_info.orderers | default([]) | length > 0 %}
-    - *{{ org_info.name }}MSP
-{% endif %}
+{% for org_name in configtxgen_orderer_org_names %}
+    - *{{ org_name }}MSP
 {% endfor %}
 
   # Policies defines the set of policies at this level of the config tree
