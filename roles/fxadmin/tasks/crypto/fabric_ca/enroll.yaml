@@ -38,6 +38,10 @@
     fabric_ca_server_effective_remote_config_dir: "{{ hostvars[organization.fabric_ca_host].fabric_ca_server_remote_config_dir | default(hostvars[organization.fabric_ca_host].remote_config_dir) }}"
     fabric_ca_tls_certfile: "{{ fabric_ca_server_effective_remote_config_dir }}/{{ hostvars[organization.fabric_ca_host].fabric_ca_server_tls_cert_file | default('tls-cert.pem') }}"
     fabric_ca_identity: "{{ fxadmin_admin_identity }}"
+    # delegate_to keeps this play's (localhost) variable context, so the default
+    # would look for fabric-ca-client under localhost's own bin directory,
+    # where it is never installed. It lives on the CA host.
+    bin_remote_dir: "{{ hostvars[organization.fabric_ca_host].remote_node_dir }}/bin"
     # Scratch directory for the enrolled identity, staged under the CA host's
     # own config dir rather than /tmp -- a container runtime's host-mount
     # sharing (for example Podman Machine on macOS) is not guaranteed to
