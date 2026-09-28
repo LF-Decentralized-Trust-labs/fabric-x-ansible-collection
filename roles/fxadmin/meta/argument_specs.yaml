@@ -573,6 +573,7 @@ argument_specs:
     short_description: Provision the identity declared in an orderer organization's user
     description:
       - "Dispatches identity provisioning for C(organization.user) to either the cryptogen or Fabric CA path based on whether C(organization.fabric_ca_host) is defined."
+      - "Fails when C(organization.user) is declared without C(type: admin), since only an OU=admin identity satisfies the channel's per-org Admins policy."
     options:
       organization: *organization
 

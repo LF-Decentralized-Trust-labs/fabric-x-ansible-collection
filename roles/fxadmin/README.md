@@ -785,7 +785,7 @@ Registers and enrolls an org-level identity (MSP and a dedicated TLS identity) f
 
 > Provision the identity declared in an orderer organization's user
 
-Dispatches identity provisioning for `organization.user` to either the cryptogen or Fabric CA path based on whether `organization.fabric_ca_host` is defined.
+Dispatches identity provisioning for `organization.user` to either the cryptogen or Fabric CA path based on whether `organization.fabric_ca_host` is defined. Fails when `organization.user` is declared without `type: admin`, since only an OU=admin identity satisfies the channel's per-org Admins policy.
 
 ```yaml
 - name: Provision the identity declared in an orderer organization's user

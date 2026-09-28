@@ -23,7 +23,7 @@
         | map('extract', hostvars)
         | selectattr('organization', 'defined')
         | map(attribute='organization')
-        | unique
+        | unique(attribute='name')
         | list
       }}
   tasks:

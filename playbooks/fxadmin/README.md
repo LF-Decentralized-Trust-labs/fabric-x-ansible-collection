@@ -31,14 +31,15 @@ ansible-playbook hyperledger.fabricx.fxadmin.generate_crypto
 Properties:
 
 - Target hosts: `localhost` only, wired into `examples/playbooks/20-generate-crypto.yaml` right after `hyperledger.fabricx.orderer.generate_crypto`, while cryptogen's own generation output still exists to fetch from.
-- Dispatch: for a `cryptogen`-based organization, fetches the `Admin@<domain>` identity `cryptogen` already generates unconditionally (`roles/cryptogen/tasks/fetch.yaml` never does, since it only fetches the organization's root MSP). For a Fabric CA-based organization (`organization.fabric_ca_host` defined), registers and enrolls a new `<Org>Admin` identity directly on that CA host, then fetches the result back.
+- Dispatch: for a `cryptogen`-based organization, fetches the identity declared in `organization.user`, which `cryptogen` generates under its own name with `Admin: true` (`roles/cryptogen/tasks/fetch.yaml` never does, since it only fetches the organization's root MSP). For a Fabric CA-based organization (`organization.fabric_ca_host` defined), registers and enrolls `organization.user` directly on that CA host, then fetches the result back.
+- Validation: fails if an organization's `organization.user` is declared without `type: admin`, since only an `OU=admin` identity satisfies the channel's per-org Admins policy -- without this, a missing `type` silently provisions a `client` identity and only surfaces later as a `tx submit` policy rejection.
 
 > [!NOTE]
-> The Fabric CA path is the less battle-tested of the two -- it hasn't been run against a live CA server end-to-end yet. If registration or enrollment fails, check that the CA host's bootstrap registrar (`fabric_ca_admin`) is initialized and reachable.
+> If Fabric CA registration or enrollment fails, check that the CA host's bootstrap registrar (`fabric_ca_admin`) is initialized and reachable.
 
 ## binaries.yaml
 
-[`binaries.yaml`](./binaries.yaml) prepares the `fxadmin` CLI. Like `fxconfig`, it builds/installs once on the control node and then ensures the binary also exists on every orderer organization's own hosts -- `configs.yaml` and `reconfigure_assembler_port.yaml` authenticate as an organization's identity on that organization's own reference host, never the control node, so the CLI must be there too.
+[`binaries.yaml`](./binaries.yaml) prepares the `fxadmin` CLI. Like `fxconfig`, it installs on the control node -- once per target platform of the hosts that need it -- and then transfers it to those hosts. Only one host per organization needs it, since `configs.yaml` and `reconfigure_assembler_port.yaml` authenticate as an organization's identity on that host, never on the control node. Hosts are targeted through each organization's consenter host purely as a deterministic way to pick one per organization -- `fxadmin` does not use consensus and has no requirement to run there. The other hosts of the organization never get the binary.
 
 ```shell
 ansible-playbook hyperledger.fabricx.fxadmin.binaries
@@ -46,13 +47,13 @@ ansible-playbook hyperledger.fabricx.fxadmin.binaries
 
 Properties:
 
-- Target hosts: `localhost` for the initial build/install, then `fabric_x_orderers` (hosts whose `organization.user` is defined) for the remote-node install/build/transfer.
+- Target hosts: `localhost` for the initial install, then each organization's consenter host in `fabric_x_orderers` (organizations whose `organization.user` is defined) for the remote-node install/transfer.
 - Binary activation: only runs when `fxadmin_use_bin: true`.
-- Build location: set `fxadmin_build_bin: true` to build on the control node and transfer the binary out instead of each host installing it independently via `go install`.
+- Install location: with `bin_build_on_control_node: true` the binary is installed once on the control node and transferred out; otherwise each targeted host installs it independently via `go install`.
 
 ## configs.yaml
 
-[`configs.yaml`](./configs.yaml) picks one reference orderer host per organization (its alphabetically-first consenter in `fabric_x_orderers`) and renders `fxadmin`'s admin configuration (MSP identity, TLS/mTLS material) directly on it, for the single identity declared in `organization.user` -- the admin identity `generate_crypto.yaml` provisioned, used for every `fxadmin` operation. The identity's private key material is synced from the control node onto that reference host and never persists on the control node itself.
+[`configs.yaml`](./configs.yaml) picks one reference host per organization (its alphabetically-first consenter host in `fabric_x_orderers`, used only as a deterministic way to select one host per organization -- `fxadmin` does not use consensus) and renders `fxadmin`'s admin configuration (MSP identity, TLS/mTLS material) directly on it, for the single identity declared in `organization.user` -- the admin identity `generate_crypto.yaml` provisioned, used for every `fxadmin` operation. The identity's private key material is synced from the control node onto that reference host and never persists on the control node itself.
 
 ```shell
 ansible-playbook hyperledger.fabricx.fxadmin.configs

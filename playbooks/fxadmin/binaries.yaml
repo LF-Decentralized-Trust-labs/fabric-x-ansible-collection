@@ -4,63 +4,68 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-# Only decode/compute_update/merge stay on the control node (pure artifact
-# transforms with no identity involved). Every entrypoint that authenticates
-# as an organization's identity -- config_latest, tx/endorse, tx/prepare,
-# tx/submit, follow -- runs on that organization's own orderer hosts instead
-# (see playbooks/fxadmin/configs.yaml and reconfigure_assembler_port.yaml),
-# so the fxadmin binary must exist there too, mirroring
+# fxadmin runs on one host per organization (see configs.yaml) and on the
+# control node for the identity-less steps (decode, compute_update, merge).
+# The binary is therefore installed once per target platform on the control
+# node, then transferred to those hosts only -- mirroring
 # playbooks/fxconfig/binaries.yaml.
-- name: Build the fxadmin binary on the control node
+#
+# The per-organization host is its consenter host, used only as a
+# deterministic way to select one host per organization: fxadmin does not use
+# consensus and has no requirement to run there.
+- name: Install the fxadmin binary on the control node
   hosts: localhost
+  vars:
+    fxadmin_bin_hosts: >-
+      {{
+        groups['fabric_x_orderers']
+        | map('extract', hostvars)
+        | selectattr('organization', 'defined')
+        | selectattr('organization.user', 'defined')
+        | selectattr('orderer_component_type', 'defined')
+        | selectattr('orderer_component_type', 'eq', 'consensus')
+        | selectattr('fxadmin_use_bin', 'defined')
+        | selectattr('fxadmin_use_bin', 'eq', true)
+        | selectattr('bin_build_on_control_node', 'defined')
+        | selectattr('bin_build_on_control_node', 'eq', true)
+        | map(attribute='inventory_hostname')
+        | list
+      }}
   tasks:
-    - name: Handle fxadmin build for the control node
+    - name: Install the fxadmin binary on the control node for the consenter hosts
+      vars:
+        bin_build_on_control_node: true
+        bin_hosts: "{{ fxadmin_bin_hosts }}"
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fxadmin
+        tasks_from: bin/install
+      when:
+        - fxadmin_bin_hosts | length > 0
+
+    - name: Install the fxadmin binary on the control node for the control node
+      vars:
+        bin_build_on_control_node: true
+        bin_dir: "{{ cli_bin_dir }}"
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fxadmin
+        tasks_from: bin/install
       when:
         - fxadmin_use_bin is defined
         - fxadmin_use_bin
-      block:
-        - name: Build the fxadmin binary on the control node
-          vars:
-            bin_build_on_control_node: true
-            bin_dir: "{{ cli_bin_dir }}"
-          ansible.builtin.include_role:
-            name: hyperledger.fabricx.fxadmin
-            tasks_from: bin/build
-          when:
-            - fxadmin_build_bin is defined
-            - fxadmin_build_bin
 
-        - name: Install the fxadmin binary on the control node
-          vars:
-            bin_build_on_control_node: true
-            bin_dir: "{{ cli_bin_dir }}"
-          ansible.builtin.include_role:
-            name: hyperledger.fabricx.fxadmin
-            tasks_from: bin/install
-          when:
-            - fxadmin_build_bin is undefined
-
-- name: Ensure the fxadmin binary is on each orderer organization's hosts
+- name: Ensure the fxadmin binary is on each organization's consenter host
   hosts: "{{ target_hosts | default('fabric_x_orderers') }}:&fabric_x_orderers"
   tasks:
-    - name: Setup fxadmin binary on the orderer organization's hosts
+    - name: Setup the fxadmin binary on the consenter host
+      vars:
+        bin_operation: "{{ 'transfer' if (bin_build_on_control_node | default(false)) else 'install' }}"
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fxadmin
+        tasks_from: "bin/{{ bin_operation }}"
       when:
         - fxadmin_use_bin is defined
         - fxadmin_use_bin
         - organization is defined
         - organization.user is defined
-      block:
-        - name: Setup fxadmin binary using appropriate method
-          vars:
-            # Determine the operation based on flags
-            bin_operation: >-
-              {{
-                'transfer' if (bin_build_on_control_node is defined and bin_build_on_control_node)
-                else ('build' if (fxadmin_build_bin is defined and fxadmin_build_bin)
-                else 'install')
-              }}
-          block:
-            - name: "{{ bin_operation | capitalize }} fxadmin binary on the orderer organization's hosts"
-              ansible.builtin.include_role:
-                name: hyperledger.fabricx.fxadmin
-                tasks_from: "bin/{{ bin_operation }}"
+        - orderer_component_type is defined
+        - orderer_component_type == 'consensus'

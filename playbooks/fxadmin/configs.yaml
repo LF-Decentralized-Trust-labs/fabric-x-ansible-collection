@@ -5,13 +5,14 @@
 #
 
 # Renders fxadmin's configuration for every Fabric-X orderer organization on
-# that organization's own reference orderer host (one per org, its
-# alphabetically-first consenter -- the core node type actually running the
-# consensus algorithm, even though this playbook itself never drives
-# consensus) -- never on the control node -- so a private identity's key
-# material is only ever synced to a real node, matching how
-# roles/orderer/tasks/crypto/cryptogen/transfer.yaml and
+# that organization's own reference host (one per org) -- never on the control
+# node -- so a private identity's key material is only ever synced to a real
+# node, matching how roles/orderer/tasks/crypto/cryptogen/transfer.yaml and
 # playbooks/fxconfig/configs.yaml handle their own per-organization material.
+#
+# The reference host is the organization's alphabetically-first consenter
+# host. That is only a deterministic way to select one host per organization:
+# fxadmin does not use consensus and has no requirement to run there.
 #
 # One config is rendered per organization, for the single identity declared
 # in organization.user (provisioned by hyperledger.fabricx.fxadmin.generate_crypto).
@@ -27,7 +28,7 @@
         | map('extract', hostvars)
         | selectattr('organization', 'defined')
         | map(attribute='organization')
-        | unique
+        | unique(attribute='name')
         | list
       }}
   tasks:
