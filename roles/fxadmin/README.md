@@ -68,8 +68,8 @@ Builds the fxadmin Go binary from the configured Fabric-X source package by dele
   vars:
     # Defines the fxadmin binary name.
     fxadmin_bin_name: fxadmin
-    # Selects the Git ref used by build and install workflows. Pinned to a commit rather than the `v1.0.0` tag: `tools/fxadmin` was added to the `hyperledger/fabric-x` repository after `v1.0.0` was cut, so `go install ...@v1.0.0` fails with "module found, but does not contain package". Bump this once a tagged release actually includes `tools/fxadmin`.
-    fxadmin_git_commit: 05bd6b7bf4686837a129baef5916d360810eee5b
+    # Selects the Git ref used by build and install workflows.
+    fxadmin_git_commit: v1.0.2
     # Defines the Git host used to resolve the Fabric-X source repository.
     fxadmin_git_hub_url: github.com
     # Defines the Fabric-X source repository path.
@@ -172,8 +172,8 @@ Installs the fxadmin Go package from the configured Fabric-X source package by d
     fxadmin_bin_name: fxadmin
     # Defines the Go package path used to install fxadmin.
     fxadmin_bin_package: "{{ fxadmin_git_hub_url }}/{{ fxadmin_git_repo }}/{{ fxadmin_source_code_package }}"
-    # Selects the Git ref used by build and install workflows. Pinned to a commit rather than the `v1.0.0` tag: `tools/fxadmin` was added to the `hyperledger/fabric-x` repository after `v1.0.0` was cut, so `go install ...@v1.0.0` fails with "module found, but does not contain package". Bump this once a tagged release actually includes `tools/fxadmin`.
-    fxadmin_git_commit: 05bd6b7bf4686837a129baef5916d360810eee5b
+    # Selects the Git ref used by build and install workflows.
+    fxadmin_git_commit: v1.0.2
     # Defines the Git host used to resolve the Fabric-X source repository.
     fxadmin_git_hub_url: github.com
     # Defines the Fabric-X source repository path.

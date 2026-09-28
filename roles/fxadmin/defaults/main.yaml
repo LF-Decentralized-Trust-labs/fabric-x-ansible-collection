@@ -21,8 +21,7 @@ fxadmin_container_name: fxadmin-{{ inventory_hostname }}
 # Defines how long C(follow) waits for the submitted configuration update to commit.
 fxadmin_follow_timeout: 60s
 # Selects the Git ref used by build and install workflows.
-# Pinned to a commit rather than the C(v1.0.0) tag: C(tools/fxadmin) was added to the C(hyperledger/fabric-x) repository after C(v1.0.0) was cut, so C(go install ...@v1.0.0) fails with "module found, but does not contain package". Bump this once a tagged release actually includes C(tools/fxadmin).
-fxadmin_git_commit: 05bd6b7bf4686837a129baef5916d360810eee5b
+fxadmin_git_commit: v1.0.2
 # Defines the Git host used to resolve the Fabric-X source repository.
 fxadmin_git_hub_url: github.com
 # Defines the Fabric-X source repository path.

@@ -120,10 +120,9 @@ argument_specs:
           - "Example: C(60s)."
       fxadmin_git_commit: &fxadmin_git_commit
         type: str
-        default: "05bd6b7bf4686837a129baef5916d360810eee5b"
+        default: "v1.0.2"
         description:
           - "Selects the Git ref used by build and install workflows."
-          - "Pinned to a commit rather than the C(v1.0.0) tag: C(tools/fxadmin) was added to the C(hyperledger/fabric-x) repository after C(v1.0.0) was cut, so C(go install ...@v1.0.0) fails with \"module found, but does not contain package\". Bump this once a tagged release actually includes C(tools/fxadmin)."
       fxadmin_git_hub_url: &fxadmin_git_hub_url
         type: str
         default: "github.com"
