@@ -69,11 +69,20 @@
     - fabric_ca_enrollment_profile | default('') == 'tls'
     - fabric_ca_client_must_enroll or fabric_ca_client_must_reenroll
   block:
+    # fabric-ca-client only creates this directory when the CA is an intermediate, so check first
+    # to avoid a missing-path warning from find on self-signed CAs.
+    - name: Check whether the enrolled TLS intermediate certificates directory exists
+      ansible.builtin.stat:
+        path: "{{ fabric_ca_msp_dir }}/tlsintermediatecerts"
+      register: fabric_ca_client_tls_intermediate_dir
+
     - name: Find the enrolled TLS intermediate certificates
       ansible.builtin.find:
         paths: "{{ fabric_ca_msp_dir }}/tlsintermediatecerts"
         patterns: "*.pem"
       register: fabric_ca_client_tls_intermediate_certs
+      when:
+        - fabric_ca_client_tls_intermediate_dir.stat.isdir | default(false)
 
     - name: Build the TLS CA certificate chain
       ansible.builtin.include_role:
