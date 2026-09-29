@@ -2,8 +2,17 @@
 
 The `fxadmin` playbooks drive live Fabric-X network reconfigurations. `fxadmin` is an admin CLI that pulls the current channel configuration, edits it, collects endorsements from the affected organizations, and broadcasts the resulting reconfiguration transaction -- the same control-plane style as `fxconfig`, but for the channel's own configuration instead of namespace transactions.
 
+## Supported reconfiguration flows
+
+Each row is one specific network-level change `fxadmin` can drive end-to-end today. Add a row here whenever a new one lands.
+
+| Flow | Playbook | Changes |
+| --- | --- | --- |
+| Change an orderer Assembler's port | [`reconfigure_assembler_port.yaml`](#reconfigure_assembler_portyaml) | The Assembler's org-level `Endpoints` entry and the channel-wide `ConsensusType.metadata.PartiesConfig` entry for that party |
+
 ## Table of Contents <!-- omit in toc -->
 
+- [Supported reconfiguration flows](#supported-reconfiguration-flows)
 - [Playbooks flow](#playbooks-flow)
 - [generate_crypto.yaml](#generate_cryptoyaml)
 - [binaries.yaml](#binariesyaml)
