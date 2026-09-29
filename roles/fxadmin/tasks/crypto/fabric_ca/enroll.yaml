@@ -4,24 +4,16 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-# Nothing enrolls an org-level admin or reader identity for orderer
-# organizations today (orderer nodes only enroll their own node identity; see
-# roles/orderer/tasks/crypto/fabric_ca/enroll.yaml). Register and enroll one
-# here, dedicated to fxadmin, using the same hyperledger.fabricx.fabric_ca
-# client/register + client/enroll entry points every other identity in this
-# collection is provisioned through. client/register's own description
-# explicitly lists "admin" and "client" as supported identity types.
+# Orderer nodes only enroll their own node identity, so fxadmin's identity
+# is registered and enrolled here instead, through the same
+# hyperledger.fabricx.fabric_ca client/register + client/enroll entry points
+# every other identity in this collection uses. Enrolls both an MSP identity
+# and a dedicated TLS identity for the mTLS connection, rather than
+# borrowing another host's TLS material.
 #
-# Enrolls both an MSP identity (for signing/reading) and a dedicated TLS
-# identity (for the mTLS connection), mirroring
-# roles/orderer/tasks/crypto/fabric_ca/enroll.yaml's own dual enrollment --
-# rather than borrowing another host's TLS material.
-#
-# Registration and enrollment run delegated to the organization's Fabric CA
-# host, since that is where the CA client tooling and the CA's own bootstrap
-# registrar identity (fabric_ca_admin) already live -- mirroring how
-# playbooks/fabric_ca_server/register_identities.yaml registers identities on
-# hosts: fabric_ca_servers rather than on the control node.
+# Runs delegated to the organization's Fabric CA host, since that is where
+# the CA client tooling and the CA's own bootstrap registrar identity
+# (fabric_ca_admin) live.
 
 - name: Resolve the fxadmin {{ fxadmin_identity_name }} identity for this organization
   ansible.builtin.set_fact:
@@ -87,13 +79,8 @@
 
     - name: Fetch the enrolled fxadmin {{ fxadmin_identity_name }} identity to the control node
       vars:
-        # Fabric CA's TLS enrollment profile names its output tls/server.crt
-        # and tls/server.key (the same convention roles/orderer and
-        # roles/fxconfig already use for TLS-profile enrollment), but
-        # cryptogen names the equivalent per-user TLS material
-        # tls/client.crt and tls/client.key. Renamed here so both
-        # provisioning paths present the same layout to callers such as
-        # playbooks/fxadmin/configs.yaml, regardless of which one ran.
+        # Renamed from Fabric CA's tls/server.{crt,key} to cryptogen's
+        # tls/client.{crt,key}, so callers see the same layout either way.
         fxadmin_enrolled_relative_path: >-
           {{
             fxadmin_enrolled_file.path

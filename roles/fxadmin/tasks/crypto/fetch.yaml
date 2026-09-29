@@ -4,20 +4,10 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-# Provisions and fetches the identity declared in organization.user onto the
-# control node. It must carry OU=admin (the only role able to satisfy the
-# channel's per-org Admins policy) since it is used for every fxadmin
-# operation, tx/endorse included -- there is no separate least-privileged
-# identity for the read-only operations (ledger reads, follow, tx/prepare,
-# tx/submit). Nothing else in this collection needs this identity today
-# (fxconfig's endorsers are peer/committer-org concepts), so this is
-# fxadmin's own dedicated provisioning step, dispatched by whichever
-# mechanism issued the organization's crypto material.
-#
-# organization.user is optional: orderer organizations never needed it
-# before fxadmin, so an inventory that hasn't declared one (or a playbook
-# run against a non-orderer organization) must be a safe no-op here, not a
-# hard failure.
+# Provisions and fetches the identity declared in organization.user, used
+# for every fxadmin operation, dispatched to whichever mechanism issued the
+# organization's crypto material. organization.user is optional, so an
+# organization without one is a safe no-op here.
 
 - name: Fail when the organization's user is not an admin identity
   ansible.builtin.fail:

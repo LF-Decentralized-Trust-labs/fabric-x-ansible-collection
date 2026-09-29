@@ -5,50 +5,22 @@
 #
 
 # Reconfigures the network-level port of one Fabric-X orderer Assembler.
-#
-# Scope: this playbook only submits the channel ConfigUpdate. It does NOT
-# restart the affected Assembler process -- run
+# Does not restart the Assembler process -- run
 # `make <affected_orderer_node> configs restart` afterwards to pick up the
-# new port on the running component.
+# new port.
 #
-# Identity scope: each orderer organization's single admin identity (NodeOU
-# role admin, organization.user) is used for every step, endorsement
-# included -- there is no separate least-privileged identity for the
-# non-endorsing steps (ledger reads, follow, tx/prepare, tx/submit).
+# Prerequisites: `hyperledger.fabricx.fxadmin.binaries` and
+# `hyperledger.fabricx.fxadmin.configs` (both wired into `make setup`).
 #
-# Control node vs. remote nodes: every step that authenticates as an
-# organization's identity runs on that organization's own reference orderer
-# host (one per org, resolved below), never on the control node -- a private
-# key is never persisted there. Artifacts hand off through the control node
-# between phases (matches playbooks/fxconfig/create_namespaces.yaml): each
-# remote step fetches its own output back immediately, and the next remote
-# step pushes it back out from there. Only pure, identity-less transforms
-# (decode, patch_config_value, compute_update, tx/merge) run on the control
-# node directly.
-#
-# Prerequisite: run `hyperledger.fabricx.fxadmin.binaries` and
-# `hyperledger.fabricx.fxadmin.configs` first (both are wired into the main
-# `make setup` flow) so the fxadmin CLI and every orderer organization's admin
-# configuration already exist on their reference hosts before this playbook
-# runs.
-#
-# NOTE: an Assembler's address is recorded in two places in the channel
-# config, and both must change together in the same ConfigUpdate or ARMA
-# rejects the transaction (confirmed with fxadmin's own maintainers):
+# An Assembler's address is recorded in two places, and both must change in
+# the same ConfigUpdate or ARMA rejects the transaction:
 #   1. channel_group.groups.Orderer.groups.<OrgName>.values.Endpoints
-#      .value.addresses, keyed by the plain organization name -- e.g.
-#      "OrdererOrg1", NOT its "OrdererOrg1MSP" MSP ID -- each entry a
-#      "id=<PartyID>,broadcast|deliver,host:port" string, one per router
-#      (broadcast) and assembler (deliver). Governed by that org's own
-#      per-org Admins policy.
+#      .value.addresses, keyed by the plain organization name (not its MSP
+#      ID) -- one "id=<PartyID>,broadcast|deliver,host:port" entry per
+#      router and assembler.
 #   2. channel_group.groups.Orderer.values.ConsensusType.value.metadata
-#      .PartiesConfig, a list of per-party structs (matched by PartyID)
-#      each carrying its own AssemblerConfig.host/port -- a second,
-#      authoritative copy ARMA's consensus layer reads directly. Governed
-#      by the channel-wide /Channel/Orderer/Admins policy, not any single
-#      org's.
-# Both paths have been confirmed against a real `fxadmin decode` sample
-# from this repo's local dev network.
+#      .PartiesConfig, a second, channel-wide copy of every party's
+#      AssemblerConfig.host/port that ARMA reads directly.
 
 - name: Resolve inputs for reconfiguring a Fabric-X orderer Assembler's port
   hosts: localhost
@@ -115,10 +87,9 @@
     - name: Fetch the latest configuration block as the target organization's admin identity
       vars:
         fxadmin_remote_config_dir: "{{ remote_config_dir }}/fxadmin"
-        # Reconstructed from config_build_dir + channel_id (both set at the
-        # inventory level) rather than configtxgen's own role defaults, which
-        # are only merged into vars once that role has actually run in this
-        # playbook invocation -- not the case here.
+        # Reconstructed from config_build_dir + channel_id rather than
+        # configtxgen's own role default, which is unset unless that role
+        # has already run in this same playbook invocation.
         fxadmin_current_block: "{{ fxadmin_genesis_block | default(config_build_dir ~ '/configtxgen-artifacts/' ~ channel_id ~ '_block.pb') }}"
         fxadmin_output: "{{ fxadmin_remote_config_dir }}/config.pb"
         fxadmin_output_fetch_dest: "{{ fxadmin_artifacts_dir }}/config.pb"
@@ -169,15 +140,9 @@
             + [fxadmin_new_assembler_endpoint]
           }}
 
-    # The org's own Endpoints value is only half of what describes an
-    # Assembler's address: ARMA's ConsensusType.Metadata.PartiesConfig
-    # carries a second, authoritative copy of every party's
-    # AssemblerConfig.host/port, channel-wide (governed by
-    # /Channel/Orderer/Admins, not any single org's Admins policy). The two
-    # must be updated together in the same ConfigUpdate or ARMA rejects the
-    # transaction -- confirmed with fxadmin's own maintainers after the
-    # network kept rejecting a ConfigUpdate that only touched Endpoints,
-    # regardless of how many orgs endorsed it.
+    # Channel-wide, governed by /Channel/Orderer/Admins rather than any
+    # single org's Admins policy -- see the file header for why this must
+    # be patched together with Endpoints.
     - name: Compute the patched ConsensusType metadata for the target party
       vars:
         fxadmin_current_config: "{{ fxadmin_current_config_slurp.content | b64decode | from_json }}"
@@ -205,14 +170,11 @@
       vars:
         fxadmin_current_config_json: "{{ fxadmin_artifacts_dir }}/current_config.json"
         fxadmin_modified_config_json: "{{ fxadmin_artifacts_dir }}/modified_config.json"
-        # A YAML mapping key written as a literal "{{ ... }}" string (as a
-        # nested key normally would be here) is never re-templated once
-        # ansible.builtin.combine() picks it up inside patch_config_value --
-        # it is passed through completely unrendered, corrupting the
-        # ConfigUpdate with a literal "{{ fxadmin_target_organization.name
-        # }}" group name instead of the organization's real name. Building
-        # the whole patch as one Jinja dict literal instead forces the key
-        # itself through template evaluation.
+        # Built as one Jinja dict literal, not nested YAML with a "{{ ... }}"
+        # key: a literal key string is never re-templated once combine()
+        # picks it up inside patch_config_value, which would corrupt the
+        # ConfigUpdate with a literal "{{ fxadmin_target_organization.name }}"
+        # group name.
         fxadmin_json_patch: >-
           {{
             {
@@ -268,10 +230,8 @@
         fxadmin_remote_config_dir: "{{ remote_config_dir }}/fxadmin"
         fxadmin_config_update: "{{ fxadmin_artifacts_dir }}/config_update.pb"
         fxadmin_endorsements_dir: "{{ fxadmin_artifacts_dir }}/endorsements"
-        # Basename must be unique per organization: tx/endorse's fetch step
-        # collects every org's endorsement into fxadmin_endorsements_dir
-        # keyed only by this file's basename, so a shared literal name here
-        # would make each org's endorsement overwrite the previous one.
+        # Must be unique per org: tx/endorse's fetch step collects every
+        # org's endorsement by this file's basename alone.
         fxadmin_output: "{{ fxadmin_remote_config_dir }}/{{ organization.name }}-endorsement.pb"
       ansible.builtin.include_role:
         name: hyperledger.fabricx.fxadmin

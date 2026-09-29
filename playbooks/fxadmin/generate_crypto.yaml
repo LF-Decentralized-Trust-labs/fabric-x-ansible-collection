@@ -6,14 +6,9 @@
 
 # Provisions and fetches one admin identity per Fabric-X orderer organization
 # onto the control node, for later use by fxadmin reconfiguration flows.
-#
-# Runs right after the base crypto material and Fabric CA identities have
-# been generated (wired into examples/playbooks/20-generate-crypto.yaml,
-# after hyperledger.fabricx.orderer.generate_crypto), while cryptogen's own
-# generation output is still around to fetch from -- mirroring how
-# hyperledger.fabricx.orderer.generate_crypto and
-# hyperledger.fabricx.loadgen.generate_crypto fetch what they need at this
-# same lifecycle point rather than later, on demand.
+# Wired into examples/playbooks/20-generate-crypto.yaml, right after
+# hyperledger.fabricx.orderer.generate_crypto, while cryptogen's own
+# generation output is still around to fetch from.
 - name: Provision an admin identity for every Fabric-X orderer organization
   hosts: localhost
   vars:

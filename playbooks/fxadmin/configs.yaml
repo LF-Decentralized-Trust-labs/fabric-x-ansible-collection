@@ -5,20 +5,12 @@
 #
 
 # Renders fxadmin's configuration for every Fabric-X orderer organization on
-# that organization's own reference host (one per org) -- never on the control
-# node -- so a private identity's key material is only ever synced to a real
-# node, matching how roles/orderer/tasks/crypto/cryptogen/transfer.yaml and
-# playbooks/fxconfig/configs.yaml handle their own per-organization material.
+# that organization's own reference host (one per org, see README.md for how
+# it's chosen) -- never on the control node -- so a private identity's key
+# material is only ever synced to a real node.
 #
-# The reference host is the organization's alphabetically-first consenter
-# host. That is only a deterministic way to select one host per organization:
-# fxadmin does not use consensus and has no requirement to run there.
-#
-# One config is rendered per organization, for the single identity declared
-# in organization.user (provisioned by hyperledger.fabricx.fxadmin.generate_crypto).
-# It must carry OU=admin (the only role able to satisfy the channel's per-org
-# Admins policy), and is used for every fxadmin operation -- there is no
-# separate least-privileged identity for the read-only operations.
+# One config is rendered per organization, for the identity declared in
+# organization.user (provisioned by hyperledger.fabricx.fxadmin.generate_crypto).
 - name: Resolve fxadmin configuration inputs on the control node
   hosts: localhost
   vars:

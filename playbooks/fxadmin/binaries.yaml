@@ -4,15 +4,11 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-# fxadmin runs on one host per organization (see configs.yaml) and on the
-# control node for the identity-less steps (decode, compute_update, merge).
-# The binary is therefore installed once per target platform on the control
-# node, then transferred to those hosts only -- mirroring
-# playbooks/fxconfig/binaries.yaml.
-#
-# The per-organization host is its consenter host, used only as a
-# deterministic way to select one host per organization: fxadmin does not use
-# consensus and has no requirement to run there.
+# fxadmin runs on one host per organization (see configs.yaml and README.md
+# for how it's chosen) and on the control node for the identity-less steps
+# (decode, compute_update, merge). The binary is therefore installed once
+# per target platform on the control node, then transferred to those hosts
+# only -- mirroring playbooks/fxconfig/binaries.yaml.
 - name: Install the fxadmin binary on the control node
   hosts: localhost
   vars:
