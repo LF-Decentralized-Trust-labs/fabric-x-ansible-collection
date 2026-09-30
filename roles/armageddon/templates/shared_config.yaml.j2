@@ -43,6 +43,7 @@ Parties:
       Host: {{ orderer_group.assembler.ansible_host }}
       Port: {{ orderer_group.assembler.orderer_rpc_port}}
 {% endfor %}
+MaxPartyID: {{ armageddon_orderer_instances.keys() | map('int') | max }}
 Consensus:
     SmartBFT:
         selfid: 0
