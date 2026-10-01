@@ -242,7 +242,7 @@ Start the EVM gateway as a local container with the rendered config directory mo
     # Image name used by the EVM container.
     evm_image_name: fabric-x-evm
     # Image tag used by the EVM container.
-    evm_image_tag: 0.1.3
+    evm_image_tag: 0.2.1
     # Base remote config directory that feeds `evm_remote_config_dir`.
     remote_config_dir: "/var/hyperledger/fabricx/evm/config"
     # Remote config directory used by EVM.
@@ -339,8 +339,12 @@ Render the EVM gateway configuration with the resolved orderer and committer sid
     evm_port: 8545
     # Ethereum-style chain ID served by the gateway.
     evm_chain_id: 4011
-    # Version of the Fabric-X application namespace.
-    evm_ns_version: 1.0
+    # Fabric-X namespace version, starting at `0` and incremented on each namespace update; a mismatch makes the committer reject every transaction.
+    evm_ns_version: 0
+    # Real machine host.
+    actual_host: "myvpc.cloud.ibm.com"
+    # Specifies the OpenShift Route host for the JSON-RPC port.
+    evm_openshift_route: "fabric-x-evm.apps.example.com"
     # Network protocol the gateway speaks to the committer and orderers, `fabric-x` or `fabric`.
     evm_protocol: fabric-x
     # Log level specification passed to `logging.spec`.
@@ -599,7 +603,7 @@ Create or update Kubernetes resources for the EVM gateway. Ensures the namespace
     # Image name used by the EVM container.
     evm_image_name: fabric-x-evm
     # Image tag used by the EVM container.
-    evm_image_tag: 0.1.3
+    evm_image_tag: 0.2.1
     # Config mount path inside a container or pod.
     evm_container_config_dir: /config
     # Rendered EVM gateway configuration filename.

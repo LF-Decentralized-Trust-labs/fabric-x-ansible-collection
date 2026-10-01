@@ -100,36 +100,36 @@ These connections are not visible from within a single role:
 
 ## Role reference
 
-| Role                | Component managed                                                          |
-| ------------------- | -------------------------------------------------------------------------- |
-| `armageddon`        | Genesis block builder (armageddon CLI)                                     |
-| `bin`               | Generic binary build/install helpers                                       |
-| `block_explorer`    | Fabric-X Block Explorer server + Next.js UI (streams blocks from sidecar)  |
-| `cadvisor`          | cAdvisor container metrics exporter                                        |
-| `committer`         | Fabric-X Committer (validator/verifier/coordinator/sidecar/query-service)  |
-| `configtxgen`       | configtxgen CLI wrapper                                                    |
-| `container`         | Generic container helpers (start/stop/rm)                                  |
-| `cryptogen`         | Crypto material generation                                                 |
-| `elasticsearch`     | Elasticsearch log backend                                                  |
-| `fabric_ca`         | Fabric CA server and client                                                |
-| `fxconfig`          | fxconfig configuration tool                                                |
-| `git`               | Git clone helper                                                           |
-| `go`                | Go binary build, install, and platform-mapping helpers                     |
-| `grafana`           | Grafana dashboard                                                          |
-| `idemixgen`         | idemixgen CLI wrapper                                                      |
-| `jaeger`            | Jaeger tracing backend                                                     |
-| `k8s`               | Shared Kubernetes helper (used by roles that deploy to k8s)                |
-| `loadgen`           | Load generator                                                             |
-| `node_exporter`     | Prometheus Node Exporter                                                   |
-| `openssl`           | OpenSSL certificate helpers                                                |
-| `orderer`           | Fabric-X Orderer (consenter/batcher/assembler/router)                      |
-| `package`           | OS package installation (apt / brew)                                       |
-| `postgres`          | PostgreSQL database                                                        |
-| `postgres_exporter` | Prometheus Postgres Exporter                                               |
-| `prometheus`        | Prometheus monitoring                                                      |
-| `tmux`              | tmux session helpers                                                       |
-| `utils`             | Miscellaneous utility tasks                                                |
-| `yugabyte`          | YugabyteDB                                                                 |
+| Role                | Component managed                                                         |
+| ------------------- | ------------------------------------------------------------------------- |
+| `armageddon`        | Genesis block builder (armageddon CLI)                                    |
+| `bin`               | Generic binary build/install helpers                                      |
+| `block_explorer`    | Fabric-X Block Explorer server + Next.js UI (streams blocks from sidecar) |
+| `cadvisor`          | cAdvisor container metrics exporter                                       |
+| `committer`         | Fabric-X Committer (validator/verifier/coordinator/sidecar/query-service) |
+| `configtxgen`       | configtxgen CLI wrapper                                                   |
+| `container`         | Generic container helpers (start/stop/rm)                                 |
+| `cryptogen`         | Crypto material generation                                                |
+| `elasticsearch`     | Elasticsearch log backend                                                 |
+| `fabric_ca`         | Fabric CA server and client                                               |
+| `fxconfig`          | fxconfig configuration tool                                               |
+| `git`               | Git clone helper                                                          |
+| `go`                | Go binary build, install, and platform-mapping helpers                    |
+| `grafana`           | Grafana dashboard                                                         |
+| `idemixgen`         | idemixgen CLI wrapper                                                     |
+| `jaeger`            | Jaeger tracing backend                                                    |
+| `k8s`               | Shared Kubernetes helper (used by roles that deploy to k8s)               |
+| `loadgen`           | Load generator                                                            |
+| `node_exporter`     | Prometheus Node Exporter                                                  |
+| `openssl`           | OpenSSL certificate helpers                                               |
+| `orderer`           | Fabric-X Orderer (consenter/batcher/assembler/router)                     |
+| `package`           | OS package installation (apt / brew)                                      |
+| `postgres`          | PostgreSQL database                                                       |
+| `postgres_exporter` | Prometheus Postgres Exporter                                              |
+| `prometheus`        | Prometheus monitoring                                                     |
+| `tmux`              | tmux session helpers                                                      |
+| `utils`             | Miscellaneous utility tasks                                               |
+| `yugabyte`          | YugabyteDB                                                                |
 
 ---
 
@@ -149,7 +149,8 @@ Agents must use the Makefile targets for repository checks. Do not rewrite or by
 ## Modifying a role
 
 1. Role variables and documentation are managed exclusively through [`roles/<role>/meta/argument_specs.yaml`](roles/). Both `defaults/main.yaml` and `README.md` are auto-generated — never edit them directly.
-2. When you change `argument_specs.yaml`, use these Makefile checks in order:
+2. Each option in `argument_specs.yaml` gets a single `description` entry: one sentence saying what the variable is for. Add an extra entry as `"Example: C(...)."` if the variable has no default, so that READMEs are populated with that example.
+3. When you change `argument_specs.yaml`, use these Makefile checks in order:
 
    ```shell
    make check-argument-specs
@@ -157,8 +158,8 @@ Agents must use the Makefile targets for repository checks. Do not rewrite or by
    make check-license-header
    ```
 
-3. Run `make lint` only if the user explicitly asks for it.
-4. Only when all checks pass, regenerate the docs:
+4. Run `make lint` only if the user explicitly asks for it.
+5. Only when all checks pass, regenerate the docs:
 
    ```shell
    make generate-roles-docs
@@ -180,7 +181,7 @@ When a new inventory is added under [`examples/inventory/`](examples/inventory/)
 
 ## Adding or modifying a tutorial lesson
 
-The tutorial under [`docs/tutorial/`](docs/tutorial/) is hand-written and is the only documentation in the repository that is a *learning path* rather than reference material. Keep the two roles distinct: reference detail belongs in the inventory/playbook/role docs, and the tutorial links to them.
+The tutorial under [`docs/tutorial/`](docs/tutorial/) is hand-written and is the only documentation in the repository that is a _learning path_ rather than reference material. Keep the two roles distinct: reference detail belongs in the inventory/playbook/role docs, and the tutorial links to them.
 
 When adding or renaming a lesson:
 
