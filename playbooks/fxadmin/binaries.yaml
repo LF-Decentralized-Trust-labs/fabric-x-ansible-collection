@@ -1,0 +1,67 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# fxadmin runs on one host per organization (see configs.yaml and README.md
+# for how it's chosen) and on the control node for the identity-less steps
+# (decode, compute_update, merge). The binary is therefore installed once
+# per target platform on the control node, then transferred to those hosts
+# only -- mirroring playbooks/fxconfig/binaries.yaml.
+- name: Install the fxadmin binary on the control node
+  hosts: localhost
+  vars:
+    fxadmin_bin_hosts: >-
+      {{
+        groups['fabric_x_orderers']
+        | map('extract', hostvars)
+        | selectattr('organization', 'defined')
+        | selectattr('organization.user', 'defined')
+        | selectattr('orderer_component_type', 'defined')
+        | selectattr('orderer_component_type', 'eq', 'consensus')
+        | selectattr('fxadmin_use_bin', 'defined')
+        | selectattr('fxadmin_use_bin', 'eq', true)
+        | selectattr('bin_build_on_control_node', 'defined')
+        | selectattr('bin_build_on_control_node', 'eq', true)
+        | map(attribute='inventory_hostname')
+        | list
+      }}
+  tasks:
+    - name: Install the fxadmin binary on the control node for the consenter hosts
+      vars:
+        bin_build_on_control_node: true
+        bin_hosts: "{{ fxadmin_bin_hosts }}"
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fxadmin
+        tasks_from: bin/install
+      when:
+        - fxadmin_bin_hosts | length > 0
+
+    - name: Install the fxadmin binary on the control node for the control node
+      vars:
+        bin_build_on_control_node: true
+        bin_dir: "{{ cli_bin_dir }}"
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fxadmin
+        tasks_from: bin/install
+      when:
+        - fxadmin_use_bin is defined
+        - fxadmin_use_bin
+
+- name: Ensure the fxadmin binary is on each organization's consenter host
+  hosts: "{{ target_hosts | default('fabric_x_orderers') }}:&fabric_x_orderers"
+  tasks:
+    - name: Setup the fxadmin binary on the consenter host
+      vars:
+        bin_operation: "{{ 'transfer' if (bin_build_on_control_node | default(false)) else 'install' }}"
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fxadmin
+        tasks_from: "bin/{{ bin_operation }}"
+      when:
+        - fxadmin_use_bin is defined
+        - fxadmin_use_bin
+        - organization is defined
+        - organization.user is defined
+        - orderer_component_type is defined
+        - orderer_component_type == 'consensus'

@@ -19,15 +19,31 @@ all:
       orderer_org_1: &OrdererOrg1
         name: OrdererOrg1
         domain: ordererorg1.example.com
+        user:
+          name: ordererorg1-admin
+          secret: ordererorg1-adminPWD
+          type: admin
       orderer_org_2: &OrdererOrg2
         name: OrdererOrg2
         domain: ordererorg2.example.com
+        user:
+          name: ordererorg2-admin
+          secret: ordererorg2-adminPWD
+          type: admin
       orderer_org_3: &OrdererOrg3
         name: OrdererOrg3
         domain: ordererorg3.example.com
+        user:
+          name: ordererorg3-admin
+          secret: ordererorg3-adminPWD
+          type: admin
       orderer_org_4: &OrdererOrg4
         name: OrdererOrg4
         domain: ordererorg4.example.com
+        user:
+          name: ordererorg4-admin
+          secret: ordererorg4-adminPWD
+          type: admin
       org1: &Org1
         name: Org1
         domain: org1.example.com

@@ -1,0 +1,48 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Define fxadmin output directory
+  ansible.builtin.set_fact:
+    fxadmin_output_dir: "{{ fxadmin_output | dirname }}"
+
+- name: Ensure fxadmin output directory exists
+  ansible.builtin.file:
+    path: "{{ fxadmin_output_dir }}"
+    state: directory
+    mode: "0o755"
+
+- name: Transfer the reference configuration block
+  ansible.builtin.copy:
+    src: "{{ fxadmin_current_block }}"
+    dest: "{{ fxadmin_output_dir }}/current_block.pb"
+    mode: preserve
+
+- name: Follow the ledger until the submitted configuration commits
+  vars:
+    container_name: "{{ fxadmin_container_name }}-follow"
+    container_image: "{{ fxadmin_image }}"
+    container_command: >-
+      {{ fxadmin_bin_name }} follow
+      --config={{ fxadmin_container_config_dir }}/{{ fxadmin_config_file }}
+      --current-block=/tmp/current_block.pb
+      --timeout={{ fxadmin_follow_timeout }}
+      --output=/tmp/{{ fxadmin_output | basename }}
+    container_volumes:
+      - "{{ fxadmin_remote_config_dir }}:{{ fxadmin_container_config_dir }}:z,ro"
+      - "{{ fxadmin_output_dir }}:/tmp:z"
+    container_run_detach_mode: false
+    container_run_as_host_user: true
+    container_autoremove: true
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: start
+
+- name: Fetch the committed configuration block back to the control node
+  ansible.builtin.fetch:
+    src: "{{ fxadmin_output }}"
+    dest: "{{ fxadmin_output_fetch_dest }}"
+    flat: true
+    mode: preserve

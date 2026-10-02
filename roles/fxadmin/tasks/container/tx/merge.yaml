@@ -1,0 +1,72 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Define fxadmin output directory
+  ansible.builtin.set_fact:
+    fxadmin_output_dir: "{{ fxadmin_output | dirname }}"
+
+- name: Ensure fxadmin output directory exists
+  ansible.builtin.file:
+    path: "{{ fxadmin_output_dir }}"
+    state: directory
+    mode: "0o755"
+
+- name: Find all endorsements to merge
+  ansible.builtin.find:
+    paths: "{{ fxadmin_endorsements_dir }}"
+    patterns: "*.pb"
+    recurse: true
+    file_type: file
+  register: fxadmin_endorsements_find_result
+
+- name: Set found endorsements
+  ansible.builtin.set_fact:
+    fxadmin_endorsements: >-
+      {{
+        fxadmin_endorsements_find_result.files
+        | map(attribute='path')
+        | list
+      }}
+
+- name: Assert at least one endorsement was collected
+  ansible.builtin.assert:
+    that:
+      - fxadmin_endorsements | length > 0
+    fail_msg: >-
+      No endorsements found under {{ fxadmin_endorsements_dir }}: every
+      tx/endorse call must have failed or been skipped upstream. Refusing to
+      write an empty merged ConfigUpdateEnvelope.
+
+- name: Set single endorsement as merged one
+  ansible.builtin.copy:
+    src: "{{ fxadmin_endorsements[0] }}"
+    dest: "{{ fxadmin_output }}"
+    mode: preserve
+  when:
+    - fxadmin_endorsements | length == 1
+
+- name: Merge multiple endorsements into a single ConfigUpdateEnvelope
+  vars:
+    container_name: "{{ fxadmin_container_name }}-tx-merge"
+    container_image: "{{ fxadmin_image }}"
+    container_command: >-
+      {{ fxadmin_bin_name }} tx
+      merge
+      {% for fxadmin_endorsement in fxadmin_endorsements %}
+      /endorsements/{{ fxadmin_endorsement | basename }}
+      {% endfor %}
+      --output=/tmp/{{ fxadmin_output | basename }}
+    container_volumes:
+      - "{{ fxadmin_endorsements_dir }}:/endorsements:z,ro"
+      - "{{ fxadmin_output_dir }}:/tmp:z"
+    container_run_detach_mode: false
+    container_run_as_host_user: true
+    container_autoremove: true
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: start
+  when:
+    - fxadmin_endorsements | length > 1

@@ -1,0 +1,49 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Define fxadmin output directory
+  ansible.builtin.set_fact:
+    fxadmin_output_dir: "{{ fxadmin_output | dirname }}"
+
+- name: Ensure fxadmin output directory exists
+  ansible.builtin.file:
+    path: "{{ fxadmin_output_dir }}"
+    state: directory
+    mode: "0o755"
+
+- name: Transfer the current and modified configuration JSON files and the reference block
+  ansible.builtin.copy:
+    src: "{{ item.src }}"
+    dest: "{{ fxadmin_output_dir }}/{{ item.dest }}"
+    mode: preserve
+  loop:
+    - src: "{{ fxadmin_current_config_json }}"
+      dest: current_config.json
+    - src: "{{ fxadmin_modified_config_json }}"
+      dest: modified_config.json
+    - src: "{{ fxadmin_current_block }}"
+      dest: current_block.pb
+  loop_control:
+    label: "{{ item.dest }}"
+
+- name: Compute the Fabric-X ConfigUpdate between the current and modified configuration
+  vars:
+    container_name: "{{ fxadmin_container_name }}-compute-update"
+    container_image: "{{ fxadmin_image }}"
+    container_command: >-
+      {{ fxadmin_bin_name }} compute-update
+      /tmp/current_config.json
+      /tmp/modified_config.json
+      --current-block=/tmp/current_block.pb
+      --output=/tmp/{{ fxadmin_output | basename }}
+    container_volumes:
+      - "{{ fxadmin_output_dir }}:/tmp:z"
+    container_run_detach_mode: false
+    container_run_as_host_user: true
+    container_autoremove: true
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: start
