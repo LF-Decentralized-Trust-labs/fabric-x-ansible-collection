@@ -26,40 +26,63 @@
 # lives alongside it (e.g. /run/containerd/containerd.sock), and the cAdvisor
 # image does not symlink one to the other internally — mounting only one of
 # the two leaves the other empty inside the container.
+# Podman doesn't get them: it only needs its API socket (mounted below), and
+# binding the host /run lets Podman's default secrets mount try to mkdir
+# /run/secrets on the host, which a rootless user isn't allowed to do.
 - name: Set cAdvisor mandatory volumes
-  vars:
-    cadvisor_var_run_source: "{{ '/run' if ansible_facts.os_family == 'Darwin' else '/var/run' }}"
   ansible.builtin.set_fact:
     cadvisor_container_volumes:
       - "/:/rootfs:ro"
       - "/sys:/sys:ro"
       - "/dev/disk/:/dev/disk/:ro"
+
+- name: Add Docker runtime and storage volumes
+  vars:
+    cadvisor_var_run_source: "{{ '/run' if ansible_facts.os_family == 'Darwin' else '/var/run' }}"
+    cadvisor_docker_volumes:
       - "{{ cadvisor_var_run_source }}:/var/run:ro"
       - "/run:/run:ro"
-
-- name: Add Docker storage volume
-  vars:
-    cadvisor_docker_storage_volume: "/var/lib/docker/:/var/lib/docker/:ro"
+      - "/var/lib/docker/:/var/lib/docker/:ro"
   ansible.builtin.set_fact:
-    cadvisor_container_volumes: "{{ cadvisor_container_volumes + [cadvisor_docker_storage_volume] }}"
+    cadvisor_container_volumes: "{{ cadvisor_container_volumes + cadvisor_docker_volumes }}"
   when:
     - container_client == 'docker'
 
+# Podman's storage root depends on who runs it: /var/lib/containers/storage
+# when rootful, ~/.local/share/containers/storage when rootless. Ask Podman
+# for the real location instead of assuming the system-wide one, which may
+# not even exist on a rootless-only host.
 - name: Add Podman storage volume
-  vars:
-    cadvisor_podman_storage_volume: "/var/lib/containers/storage/:/var/lib/containers/storage/:ro"
-  ansible.builtin.set_fact:
-    cadvisor_container_volumes: "{{ cadvisor_container_volumes + [cadvisor_podman_storage_volume] }}"
   when:
     - container_client == 'podman'
+  block:
+    # Socket discovery already fetched it, unless container_socket was set
+    # explicitly and discovery was skipped.
+    - name: Get Podman storage information
+      containers.podman.podman_system_info:
+      register: cadvisor_podman_info_output
+      when:
+        - container_podman_info_output is not defined
+    - name: Add Podman graph root volume
+      vars:
+        cadvisor_podman_info: "{{ container_podman_info_output | default(cadvisor_podman_info_output) }}"
+        cadvisor_podman_graph_root: "{{ cadvisor_podman_info.podman_system_info.store.graphRoot }}"
+        cadvisor_podman_storage_volume: "{{ cadvisor_podman_graph_root }}:{{ cadvisor_podman_graph_root }}:ro"
+      ansible.builtin.set_fact:
+        cadvisor_container_volumes: "{{ cadvisor_container_volumes + [cadvisor_podman_storage_volume] }}"
 
 # Docker Desktop for Mac's default context socket lives under $HOME (e.g.
 # /Users/<user>/.docker/run/docker.sock) rather than /run or /var/run, so the
-# mandatory volumes above don't expose it inside the container. Bind-mount it
-# explicitly whenever it isn't already covered by one of those paths.
+# Docker volumes above don't expose it inside the container. Bind-mount it
+# explicitly whenever it isn't already covered by one of those paths (always
+# the case for Podman, which gets no /run mounts).
 - name: Add container runtime socket volume
   vars:
-    cadvisor_socket_already_mounted: "{{ (container_socket_path | regex_search('^(/run|/var/run|/var/lib/docker)(/|$)')) is not none }}"
+    cadvisor_socket_already_mounted: >-
+      {{
+        container_client == 'docker'
+        and (container_socket_path | regex_search('^(/run|/var/run|/var/lib/docker)(/|$)')) is not none
+      }}
     cadvisor_socket_volume: "{{ container_socket_path }}:{{ container_socket_path }}:ro"
   ansible.builtin.set_fact:
     cadvisor_container_volumes: "{{ cadvisor_container_volumes + [cadvisor_socket_volume] }}"

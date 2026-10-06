@@ -26,6 +26,21 @@
       when:
         - (organization.namespaces | default([]) | length) != 1
 
+    # The gateway rejects JSON-RPC requests whose Host header is a name it does
+    # not know, so it must accept every name it is reached by.
+    - name: Initialize EVM gateway vhosts
+      ansible.builtin.set_fact:
+        evm_vhosts:
+          - "{{ ansible_host }}"
+          - "{{ actual_host }}"
+
+    - name: Append EVM OpenShift route to gateway vhosts
+      ansible.builtin.set_fact:
+        evm_vhosts: "{{ evm_vhosts + [evm_openshift_route] }}"
+      when:
+        - evm_use_openshift
+        - evm_openshift_route is defined
+
     - name: Ensure the EVM config directory exists
       ansible.builtin.file:
         path: "{{ evm_remote_config_dir }}"

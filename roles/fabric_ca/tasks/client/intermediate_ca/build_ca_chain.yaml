@@ -8,7 +8,7 @@
 # something any consumer requires. Skipped entirely when there is nothing to append.
 - name: Build the TLS CA certificate chain
   when:
-    - fabric_ca_client_tls_intermediate_certs.files | length > 0
+    - fabric_ca_client_tls_intermediate_certs.files | default([]) | length > 0
   block:
     - name: Create the TLS CA certificate chain directory
       ansible.builtin.file:
