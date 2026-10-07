@@ -1,7 +1,11 @@
 requests>=2.34.2
 ansible-core>=2.17.0
 ansible-lint>=25.11.0
-kubernetes>=28.0.0
+# <37.0.0: that release drops core_v1_api from the deprecated kubernetes.client.apis
+# alias, which kubernetes.core's k8s_exec module still imports from, breaking it with
+# NameError: name 'core_v1_api' is not defined (ansible-collections/kubernetes.core#1273).
+# Remove the cap once that's fixed upstream.
+kubernetes>=28.0.0,<37.0.0
 aar-doc>=1.1.0
 mkdocs>=1.6.0
 mkdocs-callouts>=1.0.0
