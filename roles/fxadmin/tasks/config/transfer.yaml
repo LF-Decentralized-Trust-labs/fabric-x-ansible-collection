@@ -29,22 +29,17 @@
 # =========================
 # MSP and TLS material
 # =========================
-# Pulled from the control node (fxadmin_msp_config_path's parent identity
-# directory, populated there by crypto/fetch) onto whichever host this task
-# actually runs on -- an organization's own reference host, per
-# playbooks/fxadmin/configs.yaml -- so a private identity never needs to be
-# persisted on the control node for signing. Mirrors
-# roles/orderer/tasks/crypto/cryptogen/transfer.yaml's own control-node ->
-# remote-node sync.
+# Synced from the control node, where crypto provisioning of the organization
+# user left it, onto the host this task runs on. The TLS identity is only read
+# for the mTLS client certificate, which mtls/transfer copies out of it, so it
+# is synced only when mTLS is enabled.
 - name: Transfer the identity material from the control node
   ansible.posix.synchronize:
-    src: "{{ fxadmin_msp_config_path | dirname }}/{{ fxadmin_identity_material }}"
+    src: "{{ fxadmin_msp_config_path | dirname }}/{{ current_identity_material }}"
     dest: "{{ fxadmin_remote_config_dir }}"
-  loop:
-    - msp
-    - tls
+  loop: "{{ ['msp', 'tls'] if fxadmin_use_mtls | default(false) else ['msp'] }}"
   loop_control:
-    loop_var: fxadmin_identity_material
+    loop_var: current_identity_material
 
 # =========================
 # mTLS material

@@ -4,12 +4,6 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Ensure fxadmin output directory exists
-  ansible.builtin.file:
-    path: "{{ fxadmin_output | dirname }}"
-    state: directory
-    mode: "0o755"
-
 - name: Decode the Fabric-X channel configuration block to JSON
   vars:
     bin_command: >-

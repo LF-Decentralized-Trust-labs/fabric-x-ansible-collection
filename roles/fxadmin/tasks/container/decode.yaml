@@ -4,16 +4,8 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Define fxadmin output directory
-  ansible.builtin.set_fact:
-    fxadmin_output_dir: "{{ fxadmin_output | dirname }}"
-
-- name: Ensure fxadmin output directory exists
-  ansible.builtin.file:
-    path: "{{ fxadmin_output_dir }}"
-    state: directory
-    mode: "0o755"
-
+# The container can only read from the directory it mounts, so the block is
+# staged into fxadmin_output_dir first. The binary variant reads it in place.
 - name: Transfer the configuration block to decode
   ansible.builtin.copy:
     src: "{{ fxadmin_config_block }}"

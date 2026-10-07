@@ -7,6 +7,26 @@
 - name: Build crypto material
   hosts: localhost
   tasks:
+    # Only an OU=admin identity satisfies the channel's per-org Admins policy, and
+    # fxadmin signs with the orderer organizations' users, so those must be admins.
+    - name: Assert every orderer organization user is an admin identity
+      ansible.builtin.assert:
+        that:
+          - >-
+            groups.get('fabric_x_orderers', [])
+            | map('extract', hostvars)
+            | selectattr('organization.user', 'defined')
+            | selectattr('organization.user.type', 'defined')
+            | selectattr('organization.user.type', 'eq', 'admin')
+            | list | length
+            == groups.get('fabric_x_orderers', [])
+            | map('extract', hostvars)
+            | selectattr('organization.user', 'defined')
+            | list | length
+        fail_msg: >-
+          Every orderer organization.user must declare type: admin. fxadmin uses it
+          for every operation, endorsement included.
+
     - name: Fail when a Hyperledger Fabric-X organization role is invalid
       ansible.builtin.fail:
         msg: >-
@@ -22,18 +42,21 @@
           | selectattr('organization.fabric_ca_host', 'undefined')
           | selectattr('organization.role', 'defined')
           | map(attribute='inventory_hostname')
+          | reject('in', groups.get('fabric_ca_servers', []))
         }}
       loop_control:
         loop_var: current_host
         label: "{{ current_host }}"
 
+    # Every cryptogen-backed host defines its organization, but only hosts with a
+    # role become nodes, so a component that declares users alone is not dropped.
     - name: Define the Hyperledger Fabric-X organizations
       vars:
         org_domain: "{{ hostvars[node].organization.domain }}"
         org_name: "{{ hostvars[node].organization.name }}"
         node_info:
           name: "{{ node }}"
-          ou: "{{ hostvars[node].organization.role }}"
+          ou: "{{ hostvars[node].organization.role | default('') }}"
       ansible.builtin.set_fact:
         cryptogen_orgs_by_domain: >-
           {{
@@ -41,7 +64,7 @@
               org_domain: {
                 'name': org_name,
                 'domain': org_domain,
-                'nodes': (cryptogen_orgs_by_domain | default({})).get(org_domain, {}).get('nodes', []) + [node_info],
+                'nodes': (cryptogen_orgs_by_domain | default({})).get(org_domain, {}).get('nodes', []) + ([node_info] if hostvars[node].organization.role is defined else []),
                 'users': (cryptogen_orgs_by_domain | default({})).get(org_domain, {}).get('users', [])
               }
             })
@@ -52,8 +75,8 @@
           | map('extract', hostvars)
           | selectattr('organization', 'defined')
           | selectattr('organization.fabric_ca_host', 'undefined')
-          | selectattr('organization.role', 'defined')
           | map(attribute='inventory_hostname')
+          | reject('in', groups.get('fabric_ca_servers', []))
         }}
       loop_control:
         loop_var: node
@@ -72,7 +95,7 @@
                 'name': org_name,
                 'domain': org_domain,
                 'nodes': (cryptogen_orgs_by_domain | default({})).get(org_domain, {}).get('nodes', []),
-                'users': (cryptogen_orgs_by_domain | default({})).get(org_domain, {}).get('users', []) + users
+                'users': ((cryptogen_orgs_by_domain | default({})).get(org_domain, {}).get('users', []) + users) | unique(attribute='name') | list
               }
             })
           }}
@@ -82,15 +105,16 @@
           | map('extract', hostvars)
           | selectattr('organization', 'defined')
           | selectattr('organization.fabric_ca_host', 'undefined')
-          | selectattr('organization.role', 'defined')
-          | selectattr('organization.role', '==', 'peer')
           | selectattr('organization.users', 'defined')
           | map(attribute='inventory_hostname')
+          | reject('in', groups.get('fabric_ca_servers', []))
         }}
       loop_control:
         loop_var: current_host
         label: "{{ current_host }}"
 
+    # Every orderer host of an organization declares the same organization.user,
+    # so it is deduplicated by name to add the identity once per organization.
     - name: Add the single user to the Hyperledger Fabric-X organizations
       vars:
         org_domain: "{{ hostvars[current_host].organization.domain }}"
@@ -104,7 +128,7 @@
                 'name': org_name,
                 'domain': org_domain,
                 'nodes': (cryptogen_orgs_by_domain | default({})).get(org_domain, {}).get('nodes', []),
-                'users': (cryptogen_orgs_by_domain | default({})).get(org_domain, {}).get('users', []) + users
+                'users': ((cryptogen_orgs_by_domain | default({})).get(org_domain, {}).get('users', []) + users) | unique(attribute='name') | list
               }
             })
           }}
@@ -113,10 +137,10 @@
           groups['all']
           | map('extract', hostvars)
           | selectattr('organization', 'defined')
-          | selectattr('organization.role', 'defined')
           | selectattr('organization.fabric_ca_host', 'undefined')
           | selectattr('organization.user', 'defined')
           | map(attribute='inventory_hostname')
+          | reject('in', groups.get('fabric_ca_servers', []))
         }}
       loop_control:
         loop_var: current_host

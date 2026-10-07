@@ -4,20 +4,12 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Define fxadmin output directory
-  ansible.builtin.set_fact:
-    fxadmin_output_dir: "{{ fxadmin_output | dirname }}"
-
-- name: Ensure fxadmin output directory exists
-  ansible.builtin.file:
-    path: "{{ fxadmin_output_dir }}"
-    state: directory
-    mode: "0o755"
-
+# The container can only read from the directory it mounts, so the inputs are
+# staged into fxadmin_output_dir first. The binary variant reads them in place.
 - name: Transfer the current and modified configuration JSON files and the reference block
   ansible.builtin.copy:
-    src: "{{ item.src }}"
-    dest: "{{ fxadmin_output_dir }}/{{ item.dest }}"
+    src: "{{ current_input_file.src }}"
+    dest: "{{ fxadmin_output_dir }}/{{ current_input_file.dest }}"
     mode: preserve
   loop:
     - src: "{{ fxadmin_current_config_json }}"
@@ -27,7 +19,8 @@
     - src: "{{ fxadmin_current_block }}"
       dest: current_block.pb
   loop_control:
-    label: "{{ item.dest }}"
+    loop_var: current_input_file
+    label: "{{ current_input_file.dest }}"
 
 - name: Compute the Fabric-X ConfigUpdate between the current and modified configuration
   vars:

@@ -4,31 +4,36 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-# fxadmin runs on one host per organization (see configs.yaml and README.md
-# for how it's chosen) and on the control node for the identity-less steps
-# (decode, compute_update, merge). The binary is therefore installed once
-# per target platform on the control node, then transferred to those hosts
-# only -- mirroring playbooks/fxconfig/binaries.yaml.
+# fxadmin runs on every host, in any inventory group, that declares an admin
+# organization.user (see configs.yaml and README.md). The binary is built once per
+# target platform on the control node, which also runs the control-node-only steps
+# (decode, compute_update, tx/merge), then delivered to those hosts only.
+#
+# Delivery is a second play because bin/install builds into the control node's
+# bin directory, and only bin/transfer copies it onto a remote host. The same
+# split is used by playbooks/fxconfig/binaries.yaml. The transfer runs in each
+# host's own context, since its source path depends on that host's platform.
 - name: Install the fxadmin binary on the control node
   hosts: localhost
   vars:
     fxadmin_bin_hosts: >-
       {{
-        groups['fabric_x_orderers']
+        groups['all']
         | map('extract', hostvars)
         | selectattr('organization', 'defined')
         | selectattr('organization.user', 'defined')
-        | selectattr('orderer_component_type', 'defined')
-        | selectattr('orderer_component_type', 'eq', 'consensus')
+        | selectattr('organization.user.type', 'defined')
+        | selectattr('organization.user.type', 'eq', 'admin')
         | selectattr('fxadmin_use_bin', 'defined')
         | selectattr('fxadmin_use_bin', 'eq', true)
         | selectattr('bin_build_on_control_node', 'defined')
         | selectattr('bin_build_on_control_node', 'eq', true)
         | map(attribute='inventory_hostname')
+        | reject('in', groups.get('fabric_ca_servers', []))
         | list
       }}
   tasks:
-    - name: Install the fxadmin binary on the control node for the consenter hosts
+    - name: Install the fxadmin binary for the platforms of the admin hosts
       vars:
         bin_build_on_control_node: true
         bin_hosts: "{{ fxadmin_bin_hosts }}"
@@ -38,7 +43,7 @@
       when:
         - fxadmin_bin_hosts | length > 0
 
-    - name: Install the fxadmin binary on the control node for the control node
+    - name: Install the fxadmin binary on the control node for its own steps
       vars:
         bin_build_on_control_node: true
         bin_dir: "{{ cli_bin_dir }}"
@@ -49,10 +54,10 @@
         - fxadmin_use_bin is defined
         - fxadmin_use_bin
 
-- name: Ensure the fxadmin binary is on each organization's consenter host
-  hosts: "{{ target_hosts | default('fabric_x_orderers') }}:&fabric_x_orderers"
+- name: Deliver the fxadmin binary to each admin host
+  hosts: "{{ target_hosts | default('all') }}"
   tasks:
-    - name: Setup the fxadmin binary on the consenter host
+    - name: Transfer the fxadmin binary to the admin host
       vars:
         bin_operation: "{{ 'transfer' if (bin_build_on_control_node | default(false)) else 'install' }}"
       ansible.builtin.include_role:
@@ -63,5 +68,5 @@
         - fxadmin_use_bin
         - organization is defined
         - organization.user is defined
-        - orderer_component_type is defined
-        - orderer_component_type == 'consensus'
+        - organization.user.type | default('') == 'admin'
+        - inventory_hostname not in groups.get('fabric_ca_servers', [])

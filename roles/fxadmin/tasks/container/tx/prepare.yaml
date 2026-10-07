@@ -4,22 +4,6 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Define fxadmin output directory
-  ansible.builtin.set_fact:
-    fxadmin_output_dir: "{{ fxadmin_output | dirname }}"
-
-- name: Ensure fxadmin output directory exists
-  ansible.builtin.file:
-    path: "{{ fxadmin_output_dir }}"
-    state: directory
-    mode: "0o755"
-
-- name: Transfer the endorsed ConfigUpdate to prepare
-  ansible.builtin.copy:
-    src: "{{ fxadmin_endorsed_config_update }}"
-    dest: "{{ fxadmin_output_dir }}/endorsed_config_update.pb"
-    mode: preserve
-
 - name: Prepare the Fabric-X transaction from the endorsed ConfigUpdate
   vars:
     container_name: "{{ fxadmin_container_name }}-tx-prepare"
@@ -39,10 +23,3 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: start
-
-- name: Fetch the prepared transaction back to the control node
-  ansible.builtin.fetch:
-    src: "{{ fxadmin_output }}"
-    dest: "{{ fxadmin_output_fetch_dest }}"
-    flat: true
-    mode: preserve

@@ -4,12 +4,6 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Ensure fxadmin output directory exists
-  ansible.builtin.file:
-    path: "{{ fxadmin_output | dirname }}"
-    state: directory
-    mode: "0o755"
-
 - name: Compute the Fabric-X ConfigUpdate between the current and modified configuration
   vars:
     bin_command: >-

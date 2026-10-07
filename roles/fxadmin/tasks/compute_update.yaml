@@ -4,6 +4,16 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Define fxadmin output directory
+  ansible.builtin.set_fact:
+    fxadmin_output_dir: "{{ fxadmin_output | dirname }}"
+
+- name: Ensure fxadmin output directory exists
+  ansible.builtin.file:
+    path: "{{ fxadmin_output_dir }}"
+    state: directory
+    mode: "0o755"
+
 - name: Compute the Fabric-X ConfigUpdate with the fxadmin binary
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fxadmin

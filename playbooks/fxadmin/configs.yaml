@@ -4,64 +4,28 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-# Renders fxadmin's configuration for every Fabric-X orderer organization on
-# that organization's own reference host (one per org, see README.md for how
-# it's chosen) -- never on the control node -- so a private identity's key
-# material is only ever synced to a real node.
+# Renders fxadmin's configuration on every host, in any inventory group, that
+# declares an admin organization.user. The identity's MSP and TLS material is
+# provisioned onto the control node and synced from there, so a private key only
+# ever reaches a host that signs with it.
 #
-# One config is rendered per organization, for the identity declared in
-# organization.user (provisioned by hyperledger.fabricx.fxadmin.generate_crypto).
-- name: Resolve fxadmin configuration inputs on the control node
-  hosts: localhost
+# TLS settings describe the Fabric-X network fxadmin connects to, so they are read
+# from the orderers rather than from the host being configured.
+- name: Render fxadmin configuration on each admin host
+  hosts: "{{ target_hosts | default('all') }}"
   vars:
-    fxadmin_orderer_organizations: >-
-      {{
-        groups['fabric_x_orderers']
-        | map('extract', hostvars)
-        | selectattr('organization', 'defined')
-        | map(attribute='organization')
-        | unique(attribute='name')
-        | list
-      }}
-  tasks:
-    - name: Resolve one reference orderer host per organization
-      ansible.builtin.set_fact:
-        fxadmin_org_reference_hosts: >-
-          {{
-            fxadmin_org_reference_hosts | default({}) | combine({
-              current_org.name: (
-                groups['fabric_x_orderers']
-                | map('extract', hostvars)
-                | selectattr('organization', 'defined')
-                | selectattr('organization.name', 'eq', current_org.name)
-                | selectattr('orderer_component_type', 'defined')
-                | selectattr('orderer_component_type', 'eq', 'consensus')
-                | map(attribute='inventory_hostname')
-                | sort
-                | first
-              )
-            })
-          }}
-      loop: "{{ fxadmin_orderer_organizations }}"
-      loop_control:
-        loop_var: current_org
-        label: "{{ current_org.name }}"
-
-- name: Render fxadmin configuration on each organization's reference orderer host
-  hosts: fabric_x_orderers
+    fxadmin_network_use_tls: "{{ hostvars[groups['fabric_x_orderers'] | first].orderer_use_tls | default(false) }}"
+    fxadmin_network_use_mtls: "{{ hostvars[groups['fabric_x_orderers'] | first].orderer_use_mtls | default(false) }}"
   tasks:
     - name: Render fxadmin configuration for this organization's identity
       vars:
         fxadmin_identity: "{{ organization.user }}"
         fxadmin_remote_config_dir: "{{ remote_config_dir }}/fxadmin"
-        fxadmin_identity_dir: >-
-          {{
-            fetched_artifacts_dir
-          }}/crypto/ordererOrganizations/{{ organization.domain }}/users/{{ fxadmin_identity.name }}@{{ organization.domain }}
+        fxadmin_identity_dir: "{{ fetched_artifacts_dir }}/crypto/organizations/{{ organization.domain }}/users/{{ fxadmin_identity.name }}@{{ organization.domain }}"
         fxadmin_msp_config_path: "{{ fxadmin_identity_dir }}/msp"
         fxadmin_msp_id: "{{ organization.name }}MSP"
-        fxadmin_use_tls: "{{ orderer_use_tls | default(false) }}"
-        fxadmin_use_mtls: "{{ orderer_use_mtls | default(false) }}"
+        fxadmin_use_tls: "{{ fxadmin_network_use_tls }}"
+        fxadmin_use_mtls: "{{ fxadmin_network_use_mtls }}"
         fxadmin_mtls_client_cert_path: "{{ fxadmin_remote_config_dir }}/tls/client.crt"
         fxadmin_mtls_client_key_path: "{{ fxadmin_remote_config_dir }}/tls/client.key"
       ansible.builtin.include_role:
@@ -70,4 +34,5 @@
       when:
         - organization is defined
         - organization.user is defined
-        - inventory_hostname == hostvars['localhost'].fxadmin_org_reference_hosts[organization.name]
+        - organization.user.type | default('') == 'admin'
+        - inventory_hostname not in groups.get('fabric_ca_servers', [])

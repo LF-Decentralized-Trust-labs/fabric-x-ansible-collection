@@ -10,3 +10,8 @@
     tasks_from: bin/rm
   when:
     - fxadmin_use_bin
+
+- name: Remove the rendered fxadmin configuration and identity material
+  ansible.builtin.file:
+    path: "{{ fxadmin_remote_config_dir }}"
+    state: absent

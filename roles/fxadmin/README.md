@@ -30,9 +30,6 @@
   - [container/tx/merge](#containertxmerge)
   - [container/tx/prepare](#containertxprepare)
   - [container/tx/submit](#containertxsubmit)
-  - [crypto/cryptogen/transfer](#cryptocryptogentransfer)
-  - [crypto/fabric\_ca/enroll](#cryptofabric_caenroll)
-  - [crypto/fetch](#cryptofetch)
   - [decode](#decode)
   - [follow](#follow)
   - [ledger/config\_latest](#ledgerconfig_latest)
@@ -85,23 +82,23 @@ Builds the fxadmin Go binary from the configured Fabric-X source package by dele
 
 > Compute a ConfigUpdate with the fxadmin binary
 
-Runs `fxadmin compute-update` with the local fxadmin binary to compute the delta between the current and modified channel configuration.
+Runs `fxadmin compute-update` with the control-node fxadmin binary to compute the delta between the current and modified channel configuration.
 
 ```yaml
 - name: Compute a ConfigUpdate with the fxadmin binary
   vars:
-    # Sets the control-node directory searched for CLI binaries. Only entrypoints that never leave the control node (`decode`, `compute_update`, `tx/merge`) prefix commands with this directory; entrypoints that authenticate as an organization's identity run on that organization's own reference host instead, using the standard per-host `bin_remote_dir`.
+    # Sets the control-node directory searched for CLI binaries used by the steps that run on the control node.
     cli_bin_dir: "string"
     # Defines the fxadmin binary name.
     fxadmin_bin_name: fxadmin
-    # Defines the local reference configuration block used by fxadmin for identity and network endpoint discovery. For the very first invocation this is the channel's genesis/bootstrap block; afterwards it is the block most recently fetched via `ledger/config_latest`.
-    fxadmin_current_block: "/tmp/fabricx/config-build/genesis.block"
+    # Defines the local reference configuration block fxadmin uses for identity and endpoint discovery.
+    fxadmin_current_block: "/tmp/fabricx/config-build/fxadmin-artifacts/config.pb"
     # Defines the local decoded current channel configuration JSON file.
     fxadmin_current_config_json: "/tmp/fabricx/config-build/fxadmin-artifacts/current_config.json"
-    # Defines the local modified channel configuration JSON file, produced by `patch_config_value` and consumed by `compute_update`.
+    # Defines the local modified channel configuration JSON file produced by `patch_config_value` and consumed by `compute_update`.
     fxadmin_modified_config_json: "/tmp/fabricx/config-build/fxadmin-artifacts/modified_config.json"
     # Defines the output artifact path written by the current fxadmin command, local to the host the task runs on.
-    fxadmin_output: "string"
+    fxadmin_output: "/tmp/fabricx/config-build/fxadmin-artifacts/config_update.pb"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fxadmin
     tasks_from: bin/compute_update
@@ -111,19 +108,19 @@ Runs `fxadmin compute-update` with the local fxadmin binary to compute the delta
 
 > Decode a configuration block with the fxadmin binary
 
-Runs `fxadmin decode` with the local fxadmin binary to convert a protobuf configuration block into JSON.
+Runs `fxadmin decode` with the control-node fxadmin binary to convert a protobuf configuration block into JSON.
 
 ```yaml
 - name: Decode a configuration block with the fxadmin binary
   vars:
-    # Sets the control-node directory searched for CLI binaries. Only entrypoints that never leave the control node (`decode`, `compute_update`, `tx/merge`) prefix commands with this directory; entrypoints that authenticate as an organization's identity run on that organization's own reference host instead, using the standard per-host `bin_remote_dir`.
+    # Sets the control-node directory searched for CLI binaries used by the steps that run on the control node.
     cli_bin_dir: "string"
     # Defines the fxadmin binary name.
     fxadmin_bin_name: fxadmin
     # Defines the local protobuf-encoded configuration block to decode into JSON.
     fxadmin_config_block: "/tmp/fabricx/config-build/fxadmin-artifacts/config.pb"
     # Defines the output artifact path written by the current fxadmin command, local to the host the task runs on.
-    fxadmin_output: "string"
+    fxadmin_output: "/tmp/fabricx/config-build/fxadmin-artifacts/config_update.pb"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fxadmin
     tasks_from: bin/decode
@@ -133,7 +130,7 @@ Runs `fxadmin decode` with the local fxadmin binary to convert a protobuf config
 
 > Follow the ledger with the fxadmin binary
 
-Runs `fxadmin follow` with the local fxadmin binary and rendered admin configuration to confirm a submitted configuration update commits, then fetches the resulting block back to the control node.
+Runs `fxadmin follow` on the host with the rendered admin configuration to confirm a submitted configuration update commits.
 
 ```yaml
 - name: Follow the ledger with the fxadmin binary
@@ -142,14 +139,10 @@ Runs `fxadmin follow` with the local fxadmin binary and rendered admin configura
     fxadmin_bin_name: fxadmin
     # Defines the fxadmin admin configuration filename.
     fxadmin_config_file: admin.yaml
-    # Defines the local reference configuration block used by fxadmin for identity and network endpoint discovery. For the very first invocation this is the channel's genesis/bootstrap block; afterwards it is the block most recently fetched via `ledger/config_latest`.
-    fxadmin_current_block: "/tmp/fabricx/config-build/genesis.block"
     # Defines how long `follow` waits for the submitted configuration update to commit.
     fxadmin_follow_timeout: 60s
     # Defines the output artifact path written by the current fxadmin command, local to the host the task runs on.
-    fxadmin_output: "string"
-    # Defines the control-node destination path that `fxadmin_output` is fetched back to once the command completes on a remote organization reference host.
-    fxadmin_output_fetch_dest: "string"
+    fxadmin_output: "/tmp/fabricx/config-build/fxadmin-artifacts/config_update.pb"
     # Defines the fxadmin remote configuration directory.
     fxadmin_remote_config_dir: "{{ remote_config_dir }}/fxadmin"
     # Provides the base remote configuration directory used by the role.
@@ -189,7 +182,7 @@ Installs the fxadmin Go package from the configured Fabric-X source package by d
 
 > Fetch the latest channel configuration block with the fxadmin binary
 
-Runs `fxadmin ledger config latest` with the local fxadmin binary and rendered admin configuration to fetch the current channel configuration block, then fetches it back to the control node.
+Runs `fxadmin ledger config latest` on the host with the rendered admin configuration to fetch the current channel configuration block.
 
 ```yaml
 - name: Fetch the latest channel configuration block with the fxadmin binary
@@ -198,12 +191,8 @@ Runs `fxadmin ledger config latest` with the local fxadmin binary and rendered a
     fxadmin_bin_name: fxadmin
     # Defines the fxadmin admin configuration filename.
     fxadmin_config_file: admin.yaml
-    # Defines the local reference configuration block used by fxadmin for identity and network endpoint discovery. For the very first invocation this is the channel's genesis/bootstrap block; afterwards it is the block most recently fetched via `ledger/config_latest`.
-    fxadmin_current_block: "/tmp/fabricx/config-build/genesis.block"
     # Defines the output artifact path written by the current fxadmin command, local to the host the task runs on.
-    fxadmin_output: "string"
-    # Defines the control-node destination path that `fxadmin_output` is fetched back to once the command completes on a remote organization reference host.
-    fxadmin_output_fetch_dest: "string"
+    fxadmin_output: "/tmp/fabricx/config-build/fxadmin-artifacts/config_update.pb"
     # Defines the fxadmin remote configuration directory.
     fxadmin_remote_config_dir: "{{ remote_config_dir }}/fxadmin"
     # Provides the base remote configuration directory used by the role.
@@ -249,7 +238,7 @@ Transfers the previously built fxadmin binary to the managed host by delegating 
 
 > Endorse a ConfigUpdate with the fxadmin binary
 
-Copies a ConfigUpdate protobuf file to the managed host, endorses it with the local fxadmin binary and rendered admin configuration, then fetches the endorsement into the shared endorsements directory.
+Endorses the staged ConfigUpdate with the fxadmin binary and rendered admin configuration on the host.
 
 ```yaml
 - name: Endorse a ConfigUpdate with the fxadmin binary
@@ -258,12 +247,8 @@ Copies a ConfigUpdate protobuf file to the managed host, endorses it with the lo
     fxadmin_bin_name: fxadmin
     # Defines the fxadmin admin configuration filename.
     fxadmin_config_file: admin.yaml
-    # Defines the local ConfigUpdate protobuf file to endorse.
-    fxadmin_config_update: "/tmp/fabricx/config-build/fxadmin-artifacts/config_update.pb"
-    # Defines the local directory that collects one endorsement file per required organization before merging.
-    fxadmin_endorsements_dir: "/tmp/fabricx/config-build/fxadmin-artifacts/endorsements"
     # Defines the output artifact path written by the current fxadmin command, local to the host the task runs on.
-    fxadmin_output: "string"
+    fxadmin_output: "/tmp/fabricx/config-build/fxadmin-artifacts/config_update.pb"
     # Defines the fxadmin remote configuration directory.
     fxadmin_remote_config_dir: "{{ remote_config_dir }}/fxadmin"
     # Provides the base remote configuration directory used by the role.
@@ -277,19 +262,17 @@ Copies a ConfigUpdate protobuf file to the managed host, endorses it with the lo
 
 > Merge endorsements with the fxadmin binary
 
-Collects endorsement files from the shared endorsements directory and writes a merged ConfigUpdateEnvelope using the local fxadmin binary.
+Merges the staged endorsements into a single ConfigUpdateEnvelope with the control-node fxadmin binary.
 
 ```yaml
 - name: Merge endorsements with the fxadmin binary
   vars:
-    # Sets the control-node directory searched for CLI binaries. Only entrypoints that never leave the control node (`decode`, `compute_update`, `tx/merge`) prefix commands with this directory; entrypoints that authenticate as an organization's identity run on that organization's own reference host instead, using the standard per-host `bin_remote_dir`.
+    # Sets the control-node directory searched for CLI binaries used by the steps that run on the control node.
     cli_bin_dir: "string"
     # Defines the fxadmin binary name.
     fxadmin_bin_name: fxadmin
-    # Defines the local directory that collects one endorsement file per required organization before merging.
-    fxadmin_endorsements_dir: "/tmp/fabricx/config-build/fxadmin-artifacts/endorsements"
     # Defines the output artifact path written by the current fxadmin command, local to the host the task runs on.
-    fxadmin_output: "string"
+    fxadmin_output: "/tmp/fabricx/config-build/fxadmin-artifacts/config_update.pb"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fxadmin
     tasks_from: bin/tx/merge
@@ -299,7 +282,7 @@ Collects endorsement files from the shared endorsements directory and writes a m
 
 > Prepare a transaction with the fxadmin binary
 
-Runs `fxadmin tx prepare` with the local fxadmin binary and rendered admin configuration to turn a merged, endorsed ConfigUpdate envelope into a submittable transaction, then fetches it back to the control node.
+Runs `fxadmin tx prepare` on the host to turn the merged, endorsed ConfigUpdate envelope into a submittable transaction.
 
 ```yaml
 - name: Prepare a transaction with the fxadmin binary
@@ -308,12 +291,8 @@ Runs `fxadmin tx prepare` with the local fxadmin binary and rendered admin confi
     fxadmin_bin_name: fxadmin
     # Defines the fxadmin admin configuration filename.
     fxadmin_config_file: admin.yaml
-    # Defines the local merged, endorsed ConfigUpdate envelope to prepare into a submittable transaction.
-    fxadmin_endorsed_config_update: "/tmp/fabricx/config-build/fxadmin-artifacts/merged.pb"
     # Defines the output artifact path written by the current fxadmin command, local to the host the task runs on.
-    fxadmin_output: "string"
-    # Defines the control-node destination path that `fxadmin_output` is fetched back to once the command completes on a remote organization reference host.
-    fxadmin_output_fetch_dest: "string"
+    fxadmin_output: "/tmp/fabricx/config-build/fxadmin-artifacts/config_update.pb"
     # Defines the fxadmin remote configuration directory.
     fxadmin_remote_config_dir: "{{ remote_config_dir }}/fxadmin"
     # Provides the base remote configuration directory used by the role.
@@ -327,7 +306,7 @@ Runs `fxadmin tx prepare` with the local fxadmin binary and rendered admin confi
 
 > Submit a transaction with the fxadmin binary
 
-Runs `fxadmin tx submit` with the local fxadmin binary and rendered admin configuration to broadcast the prepared transaction.
+Runs `fxadmin tx submit` on the host with the rendered admin configuration to broadcast the prepared transaction.
 
 ```yaml
 - name: Submit a transaction with the fxadmin binary
@@ -336,10 +315,6 @@ Runs `fxadmin tx submit` with the local fxadmin binary and rendered admin config
     fxadmin_bin_name: fxadmin
     # Defines the fxadmin admin configuration filename.
     fxadmin_config_file: admin.yaml
-    # Defines the local prepared transaction file to submit.
-    fxadmin_config_tx: "/tmp/fabricx/config-build/fxadmin-artifacts/config_tx.pb"
-    # Defines the local reference configuration block used by fxadmin for identity and network endpoint discovery. For the very first invocation this is the channel's genesis/bootstrap block; afterwards it is the block most recently fetched via `ledger/config_latest`.
-    fxadmin_current_block: "/tmp/fabricx/config-build/genesis.block"
     # Defines the fxadmin remote configuration directory.
     fxadmin_remote_config_dir: "{{ remote_config_dir }}/fxadmin"
     # Provides the base remote configuration directory used by the role.
@@ -358,6 +333,8 @@ Dispatches ConfigUpdate computation to either the host binary or a transient con
 ```yaml
 - name: Compute a ConfigUpdate
   vars:
+    # Defines the output artifact path written by the current fxadmin command, local to the host the task runs on.
+    fxadmin_output: "/tmp/fabricx/config-build/fxadmin-artifacts/config_update.pb"
     # Selects the host-binary workflow instead of the container workflow.
     fxadmin_use_bin: false
   ansible.builtin.include_role:
@@ -374,9 +351,9 @@ Copies the client certificate and key consumed by fxadmin for mTLS connections i
 ```yaml
 - name: Transfer fxadmin mTLS client material
   vars:
-    # Defines the certificate path used for fxadmin mTLS, local to the host this task runs on (see `fxadmin_remote_config_dir`). Unlike `hyperledger.fabricx.fxconfig`, fxadmin has no single deployed host to borrow a default TLS identity from -- the organization's identity gets its own dedicated TLS material, synced onto that identity's own reference host by `config/transfer` before this path is read, so the caller (see playbooks/fxadmin/configs.yaml) always supplies this explicitly.
+    # Defines the certificate path used for fxadmin mTLS, local to the host the task runs on.
     fxadmin_mtls_client_cert_path: "{{ fxadmin_remote_config_dir }}/tls/client.crt"
-    # Defines the private key path used for fxadmin mTLS, local to the host this task runs on (see `fxadmin_remote_config_dir`). Unlike `hyperledger.fabricx.fxconfig`, fxadmin has no single deployed host to borrow a default TLS identity from -- the organization's identity gets its own dedicated TLS material, synced onto that identity's own reference host by `config/transfer` before this path is read, so the caller (see playbooks/fxadmin/configs.yaml) always supplies this explicitly.
+    # Defines the private key path used for fxadmin mTLS, local to the host the task runs on.
     fxadmin_mtls_client_key_path: "{{ fxadmin_remote_config_dir }}/tls/client.key"
     # Defines the fxadmin remote configuration directory.
     fxadmin_remote_config_dir: "{{ remote_config_dir }}/fxadmin"
@@ -391,7 +368,7 @@ Copies the client certificate and key consumed by fxadmin for mTLS connections i
 
 > Transfer fxadmin configuration material
 
-Creates the remote fxadmin configuration directory, renders the admin configuration file, copies MSP material, and stages mTLS assets when the target network enables mTLS.
+Creates the remote fxadmin configuration directory, renders the admin configuration file, copies the MSP material, and copies the TLS material and mTLS client certificate when the target network enables mTLS.
 
 ```yaml
 - name: Transfer fxadmin configuration material
@@ -400,19 +377,19 @@ Creates the remote fxadmin configuration directory, renders the admin configurat
     fxadmin_config_file: admin.yaml
     # Defines the configuration directory mounted inside the fxadmin container.
     fxadmin_container_config_dir: /config
-    # Defines the source MSP directory copied into the fxadmin configuration directory.
-    fxadmin_msp_config_path: "/tmp/fabricx/config-build/crypto/ordererOrganizations/org1.example.com/users/Admin@org1.example.com/msp"
+    # Defines the control-node MSP directory of the organization user, which is copied into the fxadmin configuration directory.
+    fxadmin_msp_config_path: "/tmp/fabricx/config-build/fxadmin-artifacts/crypto/organizations/org1.example.com/users/admin@org1.example.com/msp"
     # Defines the MSP identifier written into the rendered admin configuration.
     fxadmin_msp_id: "{{ organization.name }}MSP"
     # Defines the fxadmin remote configuration directory.
     fxadmin_remote_config_dir: "{{ remote_config_dir }}/fxadmin"
     # Selects the host-binary workflow instead of the container workflow.
     fxadmin_use_bin: false
-    # Enables mTLS material rendering and transfer for fxadmin, mirroring the target Fabric-X network's mTLS setting.
+    # Enables mTLS material rendering and transfer for fxadmin, mirroring the target network's mTLS setting.
     fxadmin_use_mtls: false
-    # Enables TLS in the rendered admin configuration, mirroring the target Fabric-X network's TLS setting.
+    # Enables TLS in the rendered admin configuration, mirroring the target network's TLS setting.
     fxadmin_use_tls: false
-    # Provides organization metadata used by tasks that read `organization.*`, including names and the org's fxadmin identity. `organization.user` must carry `type: admin`, since it is used for every fxadmin operation, endorsement included.
+    # Provides organization metadata, including the `organization.user` identity that every fxadmin operation signs with.
     organization:
       name: "OrdererOrg1"
       domain: "ordererorg1.example.com"
@@ -431,29 +408,29 @@ Creates the remote fxadmin configuration directory, renders the admin configurat
 
 > Compute a ConfigUpdate with the fxadmin container
 
-Mounts the current and modified configuration JSON files and the reference block into a transient fxadmin container, then runs `fxadmin compute-update`.
+Stages the current and modified configuration JSON files and the reference block into the output directory, then runs `fxadmin compute-update` in a transient container that mounts it.
 
 ```yaml
 - name: Compute a ConfigUpdate with the fxadmin container
   vars:
     # Defines the fxadmin binary name.
     fxadmin_bin_name: fxadmin
-    # Defines the base container name used by fxadmin workflows. Includes `inventory_hostname` by default so container names never collide when this role runs across multiple hosts in parallel.
+    # Defines the base container name used by fxadmin workflows, suffixed per host so parallel runs never collide.
     fxadmin_container_name: "fxadmin-{{ inventory_hostname }}"
-    # Defines the local reference configuration block used by fxadmin for identity and network endpoint discovery. For the very first invocation this is the channel's genesis/bootstrap block; afterwards it is the block most recently fetched via `ledger/config_latest`.
-    fxadmin_current_block: "/tmp/fabricx/config-build/genesis.block"
+    # Defines the local reference configuration block fxadmin uses for identity and endpoint discovery.
+    fxadmin_current_block: "/tmp/fabricx/config-build/fxadmin-artifacts/config.pb"
     # Defines the local decoded current channel configuration JSON file.
     fxadmin_current_config_json: "/tmp/fabricx/config-build/fxadmin-artifacts/current_config.json"
     # Defines the fxadmin container image.
     fxadmin_image: "{{ fxadmin_registry_endpoint }}/{{ fxadmin_image_name }}:{{ fxadmin_image_tag }}"
     # Defines the image name used by the fxadmin container image.
     fxadmin_image_name: fabric-x-tools
-    # Defines the image tag used by the fxadmin container image. Must be at least 1.0.2: earlier fabric-x-tools tags do not bundle the fxadmin binary.
+    # Defines the image tag used by the fxadmin container image, which must be at least 1.0.2 because earlier tags do not bundle the fxadmin binary.
     fxadmin_image_tag: 1.0.2
-    # Defines the local modified channel configuration JSON file, produced by `patch_config_value` and consumed by `compute_update`.
+    # Defines the local modified channel configuration JSON file produced by `patch_config_value` and consumed by `compute_update`.
     fxadmin_modified_config_json: "/tmp/fabricx/config-build/fxadmin-artifacts/modified_config.json"
     # Defines the output artifact path written by the current fxadmin command, local to the host the task runs on.
-    fxadmin_output: "string"
+    fxadmin_output: "/tmp/fabricx/config-build/fxadmin-artifacts/config_update.pb"
     # Defines the registry endpoint used by the fxadmin container image.
     fxadmin_registry_endpoint: "{{ lookup('env', 'FXADMIN_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
   ansible.builtin.include_role:
@@ -465,7 +442,7 @@ Mounts the current and modified configuration JSON files and the reference block
 
 > Decode a configuration block with the fxadmin container
 
-Mounts the configuration block into a transient fxadmin container and runs `fxadmin decode`.
+Stages the configuration block into the output directory, then runs `fxadmin decode` in a transient container that mounts it.
 
 ```yaml
 - name: Decode a configuration block with the fxadmin container
@@ -474,16 +451,16 @@ Mounts the configuration block into a transient fxadmin container and runs `fxad
     fxadmin_bin_name: fxadmin
     # Defines the local protobuf-encoded configuration block to decode into JSON.
     fxadmin_config_block: "/tmp/fabricx/config-build/fxadmin-artifacts/config.pb"
-    # Defines the base container name used by fxadmin workflows. Includes `inventory_hostname` by default so container names never collide when this role runs across multiple hosts in parallel.
+    # Defines the base container name used by fxadmin workflows, suffixed per host so parallel runs never collide.
     fxadmin_container_name: "fxadmin-{{ inventory_hostname }}"
     # Defines the fxadmin container image.
     fxadmin_image: "{{ fxadmin_registry_endpoint }}/{{ fxadmin_image_name }}:{{ fxadmin_image_tag }}"
     # Defines the image name used by the fxadmin container image.
     fxadmin_image_name: fabric-x-tools
-    # Defines the image tag used by the fxadmin container image. Must be at least 1.0.2: earlier fabric-x-tools tags do not bundle the fxadmin binary.
+    # Defines the image tag used by the fxadmin container image, which must be at least 1.0.2 because earlier tags do not bundle the fxadmin binary.
     fxadmin_image_tag: 1.0.2
     # Defines the output artifact path written by the current fxadmin command, local to the host the task runs on.
-    fxadmin_output: "string"
+    fxadmin_output: "/tmp/fabricx/config-build/fxadmin-artifacts/config_update.pb"
     # Defines the registry endpoint used by the fxadmin container image.
     fxadmin_registry_endpoint: "{{ lookup('env', 'FXADMIN_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
   ansible.builtin.include_role:
@@ -495,7 +472,7 @@ Mounts the configuration block into a transient fxadmin container and runs `fxad
 
 > Follow the ledger with the fxadmin container
 
-Mounts the rendered admin configuration and the reference block into a transient fxadmin container, runs `fxadmin follow`, then fetches the resulting block back to the control node.
+Mounts the rendered admin configuration and the staged reference block into a transient fxadmin container and runs `fxadmin follow`.
 
 ```yaml
 - name: Follow the ledger with the fxadmin container
@@ -506,22 +483,18 @@ Mounts the rendered admin configuration and the reference block into a transient
     fxadmin_config_file: admin.yaml
     # Defines the configuration directory mounted inside the fxadmin container.
     fxadmin_container_config_dir: /config
-    # Defines the base container name used by fxadmin workflows. Includes `inventory_hostname` by default so container names never collide when this role runs across multiple hosts in parallel.
+    # Defines the base container name used by fxadmin workflows, suffixed per host so parallel runs never collide.
     fxadmin_container_name: "fxadmin-{{ inventory_hostname }}"
-    # Defines the local reference configuration block used by fxadmin for identity and network endpoint discovery. For the very first invocation this is the channel's genesis/bootstrap block; afterwards it is the block most recently fetched via `ledger/config_latest`.
-    fxadmin_current_block: "/tmp/fabricx/config-build/genesis.block"
     # Defines how long `follow` waits for the submitted configuration update to commit.
     fxadmin_follow_timeout: 60s
     # Defines the fxadmin container image.
     fxadmin_image: "{{ fxadmin_registry_endpoint }}/{{ fxadmin_image_name }}:{{ fxadmin_image_tag }}"
     # Defines the image name used by the fxadmin container image.
     fxadmin_image_name: fabric-x-tools
-    # Defines the image tag used by the fxadmin container image. Must be at least 1.0.2: earlier fabric-x-tools tags do not bundle the fxadmin binary.
+    # Defines the image tag used by the fxadmin container image, which must be at least 1.0.2 because earlier tags do not bundle the fxadmin binary.
     fxadmin_image_tag: 1.0.2
     # Defines the output artifact path written by the current fxadmin command, local to the host the task runs on.
-    fxadmin_output: "string"
-    # Defines the control-node destination path that `fxadmin_output` is fetched back to once the command completes on a remote organization reference host.
-    fxadmin_output_fetch_dest: "string"
+    fxadmin_output: "/tmp/fabricx/config-build/fxadmin-artifacts/config_update.pb"
     # Defines the registry endpoint used by the fxadmin container image.
     fxadmin_registry_endpoint: "{{ lookup('env', 'FXADMIN_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
     # Defines the fxadmin remote configuration directory.
@@ -537,7 +510,7 @@ Mounts the rendered admin configuration and the reference block into a transient
 
 > Fetch the latest channel configuration block with the fxadmin container
 
-Mounts the rendered admin configuration and the reference block into a transient fxadmin container, runs `fxadmin ledger config latest`, then fetches it back to the control node.
+Mounts the rendered admin configuration and the staged reference block into a transient fxadmin container and runs `fxadmin ledger config latest`.
 
 ```yaml
 - name: Fetch the latest channel configuration block with the fxadmin container
@@ -548,20 +521,16 @@ Mounts the rendered admin configuration and the reference block into a transient
     fxadmin_config_file: admin.yaml
     # Defines the configuration directory mounted inside the fxadmin container.
     fxadmin_container_config_dir: /config
-    # Defines the base container name used by fxadmin workflows. Includes `inventory_hostname` by default so container names never collide when this role runs across multiple hosts in parallel.
+    # Defines the base container name used by fxadmin workflows, suffixed per host so parallel runs never collide.
     fxadmin_container_name: "fxadmin-{{ inventory_hostname }}"
-    # Defines the local reference configuration block used by fxadmin for identity and network endpoint discovery. For the very first invocation this is the channel's genesis/bootstrap block; afterwards it is the block most recently fetched via `ledger/config_latest`.
-    fxadmin_current_block: "/tmp/fabricx/config-build/genesis.block"
     # Defines the fxadmin container image.
     fxadmin_image: "{{ fxadmin_registry_endpoint }}/{{ fxadmin_image_name }}:{{ fxadmin_image_tag }}"
     # Defines the image name used by the fxadmin container image.
     fxadmin_image_name: fabric-x-tools
-    # Defines the image tag used by the fxadmin container image. Must be at least 1.0.2: earlier fabric-x-tools tags do not bundle the fxadmin binary.
+    # Defines the image tag used by the fxadmin container image, which must be at least 1.0.2 because earlier tags do not bundle the fxadmin binary.
     fxadmin_image_tag: 1.0.2
     # Defines the output artifact path written by the current fxadmin command, local to the host the task runs on.
-    fxadmin_output: "string"
-    # Defines the control-node destination path that `fxadmin_output` is fetched back to once the command completes on a remote organization reference host.
-    fxadmin_output_fetch_dest: "string"
+    fxadmin_output: "/tmp/fabricx/config-build/fxadmin-artifacts/config_update.pb"
     # Defines the registry endpoint used by the fxadmin container image.
     fxadmin_registry_endpoint: "{{ lookup('env', 'FXADMIN_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
     # Defines the fxadmin remote configuration directory.
@@ -577,7 +546,7 @@ Mounts the rendered admin configuration and the reference block into a transient
 
 > Endorse a ConfigUpdate with the fxadmin container
 
-Copies a ConfigUpdate protobuf file to the managed host, mounts the rendered admin configuration into a transient fxadmin container, and fetches the endorsement into the shared endorsements directory.
+Mounts the staged ConfigUpdate and the rendered admin configuration into a transient fxadmin container that writes the endorsement.
 
 ```yaml
 - name: Endorse a ConfigUpdate with the fxadmin container
@@ -586,22 +555,18 @@ Copies a ConfigUpdate protobuf file to the managed host, mounts the rendered adm
     fxadmin_bin_name: fxadmin
     # Defines the fxadmin admin configuration filename.
     fxadmin_config_file: admin.yaml
-    # Defines the local ConfigUpdate protobuf file to endorse.
-    fxadmin_config_update: "/tmp/fabricx/config-build/fxadmin-artifacts/config_update.pb"
     # Defines the configuration directory mounted inside the fxadmin container.
     fxadmin_container_config_dir: /config
-    # Defines the base container name used by fxadmin workflows. Includes `inventory_hostname` by default so container names never collide when this role runs across multiple hosts in parallel.
+    # Defines the base container name used by fxadmin workflows, suffixed per host so parallel runs never collide.
     fxadmin_container_name: "fxadmin-{{ inventory_hostname }}"
-    # Defines the local directory that collects one endorsement file per required organization before merging.
-    fxadmin_endorsements_dir: "/tmp/fabricx/config-build/fxadmin-artifacts/endorsements"
     # Defines the fxadmin container image.
     fxadmin_image: "{{ fxadmin_registry_endpoint }}/{{ fxadmin_image_name }}:{{ fxadmin_image_tag }}"
     # Defines the image name used by the fxadmin container image.
     fxadmin_image_name: fabric-x-tools
-    # Defines the image tag used by the fxadmin container image. Must be at least 1.0.2: earlier fabric-x-tools tags do not bundle the fxadmin binary.
+    # Defines the image tag used by the fxadmin container image, which must be at least 1.0.2 because earlier tags do not bundle the fxadmin binary.
     fxadmin_image_tag: 1.0.2
     # Defines the output artifact path written by the current fxadmin command, local to the host the task runs on.
-    fxadmin_output: "string"
+    fxadmin_output: "/tmp/fabricx/config-build/fxadmin-artifacts/config_update.pb"
     # Defines the registry endpoint used by the fxadmin container image.
     fxadmin_registry_endpoint: "{{ lookup('env', 'FXADMIN_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
     # Defines the fxadmin remote configuration directory.
@@ -617,14 +582,14 @@ Copies a ConfigUpdate protobuf file to the managed host, mounts the rendered adm
 
 > Merge endorsements with the fxadmin container
 
-Mounts the shared endorsements directory into a transient fxadmin container and writes a merged ConfigUpdateEnvelope.
+Mounts the staged endorsements directory into a transient fxadmin container and writes a merged ConfigUpdateEnvelope.
 
 ```yaml
 - name: Merge endorsements with the fxadmin container
   vars:
     # Defines the fxadmin binary name.
     fxadmin_bin_name: fxadmin
-    # Defines the base container name used by fxadmin workflows. Includes `inventory_hostname` by default so container names never collide when this role runs across multiple hosts in parallel.
+    # Defines the base container name used by fxadmin workflows, suffixed per host so parallel runs never collide.
     fxadmin_container_name: "fxadmin-{{ inventory_hostname }}"
     # Defines the local directory that collects one endorsement file per required organization before merging.
     fxadmin_endorsements_dir: "/tmp/fabricx/config-build/fxadmin-artifacts/endorsements"
@@ -632,10 +597,10 @@ Mounts the shared endorsements directory into a transient fxadmin container and 
     fxadmin_image: "{{ fxadmin_registry_endpoint }}/{{ fxadmin_image_name }}:{{ fxadmin_image_tag }}"
     # Defines the image name used by the fxadmin container image.
     fxadmin_image_name: fabric-x-tools
-    # Defines the image tag used by the fxadmin container image. Must be at least 1.0.2: earlier fabric-x-tools tags do not bundle the fxadmin binary.
+    # Defines the image tag used by the fxadmin container image, which must be at least 1.0.2 because earlier tags do not bundle the fxadmin binary.
     fxadmin_image_tag: 1.0.2
     # Defines the output artifact path written by the current fxadmin command, local to the host the task runs on.
-    fxadmin_output: "string"
+    fxadmin_output: "/tmp/fabricx/config-build/fxadmin-artifacts/config_update.pb"
     # Defines the registry endpoint used by the fxadmin container image.
     fxadmin_registry_endpoint: "{{ lookup('env', 'FXADMIN_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
   ansible.builtin.include_role:
@@ -647,7 +612,7 @@ Mounts the shared endorsements directory into a transient fxadmin container and 
 
 > Prepare a transaction with the fxadmin container
 
-Mounts the endorsed ConfigUpdate envelope and the rendered admin configuration into a transient fxadmin container, runs `fxadmin tx prepare`, then fetches the prepared transaction back to the control node.
+Mounts the staged endorsed ConfigUpdate and the rendered admin configuration into a transient fxadmin container that runs `fxadmin tx prepare`.
 
 ```yaml
 - name: Prepare a transaction with the fxadmin container
@@ -658,20 +623,16 @@ Mounts the endorsed ConfigUpdate envelope and the rendered admin configuration i
     fxadmin_config_file: admin.yaml
     # Defines the configuration directory mounted inside the fxadmin container.
     fxadmin_container_config_dir: /config
-    # Defines the base container name used by fxadmin workflows. Includes `inventory_hostname` by default so container names never collide when this role runs across multiple hosts in parallel.
+    # Defines the base container name used by fxadmin workflows, suffixed per host so parallel runs never collide.
     fxadmin_container_name: "fxadmin-{{ inventory_hostname }}"
-    # Defines the local merged, endorsed ConfigUpdate envelope to prepare into a submittable transaction.
-    fxadmin_endorsed_config_update: "/tmp/fabricx/config-build/fxadmin-artifacts/merged.pb"
     # Defines the fxadmin container image.
     fxadmin_image: "{{ fxadmin_registry_endpoint }}/{{ fxadmin_image_name }}:{{ fxadmin_image_tag }}"
     # Defines the image name used by the fxadmin container image.
     fxadmin_image_name: fabric-x-tools
-    # Defines the image tag used by the fxadmin container image. Must be at least 1.0.2: earlier fabric-x-tools tags do not bundle the fxadmin binary.
+    # Defines the image tag used by the fxadmin container image, which must be at least 1.0.2 because earlier tags do not bundle the fxadmin binary.
     fxadmin_image_tag: 1.0.2
     # Defines the output artifact path written by the current fxadmin command, local to the host the task runs on.
-    fxadmin_output: "string"
-    # Defines the control-node destination path that `fxadmin_output` is fetched back to once the command completes on a remote organization reference host.
-    fxadmin_output_fetch_dest: "string"
+    fxadmin_output: "/tmp/fabricx/config-build/fxadmin-artifacts/config_update.pb"
     # Defines the registry endpoint used by the fxadmin container image.
     fxadmin_registry_endpoint: "{{ lookup('env', 'FXADMIN_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
     # Defines the fxadmin remote configuration directory.
@@ -687,7 +648,7 @@ Mounts the endorsed ConfigUpdate envelope and the rendered admin configuration i
 
 > Submit a transaction with the fxadmin container
 
-Mounts the prepared transaction and the reference block into a transient fxadmin container and runs `fxadmin tx submit`.
+Mounts the staged transaction, the reference block and the rendered admin configuration into a transient fxadmin container that runs `fxadmin tx submit`.
 
 ```yaml
 - name: Submit a transaction with the fxadmin container
@@ -696,19 +657,15 @@ Mounts the prepared transaction and the reference block into a transient fxadmin
     fxadmin_bin_name: fxadmin
     # Defines the fxadmin admin configuration filename.
     fxadmin_config_file: admin.yaml
-    # Defines the local prepared transaction file to submit.
-    fxadmin_config_tx: "/tmp/fabricx/config-build/fxadmin-artifacts/config_tx.pb"
     # Defines the configuration directory mounted inside the fxadmin container.
     fxadmin_container_config_dir: /config
-    # Defines the base container name used by fxadmin workflows. Includes `inventory_hostname` by default so container names never collide when this role runs across multiple hosts in parallel.
+    # Defines the base container name used by fxadmin workflows, suffixed per host so parallel runs never collide.
     fxadmin_container_name: "fxadmin-{{ inventory_hostname }}"
-    # Defines the local reference configuration block used by fxadmin for identity and network endpoint discovery. For the very first invocation this is the channel's genesis/bootstrap block; afterwards it is the block most recently fetched via `ledger/config_latest`.
-    fxadmin_current_block: "/tmp/fabricx/config-build/genesis.block"
     # Defines the fxadmin container image.
     fxadmin_image: "{{ fxadmin_registry_endpoint }}/{{ fxadmin_image_name }}:{{ fxadmin_image_tag }}"
     # Defines the image name used by the fxadmin container image.
     fxadmin_image_name: fabric-x-tools
-    # Defines the image tag used by the fxadmin container image. Must be at least 1.0.2: earlier fabric-x-tools tags do not bundle the fxadmin binary.
+    # Defines the image tag used by the fxadmin container image, which must be at least 1.0.2 because earlier tags do not bundle the fxadmin binary.
     fxadmin_image_tag: 1.0.2
     # Defines the registry endpoint used by the fxadmin container image.
     fxadmin_registry_endpoint: "{{ lookup('env', 'FXADMIN_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
@@ -721,88 +678,6 @@ Mounts the prepared transaction and the reference block into a transient fxadmin
     tasks_from: container/tx/submit
 ```
 
-### crypto/cryptogen/transfer
-
-> Fetch a cryptogen-generated identity
-
-Fetches the `<fxadmin_identity_name>@<domain>` identity (MSP and TLS material) cryptogen generates under that name for an orderer organization's declared `organization.user`, which `hyperledger.fabricx.cryptogen`'s own fetch task never copies to the control node.
-
-```yaml
-- name: Fetch a cryptogen-generated identity
-  vars:
-    # Defines the base local build directory used to derive fxadmin's own artifacts and, as a fallback, cryptogen's output location.
-    config_build_dir: "string"
-    # Sets the directory where cryptogen writes generated crypto material. Owned by `hyperledger.fabricx.cryptogen`; only reliably set while that role's own tasks are executing, so fxadmin falls back to deriving it from `config_build_dir` otherwise.
-    cryptogen_output_dir: "string"
-    # Defines the local directory that stores fetched crypto artifacts consumed by fxadmin.
-    fetched_artifacts_dir: "/tmp/fabricx/config-build"
-    # Selects the organization.user a crypto provisioning task acts on, by name.
-    fxadmin_identity_name: "ordererorg1-admin"
-    # Provides organization metadata used by tasks that read `organization.*`, including names and the org's fxadmin identity. `organization.user` must carry `type: admin`, since it is used for every fxadmin operation, endorsement included.
-    organization:
-      name: "OrdererOrg1"
-      domain: "ordererorg1.example.com"
-      user:
-        name: "ordererorg1-admin"
-        secret: "ordererorg1-adminPWD"
-        type: "admin"
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.fxadmin
-    tasks_from: crypto/cryptogen/transfer
-```
-
-### crypto/fabric_ca/enroll
-
-> Register and enroll an identity with Fabric CA
-
-Registers and enrolls an org-level identity (MSP and a dedicated TLS identity) for an orderer organization on its Fabric CA host, then fetches the enrolled material to the control node. Nothing else provisions this identity today; orderer nodes only enroll their own node identity.
-
-```yaml
-- name: Register and enroll an identity with Fabric CA
-  vars:
-    # Defines the local directory that stores fetched crypto artifacts consumed by fxadmin.
-    fetched_artifacts_dir: "/tmp/fabricx/config-build"
-    # Selects the organization.user a crypto provisioning task acts on, by name.
-    fxadmin_identity_name: "ordererorg1-admin"
-    # Defines the Fabric CA enrollment secret for the identity, sourced from its organization.user entry.
-    fxadmin_identity_secret: "string"
-    # Defines the Fabric CA `--id.type` used to register the identity (always `admin`, since organization.user must carry OU=admin), which drives its NodeOU role classification. Sourced from the identity's organization.user entry.
-    fxadmin_identity_type: "string"
-    # Provides organization metadata used by tasks that read `organization.*`, including names and the org's fxadmin identity. `organization.user` must carry `type: admin`, since it is used for every fxadmin operation, endorsement included.
-    organization:
-      name: "OrdererOrg1"
-      domain: "ordererorg1.example.com"
-      user:
-        name: "ordererorg1-admin"
-        secret: "ordererorg1-adminPWD"
-        type: "admin"
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.fxadmin
-    tasks_from: crypto/fabric_ca/enroll
-```
-
-### crypto/fetch
-
-> Provision the identity declared in an orderer organization's user
-
-Dispatches identity provisioning for `organization.user` to either the cryptogen or Fabric CA path based on whether `organization.fabric_ca_host` is defined. Fails when `organization.user` is declared without `type: admin`, since only an OU=admin identity satisfies the channel's per-org Admins policy.
-
-```yaml
-- name: Provision the identity declared in an orderer organization's user
-  vars:
-    # Provides organization metadata used by tasks that read `organization.*`, including names and the org's fxadmin identity. `organization.user` must carry `type: admin`, since it is used for every fxadmin operation, endorsement included.
-    organization:
-      name: "OrdererOrg1"
-      domain: "ordererorg1.example.com"
-      user:
-        name: "ordererorg1-admin"
-        secret: "ordererorg1-adminPWD"
-        type: "admin"
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.fxadmin
-    tasks_from: crypto/fetch
-```
-
 ### decode
 
 > Decode a configuration block
@@ -812,6 +687,8 @@ Dispatches configuration block decoding to either the host binary or a transient
 ```yaml
 - name: Decode a configuration block
   vars:
+    # Defines the output artifact path written by the current fxadmin command, local to the host the task runs on.
+    fxadmin_output: "/tmp/fabricx/config-build/fxadmin-artifacts/config_update.pb"
     # Selects the host-binary workflow instead of the container workflow.
     fxadmin_use_bin: false
   ansible.builtin.include_role:
@@ -823,11 +700,17 @@ Dispatches configuration block decoding to either the host binary or a transient
 
 > Follow the ledger until a configuration update commits
 
-Dispatches ledger following to either the host binary or a transient container based on `fxadmin_use_bin`.
+Dispatches ledger following to either the host binary or a transient container based on `fxadmin_use_bin`, then fetches the committed block back to the control node.
 
 ```yaml
 - name: Follow the ledger until a configuration update commits
   vars:
+    # Defines the local reference configuration block fxadmin uses for identity and endpoint discovery.
+    fxadmin_current_block: "/tmp/fabricx/config-build/fxadmin-artifacts/config.pb"
+    # Defines the output artifact path written by the current fxadmin command, local to the host the task runs on.
+    fxadmin_output: "/tmp/fabricx/config-build/fxadmin-artifacts/config_update.pb"
+    # Defines the control-node path that `fxadmin_output` is fetched back to once the command completes on a remote host.
+    fxadmin_output_fetch_dest: "/tmp/fabricx/config-build/fxadmin-artifacts/config_tx.pb"
     # Selects the host-binary workflow instead of the container workflow.
     fxadmin_use_bin: false
   ansible.builtin.include_role:
@@ -839,11 +722,17 @@ Dispatches ledger following to either the host binary or a transient container b
 
 > Fetch the latest channel configuration block
 
-Dispatches fetching the latest channel configuration block to either the host binary or a transient container based on `fxadmin_use_bin`.
+Dispatches fetching the latest channel configuration block to either the host binary or a transient container based on `fxadmin_use_bin`, then fetches it back to the control node.
 
 ```yaml
 - name: Fetch the latest channel configuration block
   vars:
+    # Defines the local reference configuration block fxadmin uses for identity and endpoint discovery.
+    fxadmin_current_block: "/tmp/fabricx/config-build/fxadmin-artifacts/config.pb"
+    # Defines the output artifact path written by the current fxadmin command, local to the host the task runs on.
+    fxadmin_output: "/tmp/fabricx/config-build/fxadmin-artifacts/config_update.pb"
+    # Defines the control-node path that `fxadmin_output` is fetched back to once the command completes on a remote host.
+    fxadmin_output_fetch_dest: "/tmp/fabricx/config-build/fxadmin-artifacts/config_tx.pb"
     # Selects the host-binary workflow instead of the container workflow.
     fxadmin_use_bin: false
   ansible.builtin.include_role:
@@ -855,14 +744,14 @@ Dispatches fetching the latest channel configuration block to either the host bi
 
 > Patch a decoded channel configuration
 
-Reads the decoded current channel configuration JSON, deep-merges a caller-supplied partial structure into it, and writes the resulting modified configuration JSON. Contains no business logic of its own -- the caller supplies the exact nested path and value to change, keeping this role a generic fxadmin wrapper reusable by any future reconfiguration flow.
+Reads the decoded current channel configuration JSON, deep-merges a caller-supplied partial structure into it, and writes the resulting modified configuration JSON. Contains no business logic of its own, so the caller supplies the exact nested path and value to change.
 
 ```yaml
 - name: Patch a decoded channel configuration
   vars:
     # Defines the local decoded current channel configuration JSON file.
     fxadmin_current_config_json: "/tmp/fabricx/config-build/fxadmin-artifacts/current_config.json"
-    # Defines a partial JSON structure deep-merged into the decoded current configuration to produce the modified configuration. Shaped like the nested path within the decoded config that needs to change; the caller supplies this, keeping the role itself agnostic of any specific reconfiguration business rule. Channel-config groups are keyed by the plain organization name (for example `Org1`), not its MSP ID (`Org1MSP`).
+    # Defines a partial JSON structure deep-merged into the decoded current configuration to produce the modified configuration.
     fxadmin_json_patch:
       channel_group:
         groups:
@@ -870,11 +759,11 @@ Reads the decoded current channel configuration JSON, deep-merges a caller-suppl
             groups:
               Org1:
                 values:
-                  Endpoint:
+                  Endpoints:
                     value:
-                      host: "orderer1-assembler"
-                      port: 7060
-    # Defines the local modified channel configuration JSON file, produced by `patch_config_value` and consumed by `compute_update`.
+                      addresses:
+                        - "id=1,deliver,host:7050"
+    # Defines the local modified channel configuration JSON file produced by `patch_config_value` and consumed by `compute_update`.
     fxadmin_modified_config_json: "/tmp/fabricx/config-build/fxadmin-artifacts/modified_config.json"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fxadmin
@@ -885,11 +774,17 @@ Reads the decoded current channel configuration JSON, deep-merges a caller-suppl
 
 > Endorse a ConfigUpdate
 
-Dispatches ConfigUpdate endorsement to either the host binary or a transient container based on `fxadmin_use_bin`.
+Stages the ConfigUpdate, dispatches its endorsement to either the host binary or a transient container based on `fxadmin_use_bin`, then fetches the endorsement to the control node.
 
 ```yaml
 - name: Endorse a ConfigUpdate
   vars:
+    # Defines the local ConfigUpdate protobuf file to endorse.
+    fxadmin_config_update: "/tmp/fabricx/config-build/fxadmin-artifacts/config_update.pb"
+    # Defines the local directory that collects one endorsement file per required organization before merging.
+    fxadmin_endorsements_dir: "/tmp/fabricx/config-build/fxadmin-artifacts/endorsements"
+    # Defines the output artifact path written by the current fxadmin command, local to the host the task runs on.
+    fxadmin_output: "/tmp/fabricx/config-build/fxadmin-artifacts/config_update.pb"
     # Selects the host-binary workflow instead of the container workflow.
     fxadmin_use_bin: false
   ansible.builtin.include_role:
@@ -901,13 +796,15 @@ Dispatches ConfigUpdate endorsement to either the host binary or a transient con
 
 > Merge endorsements
 
-Dispatches endorsement merging to either the host binary or a transient container based on `fxadmin_use_bin`, then removes the spent per-organization endorsement files.
+Dispatches endorsement merging to either the host binary or a transient container based on `fxadmin_use_bin`, then removes the spent endorsement files. Fails when no endorsement was collected, so an empty ConfigUpdateEnvelope is never written.
 
 ```yaml
 - name: Merge endorsements
   vars:
     # Defines the local directory that collects one endorsement file per required organization before merging.
     fxadmin_endorsements_dir: "/tmp/fabricx/config-build/fxadmin-artifacts/endorsements"
+    # Defines the output artifact path written by the current fxadmin command, local to the host the task runs on.
+    fxadmin_output: "/tmp/fabricx/config-build/fxadmin-artifacts/config_update.pb"
     # Selects the host-binary workflow instead of the container workflow.
     fxadmin_use_bin: false
   ansible.builtin.include_role:
@@ -919,11 +816,17 @@ Dispatches endorsement merging to either the host binary or a transient containe
 
 > Prepare a transaction
 
-Dispatches transaction preparation to either the host binary or a transient container based on `fxadmin_use_bin`.
+Stages the merged, endorsed ConfigUpdate, dispatches transaction preparation to either the host binary or a transient container based on `fxadmin_use_bin`, then fetches the prepared transaction to the control node.
 
 ```yaml
 - name: Prepare a transaction
   vars:
+    # Defines the local merged, endorsed ConfigUpdate envelope to prepare into a submittable transaction.
+    fxadmin_endorsed_config_update: "/tmp/fabricx/config-build/fxadmin-artifacts/merged.pb"
+    # Defines the output artifact path written by the current fxadmin command, local to the host the task runs on.
+    fxadmin_output: "/tmp/fabricx/config-build/fxadmin-artifacts/config_update.pb"
+    # Defines the control-node path that `fxadmin_output` is fetched back to once the command completes on a remote host.
+    fxadmin_output_fetch_dest: "/tmp/fabricx/config-build/fxadmin-artifacts/config_tx.pb"
     # Selects the host-binary workflow instead of the container workflow.
     fxadmin_use_bin: false
   ansible.builtin.include_role:
@@ -935,11 +838,15 @@ Dispatches transaction preparation to either the host binary or a transient cont
 
 > Submit a transaction
 
-Dispatches transaction submission to either the host binary or a transient container based on `fxadmin_use_bin`.
+Stages the prepared transaction and the reference block, then dispatches submission to either the host binary or a transient container based on `fxadmin_use_bin`.
 
 ```yaml
 - name: Submit a transaction
   vars:
+    # Defines the local prepared transaction file to submit.
+    fxadmin_config_tx: "/tmp/fabricx/config-build/fxadmin-artifacts/config_tx.pb"
+    # Defines the local reference configuration block fxadmin uses for identity and endpoint discovery.
+    fxadmin_current_block: "/tmp/fabricx/config-build/fxadmin-artifacts/config.pb"
     # Selects the host-binary workflow instead of the container workflow.
     fxadmin_use_bin: false
   ansible.builtin.include_role:
@@ -951,13 +858,17 @@ Dispatches transaction submission to either the host binary or a transient conta
 
 > Remove generated fxadmin files
 
-Removes the fxadmin binary when the host-binary workflow is selected.
+Removes the fxadmin binary when the host-binary workflow is selected, and the rendered configuration directory.
 
 ```yaml
 - name: Remove generated fxadmin files
   vars:
+    # Defines the fxadmin remote configuration directory.
+    fxadmin_remote_config_dir: "{{ remote_config_dir }}/fxadmin"
     # Selects the host-binary workflow instead of the container workflow.
     fxadmin_use_bin: false
+    # Provides the base remote configuration directory used by the role.
+    remote_config_dir: "/opt/hyperledger/fabricx/config"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fxadmin
     tasks_from: wipe

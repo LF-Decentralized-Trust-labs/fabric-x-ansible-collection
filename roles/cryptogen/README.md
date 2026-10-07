@@ -82,7 +82,7 @@ Read back the rendered `crypto-config.yaml` and the persisted state file, then d
 
 > Fetch generated MSP directories
 
-Copy generated MSP directories for every organization into the fetched artifacts directory. The role mirrors each organization MSP subtree from `cryptogen_output_dir` into `{{ fetched_artifacts_dir }}/crypto/organizations`. Run this after crypto material has already been generated so downstream roles can consume the fetched artifacts.
+Copy generated MSP directories for every organization into the fetched artifacts directory. The role mirrors each organization MSP subtree from `cryptogen_output_dir` into `{{ fetched_artifacts_dir }}/crypto/organizations`. Each organization user declared in `cryptogen_orgs_by_domain` is copied the same way, so any role can consume its MSP and TLS material from the fetched artifacts directory. Run this after crypto material has already been generated so downstream roles can consume the fetched artifacts.
 
 ```yaml
 - name: Fetch generated MSP directories

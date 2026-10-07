@@ -1,0 +1,42 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# Enrolls the admin organization user of every Fabric CA-backed organization onto
+# the control node, in the same layout cryptogen uses, so fxadmin can consume it
+# whichever organization type or group the host belongs to.
+#
+# Registration already happens in fabric_ca_server.register_identities, which
+# gathers every organization's user. Only admin users are enrolled here: other
+# users are provisioned by the roles that consume them, such as loadgen and evm.
+- name: Enroll the admin organization users with Fabric CA
+  hosts: localhost
+  tasks:
+    - name: Resolve the Fabric CA-backed organizations that declare an admin user
+      ansible.builtin.set_fact:
+        ca_admin_organizations: >-
+          {{
+            groups['all']
+            | map('extract', hostvars)
+            | selectattr('organization', 'defined')
+            | selectattr('organization.fabric_ca_host', 'defined')
+            | selectattr('organization.user', 'defined')
+            | selectattr('organization.user.type', 'defined')
+            | selectattr('organization.user.type', 'eq', 'admin')
+            | map(attribute='organization')
+            | unique(attribute='domain')
+            | list
+          }}
+
+    - name: Enroll the admin user of each Fabric CA-backed organization
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fabric_ca
+        tasks_from: client/organization_user/enroll
+      vars:
+        organization: "{{ current_organization }}"
+      loop: "{{ ca_admin_organizations }}"
+      loop_control:
+        loop_var: current_organization
+        label: "{{ current_organization.domain }}"
