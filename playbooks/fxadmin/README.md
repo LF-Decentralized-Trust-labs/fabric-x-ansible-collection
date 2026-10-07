@@ -2,7 +2,7 @@
 
 The `fxadmin` playbooks drive live Fabric-X network reconfigurations. `fxadmin` is an admin CLI that pulls the current channel configuration, edits it, collects endorsements from the affected organizations, and broadcasts the resulting reconfiguration transaction -- the same control-plane style as `fxconfig`, but for the channel's own configuration instead of namespace transactions.
 
-`fxadmin` never generates or fetches crypto material of its own. It consumes the admin identity declared in an organization's `organization.user`. Cryptogen-generated users are copied to the control node by the cryptogen fetch, and Fabric CA admin users are registered and enrolled there by `playbooks/artifacts/enroll_organization_users.yaml`, for any organization and inventory group.
+`fxadmin` never generates or fetches crypto material of its own. Like `fxconfig`, it consumes the identity declared in the host's `organization.user`, whose MSP the crypto setup of the component running on that host (orderer, committer, loadgen, ...) already produced under `remote_config_dir/users/<name>@<domain>/msp`, from cryptogen or Fabric CA. For mTLS it reuses the node's own TLS identity under `remote_config_dir/tls`.
 
 ## Supported reconfiguration flows
 
@@ -32,7 +32,7 @@ flowchart LR
 
 ## Admin hosts
 
-An **admin host** is any inventory host whose `organization.user` has `type: admin`, in any group, except Fabric CA server hosts: they inherit their organization's anchor, including its user, but only run the CA. Binaries, configs and wipe act on every admin host. The `build_crypto_material` playbook rejects an orderer organization whose user is not `type: admin`. Every step that signs does so as the organization's identity on that host.
+An **admin host** is any inventory host whose `organization.user` has `type: admin`; every other host is skipped. The user is declared only on the hosts meant to run `fxadmin`, which in the sample inventories are the orderer consenters, one per orderer organization. Binaries, configs and wipe act on every admin host. Every step that signs does so as the organization's identity on that host.
 
 Reconfiguration uses the same admin hosts, in any organization, as the rest of the tool. Within it:
 
@@ -57,7 +57,7 @@ Properties:
 
 ## configs.yaml
 
-[`configs.yaml`](./configs.yaml) renders `fxadmin`'s admin configuration (MSP identity, TLS/mTLS material) on every admin host, for the identity declared in its organization's `organization.user`. The identity's MSP and TLS material is provisioned onto the control node and synced from there, so a private key only reaches a host that signs with it.
+[`configs.yaml`](./configs.yaml) renders `fxadmin`'s admin configuration (MSP identity, TLS/mTLS material) on every admin host, for the identity declared in its `organization.user`. As with `fxconfig`, the material is copied locally on the host: the user's MSP from `remote_config_dir/users/<name>@<domain>/msp` and, when mTLS is enabled, the node's `remote_config_dir/tls/server.{crt,key}`.
 
 ```shell
 ansible-playbook hyperledger.fabricx.fxadmin.configs
@@ -89,7 +89,7 @@ Properties:
 - `assembler_host` names the single Assembler whose port changes. It must be in the `fabric_x_orderers` group and have `orderer_component_type: assembler`.
 - `target_hosts` (`TARGET_HOSTS` in the Makefile, default `all`) selects the admin hosts that take part. It must cover at least one admin host of every organization that has one, and the leader, and the playbook fails otherwise rather than submitting a partial endorsement set.
 - Host roles: fetch and endorsement run on every selected admin host, and prepare, submit and follow on the leader only. Decode, patch, compute-update and merge run on `localhost`.
-- Patch: only two values change. The assembler's deliver address in the organization's `Endpoints` is replaced in place, and its `AssemblerConfig.port` in `PartiesConfig` is updated. Everything else is copied unchanged from the decoded current configuration, so the `ConfigUpdate` carries no other change.
+- Patch: the decoded configuration is edited with a single jq filter on the control node, so `jq` must be installed there (`install_prerequisites.yaml` does it). Only two values change. Only the port of the assembler's deliver entry in the organization's `Endpoints` is replaced, keeping the host the genesis block recorded (`ansible_host`), and its `AssemblerConfig.port` in `PartiesConfig` is updated. The playbook fails if the organization has no deliver entry for that party. Everything else is copied unchanged from the decoded current configuration, so the `ConfigUpdate` carries no other change.
 - Scope: this playbook only submits the channel `ConfigUpdate`. It does **not** restart the affected Assembler process with the new port -- run `make <assembler_host> configs restart` afterwards to apply the change to the running component.
 - Nuance: run this after the network is started, since fetching and submitting configuration requires live Fabric-X orderer endpoints. Requires `binaries.yaml` and `configs.yaml` to have already run so every admin host already has the CLI and its admin configuration.
 
@@ -98,7 +98,7 @@ Properties:
 
 ## wipe.yaml
 
-[`wipe.yaml`](./wipe.yaml) removes the `fxadmin` binary (when `fxadmin_use_bin: true`) and the rendered `fxadmin` configuration from every host that belongs to an organization. On the control node it removes the generated `fxadmin` reconfiguration artifacts and each admin organization's identity material, so the next setup re-provisions the identity instead of reusing a stale key.
+[`wipe.yaml`](./wipe.yaml) removes the `fxadmin` binary (when `fxadmin_use_bin: true`) and the rendered `fxadmin` configuration from every admin host. The user's own MSP is removed by the crypto removal of the component that produced it.
 
 ```shell
 ansible-playbook hyperledger.fabricx.fxadmin.wipe
@@ -106,4 +106,4 @@ ansible-playbook hyperledger.fabricx.fxadmin.wipe
 
 Properties:
 
-- Target hosts: every host with an `organization` (narrowed by `target_hosts`), whether or not it declares an `organization.user`, so removing a user from the inventory still cleans up what an earlier run rendered. Then `localhost` for control-node artifacts.
+- Target hosts: the admin hosts, narrowed by `target_hosts`.

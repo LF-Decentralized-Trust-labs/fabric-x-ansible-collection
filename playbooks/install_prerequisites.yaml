@@ -47,6 +47,14 @@
       ansible.builtin.include_role:
         name: hyperledger.fabricx.package
         tasks_from: install
+    # fxadmin patches the decoded channel configuration with jq, whether fxadmin
+    # itself runs as a binary or as a container.
+    - name: Install jq
+      vars:
+        package_name: jq
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.package
+        tasks_from: install
     - name: Install chrony
       vars:
         package_name: chrony

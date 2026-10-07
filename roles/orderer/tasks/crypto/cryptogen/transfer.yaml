@@ -22,3 +22,23 @@
   ansible.posix.synchronize:
     src: "{{ cryptogen_artifacts_dir }}/crypto/organizations/{{ organization.domain }}/orderers/{{ orderer_crypto_name }}.{{ organization.domain }}/tls"
     dest: "{{ orderer_remote_config_dir }}"
+
+# =========================
+# User MSP
+# =========================
+# The organization user declared on this host (e.g. the admin identity used by fxadmin)
+# is shipped next to the node identity, so any tool running here can sign with it.
+- name: Ensure the orderer users config directory exists
+  ansible.builtin.file:
+    path: "{{ orderer_remote_config_dir }}/users"
+    state: directory
+    mode: "0o755"
+  when:
+    - organization.user is defined
+
+- name: Transfer the user crypto material generated with cryptogen
+  ansible.posix.synchronize:
+    src: "{{ cryptogen_artifacts_dir }}/crypto/organizations/{{ organization.domain }}/users/{{ organization.user.name }}@{{ organization.domain }}"
+    dest: "{{ orderer_remote_config_dir }}/users"
+  when:
+    - organization.user is defined

@@ -11,6 +11,13 @@
   when:
     - committer_use_tls
 
+- name: Remove Hyperledger Fabric-X Committer users directory
+  ansible.builtin.file:
+    path: "{{ committer_remote_config_dir }}/users"
+    state: absent
+  when:
+    - organization.user is defined
+
 - name: Remove Fabric-X Committer k8s Secret
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer

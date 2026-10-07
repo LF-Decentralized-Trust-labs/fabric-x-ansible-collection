@@ -4,48 +4,16 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-# Covers every host that belongs to an organization, not only those that declare
-# an organization.user, so removing a user from the inventory still cleans up what
-# an earlier run rendered.
-- name: Wipe the fxadmin binary and configuration from every organization host
+- name: Wipe the fxadmin binary and configuration from every admin host
   hosts: "{{ target_hosts | default('all') }}"
   tasks:
+    # Hosts without an admin organization.user are skipped: fxadmin only runs where
+    # an identity able to sign channel configuration updates is declared.
     - name: Wipe the fxadmin binary and configuration
       ansible.builtin.include_role:
         name: hyperledger.fabricx.fxadmin
         tasks_from: wipe
       when:
         - organization is defined
-        - inventory_hostname not in groups.get('fabric_ca_servers', [])
-
-- name: Wipe fxadmin artifacts and admin identity material on the control node
-  hosts: localhost
-  vars:
-    fxadmin_artifacts_dir: "{{ config_build_dir }}/fxadmin-artifacts"
-  tasks:
-    - name: Remove generated fxadmin configuration and reconfiguration artifacts
-      ansible.builtin.file:
-        path: "{{ fxadmin_artifacts_dir }}"
-        state: absent
-
-    # The identity is provisioned into the fetched crypto tree, which fxadmin's
-    # configs render from. Removing it here means the next setup re-provisions it
-    # instead of reusing a stale key.
-    - name: Remove the admin identity material of each organization
-      ansible.builtin.file:
-        path: "{{ hostvars[current_host].fetched_artifacts_dir }}/crypto/organizations/{{ hostvars[current_host].organization.domain }}/users/{{ hostvars[current_host].organization.user.name }}@{{ hostvars[current_host].organization.domain }}"
-        state: absent
-      loop: >-
-        {{
-          groups['all']
-          | map('extract', hostvars)
-          | selectattr('organization.user', 'defined')
-          | selectattr('organization.user.type', 'defined')
-          | selectattr('organization.user.type', 'eq', 'admin')
-          | map(attribute='inventory_hostname')
-          | reject('in', groups.get('fabric_ca_servers', []))
-          | list
-        }}
-      loop_control:
-        loop_var: current_host
-        label: "{{ current_host }}"
+        - organization.user is defined
+        - organization.user.type | default('') == 'admin'

@@ -87,12 +87,16 @@ Runs `fxadmin compute-update` with the control-node fxadmin binary to compute th
 ```yaml
 - name: Compute a ConfigUpdate with the fxadmin binary
   vars:
+    # Defines the channel identifier used to derive the genesis block filename.
+    channel_id: "fabricx-main-channel"
     # Sets the control-node directory searched for CLI binaries used by the steps that run on the control node.
     cli_bin_dir: "string"
+    # Defines the control-node directory where configtxgen writes the genesis block.
+    configtxgen_artifacts_dir: "/tmp/fabricx/config-build/configtxgen-artifacts"
     # Defines the fxadmin binary name.
     fxadmin_bin_name: fxadmin
-    # Defines the local reference configuration block fxadmin uses for identity and endpoint discovery.
-    fxadmin_current_block: "/tmp/fabricx/config-build/fxadmin-artifacts/config.pb"
+    # Defines the control-node reference configuration block fxadmin uses for endpoint discovery, defaulting to the genesis block produced by configtxgen.
+    fxadmin_current_block: "{{ configtxgen_artifacts_dir }}/{{ channel_id }}_block.pb"
     # Defines the local decoded current channel configuration JSON file.
     fxadmin_current_config_json: "/tmp/fabricx/config-build/fxadmin-artifacts/current_config.json"
     # Defines the local modified channel configuration JSON file produced by `patch_config_value` and consumed by `compute_update`.
@@ -351,10 +355,10 @@ Copies the client certificate and key consumed by fxadmin for mTLS connections i
 ```yaml
 - name: Transfer fxadmin mTLS client material
   vars:
-    # Defines the certificate path used for fxadmin mTLS, local to the host the task runs on.
-    fxadmin_mtls_client_cert_path: "{{ fxadmin_remote_config_dir }}/tls/client.crt"
-    # Defines the private key path used for fxadmin mTLS, local to the host the task runs on.
-    fxadmin_mtls_client_key_path: "{{ fxadmin_remote_config_dir }}/tls/client.key"
+    # Defines the certificate path on the host, reused from the node's own TLS identity, that fxadmin presents for mTLS.
+    fxadmin_mtls_client_cert_path: "{{ remote_config_dir }}/tls/server.crt"
+    # Defines the private key path on the host, reused from the node's own TLS identity, that fxadmin presents for mTLS.
+    fxadmin_mtls_client_key_path: "{{ remote_config_dir }}/tls/server.key"
     # Defines the fxadmin remote configuration directory.
     fxadmin_remote_config_dir: "{{ remote_config_dir }}/fxadmin"
     # Provides the base remote configuration directory used by the role.
@@ -368,7 +372,7 @@ Copies the client certificate and key consumed by fxadmin for mTLS connections i
 
 > Transfer fxadmin configuration material
 
-Creates the remote fxadmin configuration directory, renders the admin configuration file, copies the MSP material, and copies the TLS material and mTLS client certificate when the target network enables mTLS.
+Creates the remote fxadmin configuration directory, renders the admin configuration file, and copies the MSP material and, when the target network enables mTLS, the client certificate already present on the host.
 
 ```yaml
 - name: Transfer fxadmin configuration material
@@ -377,8 +381,8 @@ Creates the remote fxadmin configuration directory, renders the admin configurat
     fxadmin_config_file: admin.yaml
     # Defines the configuration directory mounted inside the fxadmin container.
     fxadmin_container_config_dir: /config
-    # Defines the control-node MSP directory of the organization user, which is copied into the fxadmin configuration directory.
-    fxadmin_msp_config_path: "/tmp/fabricx/config-build/fxadmin-artifacts/crypto/organizations/org1.example.com/users/admin@org1.example.com/msp"
+    # Defines the MSP directory of the organization user on the host, produced by the component's own crypto setup and copied into the fxadmin configuration directory.
+    fxadmin_msp_config_path: "{{ remote_config_dir }}/users/ordererorg1-admin@ordererorg1.example.com/msp"
     # Defines the MSP identifier written into the rendered admin configuration.
     fxadmin_msp_id: "{{ organization.name }}MSP"
     # Defines the fxadmin remote configuration directory.
@@ -413,12 +417,16 @@ Stages the current and modified configuration JSON files and the reference block
 ```yaml
 - name: Compute a ConfigUpdate with the fxadmin container
   vars:
+    # Defines the channel identifier used to derive the genesis block filename.
+    channel_id: "fabricx-main-channel"
+    # Defines the control-node directory where configtxgen writes the genesis block.
+    configtxgen_artifacts_dir: "/tmp/fabricx/config-build/configtxgen-artifacts"
     # Defines the fxadmin binary name.
     fxadmin_bin_name: fxadmin
     # Defines the base container name used by fxadmin workflows, suffixed per host so parallel runs never collide.
     fxadmin_container_name: "fxadmin-{{ inventory_hostname }}"
-    # Defines the local reference configuration block fxadmin uses for identity and endpoint discovery.
-    fxadmin_current_block: "/tmp/fabricx/config-build/fxadmin-artifacts/config.pb"
+    # Defines the control-node reference configuration block fxadmin uses for endpoint discovery, defaulting to the genesis block produced by configtxgen.
+    fxadmin_current_block: "{{ configtxgen_artifacts_dir }}/{{ channel_id }}_block.pb"
     # Defines the local decoded current channel configuration JSON file.
     fxadmin_current_config_json: "/tmp/fabricx/config-build/fxadmin-artifacts/current_config.json"
     # Defines the fxadmin container image.
@@ -705,8 +713,12 @@ Dispatches ledger following to either the host binary or a transient container b
 ```yaml
 - name: Follow the ledger until a configuration update commits
   vars:
-    # Defines the local reference configuration block fxadmin uses for identity and endpoint discovery.
-    fxadmin_current_block: "/tmp/fabricx/config-build/fxadmin-artifacts/config.pb"
+    # Defines the channel identifier used to derive the genesis block filename.
+    channel_id: "fabricx-main-channel"
+    # Defines the control-node directory where configtxgen writes the genesis block.
+    configtxgen_artifacts_dir: "/tmp/fabricx/config-build/configtxgen-artifacts"
+    # Defines the control-node reference configuration block fxadmin uses for endpoint discovery, defaulting to the genesis block produced by configtxgen.
+    fxadmin_current_block: "{{ configtxgen_artifacts_dir }}/{{ channel_id }}_block.pb"
     # Defines the output artifact path written by the current fxadmin command, local to the host the task runs on.
     fxadmin_output: "/tmp/fabricx/config-build/fxadmin-artifacts/config_update.pb"
     # Defines the control-node path that `fxadmin_output` is fetched back to once the command completes on a remote host.
@@ -727,8 +739,12 @@ Dispatches fetching the latest channel configuration block to either the host bi
 ```yaml
 - name: Fetch the latest channel configuration block
   vars:
-    # Defines the local reference configuration block fxadmin uses for identity and endpoint discovery.
-    fxadmin_current_block: "/tmp/fabricx/config-build/fxadmin-artifacts/config.pb"
+    # Defines the channel identifier used to derive the genesis block filename.
+    channel_id: "fabricx-main-channel"
+    # Defines the control-node directory where configtxgen writes the genesis block.
+    configtxgen_artifacts_dir: "/tmp/fabricx/config-build/configtxgen-artifacts"
+    # Defines the control-node reference configuration block fxadmin uses for endpoint discovery, defaulting to the genesis block produced by configtxgen.
+    fxadmin_current_block: "{{ configtxgen_artifacts_dir }}/{{ channel_id }}_block.pb"
     # Defines the output artifact path written by the current fxadmin command, local to the host the task runs on.
     fxadmin_output: "/tmp/fabricx/config-build/fxadmin-artifacts/config_update.pb"
     # Defines the control-node path that `fxadmin_output` is fetched back to once the command completes on a remote host.
@@ -744,25 +760,17 @@ Dispatches fetching the latest channel configuration block to either the host bi
 
 > Patch a decoded channel configuration
 
-Reads the decoded current channel configuration JSON, deep-merges a caller-supplied partial structure into it, and writes the resulting modified configuration JSON. Contains no business logic of its own, so the caller supplies the exact nested path and value to change.
+Applies a caller-supplied jq filter to the decoded current channel configuration JSON on the control node, and writes the resulting modified configuration JSON. Contains no business logic of its own, so the caller supplies the exact change as a jq filter. Requires jq on the control node, installed by the `hyperledger.fabricx.install_prerequisites` playbook.
 
 ```yaml
 - name: Patch a decoded channel configuration
   vars:
     # Defines the local decoded current channel configuration JSON file.
     fxadmin_current_config_json: "/tmp/fabricx/config-build/fxadmin-artifacts/current_config.json"
-    # Defines a partial JSON structure deep-merged into the decoded current configuration to produce the modified configuration.
-    fxadmin_json_patch:
-      channel_group:
-        groups:
-          Orderer:
-            groups:
-              Org1:
-                values:
-                  Endpoints:
-                    value:
-                      addresses:
-                        - "id=1,deliver,host:7050"
+    # Defines the values passed to `fxadmin_jq_filter`, which reads them as `$args`.
+    fxadmin_jq_args: {}
+    # Defines the jq filter applied to the decoded current configuration to produce the modified configuration.
+    fxadmin_jq_filter: ".channel_group.groups.Orderer.values.ConsensusType.value.metadata.PartiesConfig[0].AssemblerConfig.port = $args.port"
     # Defines the local modified channel configuration JSON file produced by `patch_config_value` and consumed by `compute_update`.
     fxadmin_modified_config_json: "/tmp/fabricx/config-build/fxadmin-artifacts/modified_config.json"
   ansible.builtin.include_role:
@@ -843,10 +851,14 @@ Stages the prepared transaction and the reference block, then dispatches submiss
 ```yaml
 - name: Submit a transaction
   vars:
+    # Defines the channel identifier used to derive the genesis block filename.
+    channel_id: "fabricx-main-channel"
+    # Defines the control-node directory where configtxgen writes the genesis block.
+    configtxgen_artifacts_dir: "/tmp/fabricx/config-build/configtxgen-artifacts"
     # Defines the local prepared transaction file to submit.
     fxadmin_config_tx: "/tmp/fabricx/config-build/fxadmin-artifacts/config_tx.pb"
-    # Defines the local reference configuration block fxadmin uses for identity and endpoint discovery.
-    fxadmin_current_block: "/tmp/fabricx/config-build/fxadmin-artifacts/config.pb"
+    # Defines the control-node reference configuration block fxadmin uses for endpoint discovery, defaulting to the genesis block produced by configtxgen.
+    fxadmin_current_block: "{{ configtxgen_artifacts_dir }}/{{ channel_id }}_block.pb"
     # Selects the host-binary workflow instead of the container workflow.
     fxadmin_use_bin: false
   ansible.builtin.include_role:

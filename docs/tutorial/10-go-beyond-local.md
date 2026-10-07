@@ -168,7 +168,7 @@ The checklist before your first run:
    make install-remote-node-deps
    ```
 
-   This runs `install_prerequisites`, which installs the container engine, `tmux`, OpenSSL, Git, Go, `rsync`, and `chrony` — and it picks **one representative host per physical machine**, so packages are not installed once per logical service.
+   This runs `install_prerequisites`, which installs the container engine, `tmux`, OpenSSL, Git, Go, `rsync`, `jq`, and `chrony` — and it picks **one representative host per physical machine**, so packages are not installed once per logical service.
 
 6. **Review every port.** Sixteen machines still means several logical services per machine, so the same uniqueness rules from [lesson 5](./05-read-the-inventory.md) apply.
 

@@ -11,7 +11,6 @@
   - [client/enroll](#clientenroll)
   - [client/intermediate\_ca/build\_ca\_chain](#clientintermediate_cabuild_ca_chain)
   - [client/intermediate\_ca/build\_server\_chain](#clientintermediate_cabuild_server_chain)
-  - [client/organization\_user/enroll](#clientorganization_userenroll)
   - [client/register](#clientregister)
   - [client/gather\_identities](#clientgather_identities)
   - [client/reenroll](#clientreenroll)
@@ -191,31 +190,6 @@ Reassembles `fabric_ca_cryptogenize_tls_cert_file` as the leaf certificate follo
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: client/intermediate_ca/build_server_chain
-```
-
-### client/organization_user/enroll
-
-> Register and enroll an organization user with Fabric CA
-
-Registers the identity declared in `organization.user` on the organization's Fabric CA host, enrolls its MSP and a dedicated TLS identity, and fetches both to the control node in the cryptogen layout. Consumers such as fxadmin read the result from `{{ fetched_artifacts_dir }}/crypto/organizations`, whichever CA issued it.
-
-```yaml
-- name: Register and enroll an organization user with Fabric CA
-  vars:
-    # Provides the shared local artifacts root used by this role.
-    fetched_artifacts_dir: "/tmp/fabricx/fetched-artifacts"
-    # Provides the organization metadata defined elsewhere in inventory; `domain` is required.
-    organization:
-      name: "Org1"
-      domain: "org1.example.com"
-      fabric_ca_host: "fca-org1"
-      role: "peer"
-      peer:
-        name: "peer0"
-        secret: "peer0PWD"
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.fabric_ca
-    tasks_from: client/organization_user/enroll
 ```
 
 ### client/register

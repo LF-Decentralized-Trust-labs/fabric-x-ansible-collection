@@ -9,10 +9,20 @@ argument_specs:
   role-options:
     short_description: Shared option catalog for fxadmin role entry points
     options:
+      channel_id: &channel_id
+        type: str
+        description:
+          - "Defines the channel identifier used to derive the genesis block filename."
+          - "Example: C(fabricx-main-channel)."
       cli_bin_dir: &cli_bin_dir
         type: path
         description:
           - "Sets the control-node directory searched for CLI binaries used by the steps that run on the control node."
+      configtxgen_artifacts_dir: &configtxgen_artifacts_dir
+        type: path
+        description:
+          - "Defines the control-node directory where configtxgen writes the genesis block."
+          - "Example: C(/tmp/fabricx/config-build/configtxgen-artifacts)."
       fxadmin_bin_name: &fxadmin_bin_name
         type: str
         default: "fxadmin"
@@ -58,10 +68,9 @@ argument_specs:
           - "Defines the base container name used by fxadmin workflows, suffixed per host so parallel runs never collide."
       fxadmin_current_block: &fxadmin_current_block
         type: path
-        required: true
+        default: "{{ configtxgen_artifacts_dir }}/{{ channel_id }}_block.pb"
         description:
-          - "Defines the local reference configuration block fxadmin uses for identity and endpoint discovery."
-          - "Example: C(/tmp/fabricx/config-build/fxadmin-artifacts/config.pb)."
+          - "Defines the control-node reference configuration block fxadmin uses for endpoint discovery, defaulting to the genesis block produced by configtxgen."
       fxadmin_current_config_json: &fxadmin_current_config_json
         type: path
         required: true
@@ -115,24 +124,27 @@ argument_specs:
         default: "1.0.2"
         description:
           - "Defines the image tag used by the fxadmin container image, which must be at least 1.0.2 because earlier tags do not bundle the fxadmin binary."
-      fxadmin_json_patch: &fxadmin_json_patch
+      fxadmin_jq_args: &fxadmin_jq_args
         type: dict
+        default: {}
+        description:
+          - "Defines the values passed to C(fxadmin_jq_filter), which reads them as C($args)."
+      fxadmin_jq_filter: &fxadmin_jq_filter
+        type: str
         required: true
         description:
-          - "Defines a partial JSON structure deep-merged into the decoded current configuration to produce the modified configuration."
-          - "Example: C({'channel_group': {'groups': {'Orderer': {'groups': {'Org1': {'values': {'Endpoints': {'value': {'addresses': ['id=1,deliver,host:7050']}}}}}}}}})."
+          - "Defines the jq filter applied to the decoded current configuration to produce the modified configuration."
+          - "Example: C(.channel_group.groups.Orderer.values.ConsensusType.value.metadata.PartiesConfig[0].AssemblerConfig.port = $args.port)."
       fxadmin_mtls_client_cert_path: &fxadmin_mtls_client_cert_path
         type: path
-        required: true
+        default: "{{ remote_config_dir }}/tls/server.crt"
         description:
-          - "Defines the certificate path used for fxadmin mTLS, local to the host the task runs on."
-          - "Example: C({{ fxadmin_remote_config_dir }}/tls/client.crt)."
+          - "Defines the certificate path on the host, reused from the node's own TLS identity, that fxadmin presents for mTLS."
       fxadmin_mtls_client_key_path: &fxadmin_mtls_client_key_path
         type: path
-        required: true
+        default: "{{ remote_config_dir }}/tls/server.key"
         description:
-          - "Defines the private key path used for fxadmin mTLS, local to the host the task runs on."
-          - "Example: C({{ fxadmin_remote_config_dir }}/tls/client.key)."
+          - "Defines the private key path on the host, reused from the node's own TLS identity, that fxadmin presents for mTLS."
       fxadmin_modified_config_json: &fxadmin_modified_config_json
         type: path
         required: true
@@ -143,8 +155,8 @@ argument_specs:
         type: path
         required: true
         description:
-          - "Defines the control-node MSP directory of the organization user, which is copied into the fxadmin configuration directory."
-          - "Example: C(/tmp/fabricx/config-build/fxadmin-artifacts/crypto/organizations/org1.example.com/users/admin@org1.example.com/msp)."
+          - "Defines the MSP directory of the organization user on the host, produced by the component's own crypto setup and copied into the fxadmin configuration directory."
+          - "Example: C({{ remote_config_dir }}/users/ordererorg1-admin@ordererorg1.example.com/msp)."
       fxadmin_msp_id: &fxadmin_msp_id
         type: str
         default: "{{ organization.name }}MSP"
@@ -219,7 +231,9 @@ argument_specs:
     description:
       - "Runs C(fxadmin compute-update) with the control-node fxadmin binary to compute the delta between the current and modified channel configuration."
     options:
+      channel_id: *channel_id
       cli_bin_dir: *cli_bin_dir
+      configtxgen_artifacts_dir: *configtxgen_artifacts_dir
       fxadmin_bin_name: *fxadmin_bin_name
       fxadmin_current_block: *fxadmin_current_block
       fxadmin_current_config_json: *fxadmin_current_config_json
@@ -347,7 +361,7 @@ argument_specs:
   config/transfer:
     short_description: Transfer fxadmin configuration material
     description:
-      - "Creates the remote fxadmin configuration directory, renders the admin configuration file, copies the MSP material, and copies the TLS material and mTLS client certificate when the target network enables mTLS."
+      - "Creates the remote fxadmin configuration directory, renders the admin configuration file, and copies the MSP material and, when the target network enables mTLS, the client certificate already present on the host."
     options:
       fxadmin_config_file: *fxadmin_config_file
       fxadmin_container_config_dir: *fxadmin_container_config_dir
@@ -365,6 +379,8 @@ argument_specs:
     description:
       - "Stages the current and modified configuration JSON files and the reference block into the output directory, then runs C(fxadmin compute-update) in a transient container that mounts it."
     options:
+      channel_id: *channel_id
+      configtxgen_artifacts_dir: *configtxgen_artifacts_dir
       fxadmin_bin_name: *fxadmin_bin_name
       fxadmin_container_name: *fxadmin_container_name
       fxadmin_current_block: *fxadmin_current_block
@@ -502,6 +518,8 @@ argument_specs:
     description:
       - "Dispatches ledger following to either the host binary or a transient container based on C(fxadmin_use_bin), then fetches the committed block back to the control node."
     options:
+      channel_id: *channel_id
+      configtxgen_artifacts_dir: *configtxgen_artifacts_dir
       fxadmin_current_block: *fxadmin_current_block
       fxadmin_output: *fxadmin_output
       fxadmin_output_fetch_dest: *fxadmin_output_fetch_dest
@@ -512,6 +530,8 @@ argument_specs:
     description:
       - "Dispatches fetching the latest channel configuration block to either the host binary or a transient container based on C(fxadmin_use_bin), then fetches it back to the control node."
     options:
+      channel_id: *channel_id
+      configtxgen_artifacts_dir: *configtxgen_artifacts_dir
       fxadmin_current_block: *fxadmin_current_block
       fxadmin_output: *fxadmin_output
       fxadmin_output_fetch_dest: *fxadmin_output_fetch_dest
@@ -520,11 +540,12 @@ argument_specs:
   patch_config_value:
     short_description: Patch a decoded channel configuration
     description:
-      - "Reads the decoded current channel configuration JSON, deep-merges a caller-supplied partial structure into it, and writes the resulting modified configuration JSON."
-      - "Contains no business logic of its own, so the caller supplies the exact nested path and value to change."
+      - "Applies a caller-supplied jq filter to the decoded current channel configuration JSON on the control node, and writes the resulting modified configuration JSON."
+      - "Contains no business logic of its own, so the caller supplies the exact change as a jq filter. Requires jq on the control node, installed by the C(hyperledger.fabricx.install_prerequisites) playbook."
     options:
       fxadmin_current_config_json: *fxadmin_current_config_json
-      fxadmin_json_patch: *fxadmin_json_patch
+      fxadmin_jq_args: *fxadmin_jq_args
+      fxadmin_jq_filter: *fxadmin_jq_filter
       fxadmin_modified_config_json: *fxadmin_modified_config_json
 
   tx/endorse:
@@ -562,6 +583,8 @@ argument_specs:
     description:
       - "Stages the prepared transaction and the reference block, then dispatches submission to either the host binary or a transient container based on C(fxadmin_use_bin)."
     options:
+      channel_id: *channel_id
+      configtxgen_artifacts_dir: *configtxgen_artifacts_dir
       fxadmin_config_tx: *fxadmin_config_tx
       fxadmin_current_block: *fxadmin_current_block
       fxadmin_use_bin: *fxadmin_use_bin
