@@ -48,28 +48,48 @@
   when:
     - container_client == 'docker'
 
-# Podman's storage root depends on who runs it: /var/lib/containers/storage
-# when rootful, ~/.local/share/containers/storage when rootless. Ask Podman
-# for the real location instead of assuming the system-wide one, which may
-# not even exist on a rootless-only host.
-- name: Add Podman storage volume
+# Podman's storage root and cgroup layout depend on who runs it, so both
+# volumes are derived from Podman's own information instead of assumed.
+- name: Add Podman storage and cgroup volumes
   when:
     - container_client == 'podman'
   block:
     # Socket discovery already fetched it, unless container_socket was set
     # explicitly and discovery was skipped.
-    - name: Get Podman storage information
+    - name: Get Podman information
       containers.podman.podman_system_info:
       register: cadvisor_podman_info_output
       when:
         - container_podman_info_output is not defined
+    - name: Set Podman information
+      ansible.builtin.set_fact:
+        cadvisor_podman_info: "{{ (container_podman_info_output | default(cadvisor_podman_info_output)).podman_system_info }}"
+    # The storage root is /var/lib/containers/storage when rootful and
+    # ~/.local/share/containers/storage when rootless; the system-wide one may
+    # not even exist on a rootless-only host.
     - name: Add Podman graph root volume
       vars:
-        cadvisor_podman_info: "{{ container_podman_info_output | default(cadvisor_podman_info_output) }}"
-        cadvisor_podman_graph_root: "{{ cadvisor_podman_info.podman_system_info.store.graphRoot }}"
+        cadvisor_podman_graph_root: "{{ cadvisor_podman_info.store.graphRoot }}"
         cadvisor_podman_storage_volume: "{{ cadvisor_podman_graph_root }}:{{ cadvisor_podman_graph_root }}:ro"
       ansible.builtin.set_fact:
         cadvisor_container_volumes: "{{ cadvisor_container_volumes + [cadvisor_podman_storage_volume] }}"
+    # Even with the host cgroup namespace, a rootless container can't read
+    # root-only cgroups (e.g. a security agent's under system.slice), and
+    # cAdvisor aborts on the first one it meets while walking the tree.
+    # Rootless containers all live under the user's systemd manager cgroup, so
+    # mount just that subtree over /sys/fs/cgroup as cAdvisor's cgroup root.
+    # The user's host uid is the first entry of Podman's rootless uid map.
+    # Rootful Podman keeps the full tree.
+    - name: Add rootless Podman cgroup volume
+      vars:
+        cadvisor_podman_uid: "{{ cadvisor_podman_info.host.idMappings.uidmap[0].host_id }}"
+        cadvisor_user_cgroup: "/sys/fs/cgroup/user.slice/user-{{ cadvisor_podman_uid }}.slice/user@{{ cadvisor_podman_uid }}.service"
+        cadvisor_user_cgroup_volume: "{{ cadvisor_user_cgroup }}:/sys/fs/cgroup:ro"
+      ansible.builtin.set_fact:
+        cadvisor_container_volumes: "{{ cadvisor_container_volumes + [cadvisor_user_cgroup_volume] }}"
+      when:
+        - cadvisor_podman_info.host.security.rootless
+        - cadvisor_podman_info.host.cgroupManager == 'systemd'
 
 # Docker Desktop for Mac's default context socket lives under $HOME (e.g.
 # /Users/<user>/.docker/run/docker.sock) rather than /run or /var/run, so the
