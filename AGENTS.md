@@ -9,6 +9,7 @@ Namespace/name: `hyperledger.fabricx`. Authoritative version and deps: [`galaxy.
 
 - `creating-fabricx-inventories`: load when creating, adapting, or reviewing a custom operator-owned Fabric-X inventory.
 - `validating-fabricx-changes`: load when checking, validating, reviewing, or preparing repository changes.
+- `opening-component-update-issues`: load when a new upstream component tag or version is released and a Component Update issue must be drafted or opened.
 
 ---
 
