@@ -31,31 +31,15 @@ all:
       orderer_org_1: &OrdererOrg1
         name: OrdererOrg1
         domain: ordererorg1.example.com
-        user:
-          name: ordererorg1-admin
-          secret: ordererorg1-adminPWD
-          type: admin
       orderer_org_2: &OrdererOrg2
         name: OrdererOrg2
         domain: ordererorg2.example.com
-        user:
-          name: ordererorg2-admin
-          secret: ordererorg2-adminPWD
-          type: admin
       orderer_org_3: &OrdererOrg3
         name: OrdererOrg3
         domain: ordererorg3.example.com
-        user:
-          name: ordererorg3-admin
-          secret: ordererorg3-adminPWD
-          type: admin
       orderer_org_4: &OrdererOrg4
         name: OrdererOrg4
         domain: ordererorg4.example.com
-        user:
-          name: ordererorg4-admin
-          secret: ordererorg4-adminPWD
-          type: admin
       org1: &Org1
         name: Org1
         domain: org1.example.com
@@ -86,7 +70,7 @@ all:
               children:
                 fabric_x_orderer_1:
                   vars:
-                    organization:
+                    organization: &OrdererOrg1Node
                       <<: *OrdererOrg1
                       role: orderer
                       orderer:
@@ -106,6 +90,12 @@ all:
                           additional_sans:
                             - "orderer-router-1.{{ openshift_apps_domain }}"
                     orderer-consenter-1:
+                      organization:
+                        <<: *OrdererOrg1Node
+                        user:
+                          name: ordererorg1-admin
+                          secret: ordererorg1-adminPWD
+                          type: admin
                       orderer_component_type: consensus
                       orderer_rpc_port: 7051
                       orderer_operations_port: 7061
@@ -120,7 +110,7 @@ all:
                       orderer_operations_port: 7063
                 fabric_x_orderer_2:
                   vars:
-                    organization:
+                    organization: &OrdererOrg2Node
                       <<: *OrdererOrg2
                       role: orderer
                       orderer:
@@ -140,6 +130,12 @@ all:
                           additional_sans:
                             - "orderer-router-2.{{ openshift_apps_domain }}"
                     orderer-consenter-2:
+                      organization:
+                        <<: *OrdererOrg2Node
+                        user:
+                          name: ordererorg2-admin
+                          secret: ordererorg2-adminPWD
+                          type: admin
                       orderer_component_type: consensus
                       orderer_rpc_port: 7151
                       orderer_operations_port: 7161
@@ -154,7 +150,7 @@ all:
                       orderer_operations_port: 7163
                 fabric_x_orderer_3:
                   vars:
-                    organization:
+                    organization: &OrdererOrg3Node
                       <<: *OrdererOrg3
                       role: orderer
                       orderer:
@@ -174,6 +170,12 @@ all:
                           additional_sans:
                             - "orderer-router-3.{{ openshift_apps_domain }}"
                     orderer-consenter-3:
+                      organization:
+                        <<: *OrdererOrg3Node
+                        user:
+                          name: ordererorg3-admin
+                          secret: ordererorg3-adminPWD
+                          type: admin
                       orderer_component_type: consensus
                       orderer_rpc_port: 7251
                       orderer_operations_port: 7261
@@ -188,7 +190,7 @@ all:
                       orderer_operations_port: 7263
                 fabric_x_orderer_4:
                   vars:
-                    organization:
+                    organization: &OrdererOrg4Node
                       <<: *OrdererOrg4
                       role: orderer
                       orderer:
@@ -208,6 +210,12 @@ all:
                           additional_sans:
                             - "orderer-router-4.{{ openshift_apps_domain }}"
                     orderer-consenter-4:
+                      organization:
+                        <<: *OrdererOrg4Node
+                        user:
+                          name: ordererorg4-admin
+                          secret: ordererorg4-adminPWD
+                          type: admin
                       orderer_component_type: consensus
                       orderer_rpc_port: 7351
                       orderer_operations_port: 7361

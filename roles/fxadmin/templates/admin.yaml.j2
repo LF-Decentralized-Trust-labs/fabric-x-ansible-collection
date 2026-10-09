@@ -11,8 +11,8 @@ msp:
 
 # TLS/mTLS settings for the connection discovered from the reference config block
 tls:
-  enabled: {{ fxadmin_use_tls | default(false) | lower }}
-{% if fxadmin_use_mtls | default(false) %}
+  enabled: {{ fxadmin_use_tls | lower }}
+{% if fxadmin_use_mtls %}
   clientCert: {{ fxadmin_config_dir }}/mtls/client.crt
   clientKey: {{ fxadmin_config_dir }}/mtls/client.key
 {% endif %}

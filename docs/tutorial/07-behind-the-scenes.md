@@ -121,7 +121,6 @@ The other lifecycle files are worth skimming for the same reason. `20-generate-c
 - hyperledger.fabricx.fabric_ca_server.start # <-- the CAs come up here
 - hyperledger.fabricx.fabric_ca_server.init
 - hyperledger.fabricx.fabric_ca_server.register_identities
-- hyperledger.fabricx.artifacts.enroll_organization_users # <-- admin users enrolled for fxadmin
 - hyperledger.fabricx.orderer.generate_crypto # <-- now every component can enrol
 - hyperledger.fabricx.committer.generate_crypto
 # ... and so on for every family

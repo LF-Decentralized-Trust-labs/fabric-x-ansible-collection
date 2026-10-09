@@ -156,7 +156,6 @@ argument_specs:
     description:
       - "Copy generated MSP directories for every organization into the fetched artifacts directory."
       - "The role mirrors each organization MSP subtree from C(cryptogen_output_dir) into C({{ fetched_artifacts_dir }}/crypto/organizations)."
-      - "Each organization user declared in C(cryptogen_orgs_by_domain) is copied the same way, so any role can consume its MSP and TLS material from the fetched artifacts directory."
       - "Run this after crypto material has already been generated so downstream roles can consume the fetched artifacts."
     options:
       config_build_dir: *config_build_dir

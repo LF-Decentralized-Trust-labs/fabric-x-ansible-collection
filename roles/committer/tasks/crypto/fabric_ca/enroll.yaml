@@ -43,6 +43,34 @@
     - committer_component_type is defined
     - committer_component_type == 'sidecar'
 
+# =========================
+# User MSP
+# =========================
+# The organization user declared on this host (e.g. the admin identity used by fxadmin)
+# is enrolled next to the node identity, so any tool running here can sign with it.
+- name: Generate Hyperledger Fabric-X Committer MSP user crypto material
+  vars:
+    fabric_ca_host: "{{ organization.fabric_ca_host }}"
+    fabric_ca_use_tls: "{{ hostvars[organization.fabric_ca_host].fabric_ca_use_tls | default(false) }}"
+    fabric_ca_name: "{{ hostvars[organization.fabric_ca_host].fabric_ca_name }}"
+    fabric_ca_msp_dir: "{{ committer_remote_config_dir }}/users/{{ organization.user.name }}@{{ organization.domain }}/msp"
+    fabric_ca_cryptogenize_msp_signcert_file: "signcerts/{{ organization.user.name }}@{{ organization.domain }}-cert.pem"
+    fabric_ca_tls_certfile: "{{ committer_remote_config_dir }}/tlscacerts/tlsca.{{ organization.domain }}-cert.pem"
+    fabric_ca_csr_hosts:
+      - "{{ inventory_hostname }}"
+      - "{{ ansible_host }}"
+      - "{{ actual_host }}"
+      - "{{ organization.user.name }}"
+    fabric_ca_identity:
+      name: "{{ organization.user.name }}"
+      secret: "{{ organization.user.secret }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_ca
+    tasks_from: client/enroll
+  when:
+    - organization.fabric_ca_host is defined
+    - organization.user is defined
+
 - name: Initialize Committer TLS SAN hosts
   ansible.builtin.set_fact:
     committer_tls_san_hosts: "{{ ansible_all_ipv4_addresses + [ansible_host, actual_host] }}"

@@ -44,11 +44,6 @@
   when:
     - "'fabric_cas' in groups"
 
-- name: Enroll the admin organization users with Fabric CA
-  ansible.builtin.import_playbook: hyperledger.fabricx.artifacts.enroll_organization_users
-  when:
-    - "'fabric_cas' in groups"
-
 ######################################
 # Crypto material for databases
 ######################################

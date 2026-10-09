@@ -27,19 +27,16 @@
     mode: "0o644"
 
 # =========================
-# MSP and TLS material
+# MSP material
 # =========================
-# Synced from the control node, where crypto provisioning of the organization
-# user left it, onto the host this task runs on. The TLS identity is only read
-# for the mTLS client certificate, which mtls/transfer copies out of it, so it
-# is synced only when mTLS is enabled.
-- name: Transfer the identity material from the control node
-  ansible.posix.synchronize:
-    src: "{{ fxadmin_msp_config_path | dirname }}/{{ current_identity_material }}"
+# The organization user's MSP is already on this host, produced by the crypto
+# setup of the component it runs next to, so it is copied locally as fxconfig does.
+- name: Transfer the MSP material
+  ansible.builtin.copy:
+    src: "{{ fxadmin_msp_config_path }}"
     dest: "{{ fxadmin_remote_config_dir }}"
-  loop: "{{ ['msp', 'tls'] if fxadmin_use_mtls | default(false) else ['msp'] }}"
-  loop_control:
-    loop_var: current_identity_material
+    remote_src: true
+    mode: "preserve"
 
 # =========================
 # mTLS material
@@ -49,4 +46,4 @@
     name: hyperledger.fabricx.fxadmin
     tasks_from: config/mtls/transfer
   when:
-    - fxadmin_use_mtls | default(false)
+    - fxadmin_use_mtls

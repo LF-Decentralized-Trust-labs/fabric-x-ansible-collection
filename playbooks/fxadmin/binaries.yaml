@@ -16,6 +16,7 @@
 - name: Install the fxadmin binary on the control node
   hosts: localhost
   vars:
+    # Only the hosts declaring an admin organization.user receive the binary.
     fxadmin_bin_hosts: >-
       {{
         groups['all']
@@ -29,7 +30,6 @@
         | selectattr('bin_build_on_control_node', 'defined')
         | selectattr('bin_build_on_control_node', 'eq', true)
         | map(attribute='inventory_hostname')
-        | reject('in', groups.get('fabric_ca_servers', []))
         | list
       }}
   tasks:
@@ -57,6 +57,8 @@
 - name: Deliver the fxadmin binary to each admin host
   hosts: "{{ target_hosts | default('all') }}"
   tasks:
+    # Hosts without an admin organization.user are skipped: fxadmin only runs where
+    # an identity able to sign channel configuration updates is declared.
     - name: Transfer the fxadmin binary to the admin host
       vars:
         bin_operation: "{{ 'transfer' if (bin_build_on_control_node | default(false)) else 'install' }}"
@@ -69,4 +71,3 @@
         - organization is defined
         - organization.user is defined
         - organization.user.type | default('') == 'admin'
-        - inventory_hostname not in groups.get('fabric_ca_servers', [])

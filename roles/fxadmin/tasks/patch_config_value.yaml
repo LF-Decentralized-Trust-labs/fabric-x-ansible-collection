@@ -4,10 +4,19 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Read the current decoded Fabric-X channel configuration
-  ansible.builtin.slurp:
-    src: "{{ fxadmin_current_config_json }}"
-  register: fxadmin_current_config_slurp
+# jq edits nested fields and list items in place, which Jinja cannot do without
+# rebuilding whole lists. The caller's values reach the filter as $args.
+- name: Apply the jq filter to the decoded Fabric-X channel configuration
+  ansible.builtin.command:
+    argv:
+      - jq
+      - --argjson
+      - args
+      - "{{ fxadmin_jq_args | to_json }}"
+      - "{{ fxadmin_jq_filter }}"
+      - "{{ fxadmin_current_config_json }}"
+  register: fxadmin_patched_config
+  changed_when: false
 
 - name: Ensure the modified configuration output directory exists
   ansible.builtin.file:
@@ -16,9 +25,7 @@
     mode: "0o755"
 
 - name: Write the patched Fabric-X channel configuration
-  vars:
-    fxadmin_current_config: "{{ fxadmin_current_config_slurp.content | b64decode | from_json }}"
   ansible.builtin.copy:
-    content: "{{ fxadmin_current_config | combine(fxadmin_json_patch, recursive=True) | to_nice_json }}"
+    content: "{{ fxadmin_patched_config.stdout }}\n"
     dest: "{{ fxadmin_modified_config_json }}"
     mode: "0o644"

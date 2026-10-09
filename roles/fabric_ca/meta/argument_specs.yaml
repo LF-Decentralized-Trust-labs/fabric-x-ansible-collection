@@ -497,15 +497,6 @@ argument_specs:
       fabric_ca_msp_dir: *fabric_ca_msp_dir
       fabric_ca_cryptogenize_tls_cert_file: *fabric_ca_cryptogenize_tls_cert_file
 
-  client/organization_user/enroll:
-    short_description: Register and enroll an organization user with Fabric CA
-    description:
-      - "Registers the identity declared in C(organization.user) on the organization's Fabric CA host, enrolls its MSP and a dedicated TLS identity, and fetches both to the control node in the cryptogen layout."
-      - "Consumers such as fxadmin read the result from C({{ fetched_artifacts_dir }}/crypto/organizations), whichever CA issued it."
-    options:
-      fetched_artifacts_dir: *fetched_artifacts_dir
-      organization: *organization
-
   client/register:
     short_description: Dispatch client registration
     description:

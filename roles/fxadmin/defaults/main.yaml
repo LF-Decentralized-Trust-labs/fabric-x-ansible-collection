@@ -17,6 +17,8 @@ fxadmin_config_file: admin.yaml
 fxadmin_container_config_dir: /config
 # Defines the base container name used by fxadmin workflows, suffixed per host so parallel runs never collide.
 fxadmin_container_name: fxadmin-{{ inventory_hostname }}
+# Defines the control-node reference configuration block fxadmin uses for endpoint discovery, defaulting to the genesis block produced by configtxgen.
+fxadmin_current_block: '{{ configtxgen_artifacts_dir }}/{{ channel_id }}_block.pb'
 # Defines how long C(follow) waits for the submitted configuration update to commit.
 fxadmin_follow_timeout: 60s
 # Selects the Git ref used by build and install workflows.
@@ -31,6 +33,12 @@ fxadmin_image: "{{ fxadmin_registry_endpoint }}/{{ fxadmin_image_name }}:{{ fxad
 fxadmin_image_name: fabric-x-tools
 # Defines the image tag used by the fxadmin container image, which must be at least 1.0.2 because earlier tags do not bundle the fxadmin binary.
 fxadmin_image_tag: 1.0.2
+# Defines the values passed to C(fxadmin_jq_filter), which reads them as C($args).
+fxadmin_jq_args: {}
+# Defines the certificate path on the host, reused from the node's own TLS identity, that fxadmin presents for mTLS.
+fxadmin_mtls_client_cert_path: '{{ remote_config_dir }}/tls/server.crt'
+# Defines the private key path on the host, reused from the node's own TLS identity, that fxadmin presents for mTLS.
+fxadmin_mtls_client_key_path: '{{ remote_config_dir }}/tls/server.key'
 # Defines the MSP identifier written into the rendered admin configuration.
 fxadmin_msp_id: '{{ organization.name }}MSP'
 # Defines the registry endpoint used by the fxadmin container image.

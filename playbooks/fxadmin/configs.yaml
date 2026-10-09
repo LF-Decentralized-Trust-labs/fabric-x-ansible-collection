@@ -4,30 +4,23 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-# Renders fxadmin's configuration on every host, in any inventory group, that
-# declares an admin organization.user. The identity's MSP and TLS material is
-# provisioned onto the control node and synced from there, so a private key only
-# ever reaches a host that signs with it.
+# Renders fxadmin's configuration on every host that declares an admin organization.user.
+# As with fxconfig, the identity is never taken from the control node: the crypto
+# setup of the component running on the host already produced its MSP under
+# remote_config_dir/users, and the node's own TLS identity is reused for mTLS.
 #
 # TLS settings describe the Fabric-X network fxadmin connects to, so they are read
 # from the orderers rather than from the host being configured.
 - name: Render fxadmin configuration on each admin host
   hosts: "{{ target_hosts | default('all') }}"
-  vars:
-    fxadmin_network_use_tls: "{{ hostvars[groups['fabric_x_orderers'] | first].orderer_use_tls | default(false) }}"
-    fxadmin_network_use_mtls: "{{ hostvars[groups['fabric_x_orderers'] | first].orderer_use_mtls | default(false) }}"
   tasks:
+    # Hosts without an admin organization.user are skipped: fxadmin only runs where
+    # an identity able to sign channel configuration updates is declared.
     - name: Render fxadmin configuration for this organization's identity
       vars:
-        fxadmin_identity: "{{ organization.user }}"
-        fxadmin_remote_config_dir: "{{ remote_config_dir }}/fxadmin"
-        fxadmin_identity_dir: "{{ fetched_artifacts_dir }}/crypto/organizations/{{ organization.domain }}/users/{{ fxadmin_identity.name }}@{{ organization.domain }}"
-        fxadmin_msp_config_path: "{{ fxadmin_identity_dir }}/msp"
-        fxadmin_msp_id: "{{ organization.name }}MSP"
-        fxadmin_use_tls: "{{ fxadmin_network_use_tls }}"
-        fxadmin_use_mtls: "{{ fxadmin_network_use_mtls }}"
-        fxadmin_mtls_client_cert_path: "{{ fxadmin_remote_config_dir }}/tls/client.crt"
-        fxadmin_mtls_client_key_path: "{{ fxadmin_remote_config_dir }}/tls/client.key"
+        fxadmin_msp_config_path: "{{ remote_config_dir }}/users/{{ organization.user.name }}@{{ organization.domain }}/msp"
+        fxadmin_use_tls: "{{ hostvars[groups['fabric_x_orderers'] | first].orderer_use_tls | default(false) }}"
+        fxadmin_use_mtls: "{{ hostvars[groups['fabric_x_orderers'] | first].orderer_use_mtls | default(false) }}"
       ansible.builtin.include_role:
         name: hyperledger.fabricx.fxadmin
         tasks_from: config/transfer
@@ -35,4 +28,3 @@
         - organization is defined
         - organization.user is defined
         - organization.user.type | default('') == 'admin'
-        - inventory_hostname not in groups.get('fabric_ca_servers', [])
