@@ -19,6 +19,9 @@
 - name: Build fxconfig binaries
   ansible.builtin.import_playbook: hyperledger.fabricx.fxconfig.binaries
 
+- name: Build fxadmin binaries
+  ansible.builtin.import_playbook: hyperledger.fabricx.fxadmin.binaries
+
 - name: Build Loadgen binaries
   ansible.builtin.import_playbook: hyperledger.fabricx.loadgen.binaries
 

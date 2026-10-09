@@ -1,0 +1,599 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+---
+argument_specs:
+  role-options:
+    short_description: Shared option catalog for fxadmin role entry points
+    options:
+      channel_id: &channel_id
+        type: str
+        description:
+          - "Defines the channel identifier used to derive the genesis block filename."
+          - "Example: C(fabricx-main-channel)."
+      cli_bin_dir: &cli_bin_dir
+        type: path
+        description:
+          - "Sets the control-node directory searched for CLI binaries used by the steps that run on the control node."
+      configtxgen_artifacts_dir: &configtxgen_artifacts_dir
+        type: path
+        description:
+          - "Defines the control-node directory where configtxgen writes the genesis block."
+          - "Example: C(/tmp/fabricx/config-build/configtxgen-artifacts)."
+      fxadmin_bin_name: &fxadmin_bin_name
+        type: str
+        default: "fxadmin"
+        description:
+          - "Defines the fxadmin binary name."
+      fxadmin_bin_package: &fxadmin_bin_package
+        type: str
+        default: "{{ fxadmin_git_hub_url }}/{{ fxadmin_git_repo }}/{{ fxadmin_source_code_package }}"
+        description:
+          - "Defines the Go package path used to install fxadmin."
+      fxadmin_config_block: &fxadmin_config_block
+        type: path
+        required: true
+        description:
+          - "Defines the local protobuf-encoded configuration block to decode into JSON."
+          - "Example: C(/tmp/fabricx/config-build/fxadmin-artifacts/config.pb)."
+      fxadmin_config_file: &fxadmin_config_file
+        type: str
+        default: "admin.yaml"
+        description:
+          - "Defines the fxadmin admin configuration filename."
+      fxadmin_config_tx: &fxadmin_config_tx
+        type: path
+        required: true
+        description:
+          - "Defines the local prepared transaction file to submit."
+          - "Example: C(/tmp/fabricx/config-build/fxadmin-artifacts/config_tx.pb)."
+      fxadmin_config_update: &fxadmin_config_update
+        type: path
+        required: true
+        description:
+          - "Defines the local ConfigUpdate protobuf file to endorse."
+          - "Example: C(/tmp/fabricx/config-build/fxadmin-artifacts/config_update.pb)."
+      fxadmin_container_config_dir: &fxadmin_container_config_dir
+        type: path
+        default: "/config"
+        description:
+          - "Defines the configuration directory mounted inside the fxadmin container."
+      fxadmin_container_name: &fxadmin_container_name
+        type: str
+        default: "fxadmin-{{ inventory_hostname }}"
+        description:
+          - "Defines the base container name used by fxadmin workflows, suffixed per host so parallel runs never collide."
+      fxadmin_current_block: &fxadmin_current_block
+        type: path
+        default: "{{ configtxgen_artifacts_dir }}/{{ channel_id }}_block.pb"
+        description:
+          - "Defines the control-node reference configuration block fxadmin uses for endpoint discovery, defaulting to the genesis block produced by configtxgen."
+      fxadmin_current_config_json: &fxadmin_current_config_json
+        type: path
+        required: true
+        description:
+          - "Defines the local decoded current channel configuration JSON file."
+          - "Example: C(/tmp/fabricx/config-build/fxadmin-artifacts/current_config.json)."
+      fxadmin_endorsed_config_update: &fxadmin_endorsed_config_update
+        type: path
+        required: true
+        description:
+          - "Defines the local merged, endorsed ConfigUpdate envelope to prepare into a submittable transaction."
+          - "Example: C(/tmp/fabricx/config-build/fxadmin-artifacts/merged.pb)."
+      fxadmin_endorsements_dir: &fxadmin_endorsements_dir
+        type: path
+        required: true
+        description:
+          - "Defines the local directory that collects one endorsement file per required organization before merging."
+          - "Example: C(/tmp/fabricx/config-build/fxadmin-artifacts/endorsements)."
+      fxadmin_follow_timeout: &fxadmin_follow_timeout
+        type: str
+        default: "60s"
+        description:
+          - "Defines how long C(follow) waits for the submitted configuration update to commit."
+      fxadmin_git_commit: &fxadmin_git_commit
+        type: str
+        default: "v1.0.2"
+        description:
+          - "Selects the Git ref used by build and install workflows."
+      fxadmin_git_hub_url: &fxadmin_git_hub_url
+        type: str
+        default: "github.com"
+        description:
+          - "Defines the Git host used to resolve the Fabric-X source repository."
+      fxadmin_git_repo: &fxadmin_git_repo
+        type: str
+        default: "hyperledger/fabric-x"
+        description:
+          - "Defines the Fabric-X source repository path."
+      fxadmin_image: &fxadmin_image
+        type: str
+        default: "{{ fxadmin_registry_endpoint }}/{{ fxadmin_image_name }}:{{ fxadmin_image_tag }}"
+        description:
+          - "Defines the fxadmin container image."
+      fxadmin_image_name: &fxadmin_image_name
+        type: str
+        default: "fabric-x-tools"
+        description:
+          - "Defines the image name used by the fxadmin container image."
+      fxadmin_image_tag: &fxadmin_image_tag
+        type: str
+        default: "1.0.2"
+        description:
+          - "Defines the image tag used by the fxadmin container image, which must be at least 1.0.2 because earlier tags do not bundle the fxadmin binary."
+      fxadmin_jq_args: &fxadmin_jq_args
+        type: dict
+        default: {}
+        description:
+          - "Defines the values passed to C(fxadmin_jq_filter), which reads them as C($args)."
+      fxadmin_jq_filter: &fxadmin_jq_filter
+        type: str
+        required: true
+        description:
+          - "Defines the jq filter applied to the decoded current configuration to produce the modified configuration."
+          - "Example: C(.channel_group.groups.Orderer.values.ConsensusType.value.metadata.PartiesConfig[0].AssemblerConfig.port = $args.port)."
+      fxadmin_mtls_client_cert_path: &fxadmin_mtls_client_cert_path
+        type: path
+        default: "{{ remote_config_dir }}/tls/server.crt"
+        description:
+          - "Defines the certificate path on the host, reused from the node's own TLS identity, that fxadmin presents for mTLS."
+      fxadmin_mtls_client_key_path: &fxadmin_mtls_client_key_path
+        type: path
+        default: "{{ remote_config_dir }}/tls/server.key"
+        description:
+          - "Defines the private key path on the host, reused from the node's own TLS identity, that fxadmin presents for mTLS."
+      fxadmin_modified_config_json: &fxadmin_modified_config_json
+        type: path
+        required: true
+        description:
+          - "Defines the local modified channel configuration JSON file produced by C(patch_config_value) and consumed by C(compute_update)."
+          - "Example: C(/tmp/fabricx/config-build/fxadmin-artifacts/modified_config.json)."
+      fxadmin_msp_config_path: &fxadmin_msp_config_path
+        type: path
+        required: true
+        description:
+          - "Defines the MSP directory of the organization user on the host, produced by the component's own crypto setup and copied into the fxadmin configuration directory."
+          - "Example: C({{ remote_config_dir }}/users/ordererorg1-admin@ordererorg1.example.com/msp)."
+      fxadmin_msp_id: &fxadmin_msp_id
+        type: str
+        default: "{{ organization.name }}MSP"
+        description:
+          - "Defines the MSP identifier written into the rendered admin configuration."
+      fxadmin_output: &fxadmin_output
+        type: path
+        required: true
+        description:
+          - "Defines the output artifact path written by the current fxadmin command, local to the host the task runs on."
+          - "Example: C(/tmp/fabricx/config-build/fxadmin-artifacts/config_update.pb)."
+      fxadmin_output_fetch_dest: &fxadmin_output_fetch_dest
+        type: path
+        required: true
+        description:
+          - "Defines the control-node path that C(fxadmin_output) is fetched back to once the command completes on a remote host."
+          - "Example: C(/tmp/fabricx/config-build/fxadmin-artifacts/config_tx.pb)."
+      fxadmin_registry_endpoint: &fxadmin_registry_endpoint
+        type: str
+        default: "{{ lookup('env', 'FXADMIN_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
+        description:
+          - "Defines the registry endpoint used by the fxadmin container image."
+      fxadmin_remote_config_dir: &fxadmin_remote_config_dir
+        type: path
+        default: "{{ remote_config_dir }}/fxadmin"
+        description:
+          - "Defines the fxadmin remote configuration directory."
+      fxadmin_source_code_package: &fxadmin_source_code_package
+        type: str
+        default: "tools/fxadmin"
+        description:
+          - "Defines the Go package path containing the fxadmin source code."
+      fxadmin_use_bin: &fxadmin_use_bin
+        type: bool
+        default: false
+        description:
+          - "Selects the host-binary workflow instead of the container workflow."
+      fxadmin_use_mtls: &fxadmin_use_mtls
+        type: bool
+        default: false
+        description:
+          - "Enables mTLS material rendering and transfer for fxadmin, mirroring the target network's mTLS setting."
+      fxadmin_use_tls: &fxadmin_use_tls
+        type: bool
+        default: false
+        description:
+          - "Enables TLS in the rendered admin configuration, mirroring the target network's TLS setting."
+      organization: &organization
+        type: dict
+        description:
+          - "Provides organization metadata, including the C(organization.user) identity that every fxadmin operation signs with."
+          - "Example: C({'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com', 'user': {'name': 'ordererorg1-admin', 'secret': 'ordererorg1-adminPWD', 'type': 'admin'}})."
+      remote_config_dir: &remote_config_dir
+        type: path
+        description:
+          - "Provides the base remote configuration directory used by the role."
+          - "Example: C(/opt/hyperledger/fabricx/config)."
+
+  bin/build:
+    short_description: Build the fxadmin binary
+    description:
+      - "Builds the fxadmin Go binary from the configured Fabric-X source package by delegating compilation to the shared bin role."
+    options:
+      fxadmin_bin_name: *fxadmin_bin_name
+      fxadmin_git_commit: *fxadmin_git_commit
+      fxadmin_git_hub_url: *fxadmin_git_hub_url
+      fxadmin_git_repo: *fxadmin_git_repo
+      fxadmin_source_code_package: *fxadmin_source_code_package
+
+  bin/compute_update:
+    short_description: Compute a ConfigUpdate with the fxadmin binary
+    description:
+      - "Runs C(fxadmin compute-update) with the control-node fxadmin binary to compute the delta between the current and modified channel configuration."
+    options:
+      channel_id: *channel_id
+      cli_bin_dir: *cli_bin_dir
+      configtxgen_artifacts_dir: *configtxgen_artifacts_dir
+      fxadmin_bin_name: *fxadmin_bin_name
+      fxadmin_current_block: *fxadmin_current_block
+      fxadmin_current_config_json: *fxadmin_current_config_json
+      fxadmin_modified_config_json: *fxadmin_modified_config_json
+      fxadmin_output: *fxadmin_output
+
+  bin/decode:
+    short_description: Decode a configuration block with the fxadmin binary
+    description:
+      - "Runs C(fxadmin decode) with the control-node fxadmin binary to convert a protobuf configuration block into JSON."
+    options:
+      cli_bin_dir: *cli_bin_dir
+      fxadmin_bin_name: *fxadmin_bin_name
+      fxadmin_config_block: *fxadmin_config_block
+      fxadmin_output: *fxadmin_output
+
+  bin/follow:
+    short_description: Follow the ledger with the fxadmin binary
+    description:
+      - "Runs C(fxadmin follow) on the host with the rendered admin configuration to confirm a submitted configuration update commits."
+    options:
+      fxadmin_bin_name: *fxadmin_bin_name
+      fxadmin_config_file: *fxadmin_config_file
+      fxadmin_follow_timeout: *fxadmin_follow_timeout
+      fxadmin_output: *fxadmin_output
+      fxadmin_remote_config_dir: *fxadmin_remote_config_dir
+      remote_config_dir: *remote_config_dir
+
+  bin/install:
+    short_description: Install the fxadmin binary
+    description:
+      - "Installs the fxadmin Go package from the configured Fabric-X source package by delegating to the shared bin role."
+    options:
+      fxadmin_bin_name: *fxadmin_bin_name
+      fxadmin_bin_package: *fxadmin_bin_package
+      fxadmin_git_commit: *fxadmin_git_commit
+      fxadmin_git_hub_url: *fxadmin_git_hub_url
+      fxadmin_git_repo: *fxadmin_git_repo
+      fxadmin_source_code_package: *fxadmin_source_code_package
+
+  bin/ledger/config_latest:
+    short_description: Fetch the latest channel configuration block with the fxadmin binary
+    description:
+      - "Runs C(fxadmin ledger config latest) on the host with the rendered admin configuration to fetch the current channel configuration block."
+    options:
+      fxadmin_bin_name: *fxadmin_bin_name
+      fxadmin_config_file: *fxadmin_config_file
+      fxadmin_output: *fxadmin_output
+      fxadmin_remote_config_dir: *fxadmin_remote_config_dir
+      remote_config_dir: *remote_config_dir
+
+  bin/rm:
+    short_description: Remove the fxadmin binary
+    description:
+      - "Removes the fxadmin binary from the managed host by delegating cleanup to the shared bin role."
+    options:
+      fxadmin_bin_name: *fxadmin_bin_name
+
+  bin/transfer:
+    short_description: Transfer the fxadmin binary
+    description:
+      - "Transfers the previously built fxadmin binary to the managed host by delegating to the shared bin role."
+    options:
+      fxadmin_bin_name: *fxadmin_bin_name
+
+  bin/tx/endorse:
+    short_description: Endorse a ConfigUpdate with the fxadmin binary
+    description:
+      - "Endorses the staged ConfigUpdate with the fxadmin binary and rendered admin configuration on the host."
+    options:
+      fxadmin_bin_name: *fxadmin_bin_name
+      fxadmin_config_file: *fxadmin_config_file
+      fxadmin_output: *fxadmin_output
+      fxadmin_remote_config_dir: *fxadmin_remote_config_dir
+      remote_config_dir: *remote_config_dir
+
+  bin/tx/merge:
+    short_description: Merge endorsements with the fxadmin binary
+    description:
+      - "Merges the staged endorsements into a single ConfigUpdateEnvelope with the control-node fxadmin binary."
+    options:
+      cli_bin_dir: *cli_bin_dir
+      fxadmin_bin_name: *fxadmin_bin_name
+      fxadmin_output: *fxadmin_output
+
+  bin/tx/prepare:
+    short_description: Prepare a transaction with the fxadmin binary
+    description:
+      - "Runs C(fxadmin tx prepare) on the host to turn the merged, endorsed ConfigUpdate envelope into a submittable transaction."
+    options:
+      fxadmin_bin_name: *fxadmin_bin_name
+      fxadmin_config_file: *fxadmin_config_file
+      fxadmin_output: *fxadmin_output
+      fxadmin_remote_config_dir: *fxadmin_remote_config_dir
+      remote_config_dir: *remote_config_dir
+
+  bin/tx/submit:
+    short_description: Submit a transaction with the fxadmin binary
+    description:
+      - "Runs C(fxadmin tx submit) on the host with the rendered admin configuration to broadcast the prepared transaction."
+    options:
+      fxadmin_bin_name: *fxadmin_bin_name
+      fxadmin_config_file: *fxadmin_config_file
+      fxadmin_remote_config_dir: *fxadmin_remote_config_dir
+      remote_config_dir: *remote_config_dir
+
+  compute_update:
+    short_description: Compute a ConfigUpdate
+    description:
+      - "Dispatches ConfigUpdate computation to either the host binary or a transient container based on C(fxadmin_use_bin)."
+    options:
+      fxadmin_output: *fxadmin_output
+      fxadmin_use_bin: *fxadmin_use_bin
+
+  config/mtls/transfer:
+    short_description: Transfer fxadmin mTLS client material
+    description:
+      - "Copies the client certificate and key consumed by fxadmin for mTLS connections into C(fxadmin_remote_config_dir)/mtls."
+    options:
+      fxadmin_mtls_client_cert_path: *fxadmin_mtls_client_cert_path
+      fxadmin_mtls_client_key_path: *fxadmin_mtls_client_key_path
+      fxadmin_remote_config_dir: *fxadmin_remote_config_dir
+      remote_config_dir: *remote_config_dir
+
+  config/transfer:
+    short_description: Transfer fxadmin configuration material
+    description:
+      - "Creates the remote fxadmin configuration directory, renders the admin configuration file, and copies the MSP material and, when the target network enables mTLS, the client certificate already present on the host."
+    options:
+      fxadmin_config_file: *fxadmin_config_file
+      fxadmin_container_config_dir: *fxadmin_container_config_dir
+      fxadmin_msp_config_path: *fxadmin_msp_config_path
+      fxadmin_msp_id: *fxadmin_msp_id
+      fxadmin_remote_config_dir: *fxadmin_remote_config_dir
+      fxadmin_use_bin: *fxadmin_use_bin
+      fxadmin_use_mtls: *fxadmin_use_mtls
+      fxadmin_use_tls: *fxadmin_use_tls
+      organization: *organization
+      remote_config_dir: *remote_config_dir
+
+  container/compute_update:
+    short_description: Compute a ConfigUpdate with the fxadmin container
+    description:
+      - "Stages the current and modified configuration JSON files and the reference block into the output directory, then runs C(fxadmin compute-update) in a transient container that mounts it."
+    options:
+      channel_id: *channel_id
+      configtxgen_artifacts_dir: *configtxgen_artifacts_dir
+      fxadmin_bin_name: *fxadmin_bin_name
+      fxadmin_container_name: *fxadmin_container_name
+      fxadmin_current_block: *fxadmin_current_block
+      fxadmin_current_config_json: *fxadmin_current_config_json
+      fxadmin_image: *fxadmin_image
+      fxadmin_image_name: *fxadmin_image_name
+      fxadmin_image_tag: *fxadmin_image_tag
+      fxadmin_modified_config_json: *fxadmin_modified_config_json
+      fxadmin_output: *fxadmin_output
+      fxadmin_registry_endpoint: *fxadmin_registry_endpoint
+
+  container/decode:
+    short_description: Decode a configuration block with the fxadmin container
+    description:
+      - "Stages the configuration block into the output directory, then runs C(fxadmin decode) in a transient container that mounts it."
+    options:
+      fxadmin_bin_name: *fxadmin_bin_name
+      fxadmin_config_block: *fxadmin_config_block
+      fxadmin_container_name: *fxadmin_container_name
+      fxadmin_image: *fxadmin_image
+      fxadmin_image_name: *fxadmin_image_name
+      fxadmin_image_tag: *fxadmin_image_tag
+      fxadmin_output: *fxadmin_output
+      fxadmin_registry_endpoint: *fxadmin_registry_endpoint
+
+  container/follow:
+    short_description: Follow the ledger with the fxadmin container
+    description:
+      - "Mounts the rendered admin configuration and the staged reference block into a transient fxadmin container and runs C(fxadmin follow)."
+    options:
+      fxadmin_bin_name: *fxadmin_bin_name
+      fxadmin_config_file: *fxadmin_config_file
+      fxadmin_container_config_dir: *fxadmin_container_config_dir
+      fxadmin_container_name: *fxadmin_container_name
+      fxadmin_follow_timeout: *fxadmin_follow_timeout
+      fxadmin_image: *fxadmin_image
+      fxadmin_image_name: *fxadmin_image_name
+      fxadmin_image_tag: *fxadmin_image_tag
+      fxadmin_output: *fxadmin_output
+      fxadmin_registry_endpoint: *fxadmin_registry_endpoint
+      fxadmin_remote_config_dir: *fxadmin_remote_config_dir
+      remote_config_dir: *remote_config_dir
+
+  container/ledger/config_latest:
+    short_description: Fetch the latest channel configuration block with the fxadmin container
+    description:
+      - "Mounts the rendered admin configuration and the staged reference block into a transient fxadmin container and runs C(fxadmin ledger config latest)."
+    options:
+      fxadmin_bin_name: *fxadmin_bin_name
+      fxadmin_config_file: *fxadmin_config_file
+      fxadmin_container_config_dir: *fxadmin_container_config_dir
+      fxadmin_container_name: *fxadmin_container_name
+      fxadmin_image: *fxadmin_image
+      fxadmin_image_name: *fxadmin_image_name
+      fxadmin_image_tag: *fxadmin_image_tag
+      fxadmin_output: *fxadmin_output
+      fxadmin_registry_endpoint: *fxadmin_registry_endpoint
+      fxadmin_remote_config_dir: *fxadmin_remote_config_dir
+      remote_config_dir: *remote_config_dir
+
+  container/tx/endorse:
+    short_description: Endorse a ConfigUpdate with the fxadmin container
+    description:
+      - "Mounts the staged ConfigUpdate and the rendered admin configuration into a transient fxadmin container that writes the endorsement."
+    options:
+      fxadmin_bin_name: *fxadmin_bin_name
+      fxadmin_config_file: *fxadmin_config_file
+      fxadmin_container_config_dir: *fxadmin_container_config_dir
+      fxadmin_container_name: *fxadmin_container_name
+      fxadmin_image: *fxadmin_image
+      fxadmin_image_name: *fxadmin_image_name
+      fxadmin_image_tag: *fxadmin_image_tag
+      fxadmin_output: *fxadmin_output
+      fxadmin_registry_endpoint: *fxadmin_registry_endpoint
+      fxadmin_remote_config_dir: *fxadmin_remote_config_dir
+      remote_config_dir: *remote_config_dir
+
+  container/tx/merge:
+    short_description: Merge endorsements with the fxadmin container
+    description:
+      - "Mounts the staged endorsements directory into a transient fxadmin container and writes a merged ConfigUpdateEnvelope."
+    options:
+      fxadmin_bin_name: *fxadmin_bin_name
+      fxadmin_container_name: *fxadmin_container_name
+      fxadmin_endorsements_dir: *fxadmin_endorsements_dir
+      fxadmin_image: *fxadmin_image
+      fxadmin_image_name: *fxadmin_image_name
+      fxadmin_image_tag: *fxadmin_image_tag
+      fxadmin_output: *fxadmin_output
+      fxadmin_registry_endpoint: *fxadmin_registry_endpoint
+
+  container/tx/prepare:
+    short_description: Prepare a transaction with the fxadmin container
+    description:
+      - "Mounts the staged endorsed ConfigUpdate and the rendered admin configuration into a transient fxadmin container that runs C(fxadmin tx prepare)."
+    options:
+      fxadmin_bin_name: *fxadmin_bin_name
+      fxadmin_config_file: *fxadmin_config_file
+      fxadmin_container_config_dir: *fxadmin_container_config_dir
+      fxadmin_container_name: *fxadmin_container_name
+      fxadmin_image: *fxadmin_image
+      fxadmin_image_name: *fxadmin_image_name
+      fxadmin_image_tag: *fxadmin_image_tag
+      fxadmin_output: *fxadmin_output
+      fxadmin_registry_endpoint: *fxadmin_registry_endpoint
+      fxadmin_remote_config_dir: *fxadmin_remote_config_dir
+      remote_config_dir: *remote_config_dir
+
+  container/tx/submit:
+    short_description: Submit a transaction with the fxadmin container
+    description:
+      - "Mounts the staged transaction, the reference block and the rendered admin configuration into a transient fxadmin container that runs C(fxadmin tx submit)."
+    options:
+      fxadmin_bin_name: *fxadmin_bin_name
+      fxadmin_config_file: *fxadmin_config_file
+      fxadmin_container_config_dir: *fxadmin_container_config_dir
+      fxadmin_container_name: *fxadmin_container_name
+      fxadmin_image: *fxadmin_image
+      fxadmin_image_name: *fxadmin_image_name
+      fxadmin_image_tag: *fxadmin_image_tag
+      fxadmin_registry_endpoint: *fxadmin_registry_endpoint
+      fxadmin_remote_config_dir: *fxadmin_remote_config_dir
+      remote_config_dir: *remote_config_dir
+
+  decode:
+    short_description: Decode a configuration block
+    description:
+      - "Dispatches configuration block decoding to either the host binary or a transient container based on C(fxadmin_use_bin)."
+    options:
+      fxadmin_output: *fxadmin_output
+      fxadmin_use_bin: *fxadmin_use_bin
+
+  follow:
+    short_description: Follow the ledger until a configuration update commits
+    description:
+      - "Dispatches ledger following to either the host binary or a transient container based on C(fxadmin_use_bin), then fetches the committed block back to the control node."
+    options:
+      channel_id: *channel_id
+      configtxgen_artifacts_dir: *configtxgen_artifacts_dir
+      fxadmin_current_block: *fxadmin_current_block
+      fxadmin_output: *fxadmin_output
+      fxadmin_output_fetch_dest: *fxadmin_output_fetch_dest
+      fxadmin_use_bin: *fxadmin_use_bin
+
+  ledger/config_latest:
+    short_description: Fetch the latest channel configuration block
+    description:
+      - "Dispatches fetching the latest channel configuration block to either the host binary or a transient container based on C(fxadmin_use_bin), then fetches it back to the control node."
+    options:
+      channel_id: *channel_id
+      configtxgen_artifacts_dir: *configtxgen_artifacts_dir
+      fxadmin_current_block: *fxadmin_current_block
+      fxadmin_output: *fxadmin_output
+      fxadmin_output_fetch_dest: *fxadmin_output_fetch_dest
+      fxadmin_use_bin: *fxadmin_use_bin
+
+  patch_config_value:
+    short_description: Patch a decoded channel configuration
+    description:
+      - "Applies a caller-supplied jq filter to the decoded current channel configuration JSON on the control node, and writes the resulting modified configuration JSON."
+      - "Contains no business logic of its own, so the caller supplies the exact change as a jq filter. Requires jq on the control node, installed by the C(hyperledger.fabricx.install_prerequisites) playbook."
+    options:
+      fxadmin_current_config_json: *fxadmin_current_config_json
+      fxadmin_jq_args: *fxadmin_jq_args
+      fxadmin_jq_filter: *fxadmin_jq_filter
+      fxadmin_modified_config_json: *fxadmin_modified_config_json
+
+  tx/endorse:
+    short_description: Endorse a ConfigUpdate
+    description:
+      - "Stages the ConfigUpdate, dispatches its endorsement to either the host binary or a transient container based on C(fxadmin_use_bin), then fetches the endorsement to the control node."
+    options:
+      fxadmin_config_update: *fxadmin_config_update
+      fxadmin_endorsements_dir: *fxadmin_endorsements_dir
+      fxadmin_output: *fxadmin_output
+      fxadmin_use_bin: *fxadmin_use_bin
+
+  tx/merge:
+    short_description: Merge endorsements
+    description:
+      - "Dispatches endorsement merging to either the host binary or a transient container based on C(fxadmin_use_bin), then removes the spent endorsement files."
+      - "Fails when no endorsement was collected, so an empty ConfigUpdateEnvelope is never written."
+    options:
+      fxadmin_endorsements_dir: *fxadmin_endorsements_dir
+      fxadmin_output: *fxadmin_output
+      fxadmin_use_bin: *fxadmin_use_bin
+
+  tx/prepare:
+    short_description: Prepare a transaction
+    description:
+      - "Stages the merged, endorsed ConfigUpdate, dispatches transaction preparation to either the host binary or a transient container based on C(fxadmin_use_bin), then fetches the prepared transaction to the control node."
+    options:
+      fxadmin_endorsed_config_update: *fxadmin_endorsed_config_update
+      fxadmin_output: *fxadmin_output
+      fxadmin_output_fetch_dest: *fxadmin_output_fetch_dest
+      fxadmin_use_bin: *fxadmin_use_bin
+
+  tx/submit:
+    short_description: Submit a transaction
+    description:
+      - "Stages the prepared transaction and the reference block, then dispatches submission to either the host binary or a transient container based on C(fxadmin_use_bin)."
+    options:
+      channel_id: *channel_id
+      configtxgen_artifacts_dir: *configtxgen_artifacts_dir
+      fxadmin_config_tx: *fxadmin_config_tx
+      fxadmin_current_block: *fxadmin_current_block
+      fxadmin_use_bin: *fxadmin_use_bin
+
+  wipe:
+    short_description: Remove generated fxadmin files
+    description:
+      - "Removes the fxadmin binary when the host-binary workflow is selected, and the rendered configuration directory."
+    options:
+      fxadmin_remote_config_dir: *fxadmin_remote_config_dir
+      fxadmin_use_bin: *fxadmin_use_bin
+      remote_config_dir: *remote_config_dir

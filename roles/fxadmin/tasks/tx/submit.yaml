@@ -1,0 +1,43 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Define fxadmin working directory
+  ansible.builtin.set_fact:
+    fxadmin_output_dir: "{{ fxadmin_config_tx | dirname }}"
+
+- name: Ensure fxadmin working directory exists
+  ansible.builtin.file:
+    path: "{{ fxadmin_output_dir }}"
+    state: directory
+    mode: "0o755"
+
+- name: Transfer the transaction and the reference configuration block
+  ansible.builtin.copy:
+    src: "{{ current_transfer_input.src }}"
+    dest: "{{ fxadmin_output_dir }}/{{ current_transfer_input.dest }}"
+    mode: preserve
+  loop:
+    - src: "{{ fxadmin_config_tx }}"
+      dest: config_tx.pb
+    - src: "{{ fxadmin_current_block }}"
+      dest: current_block.pb
+  loop_control:
+    loop_var: current_transfer_input
+    label: "{{ current_transfer_input.dest }}"
+
+- name: Submit the Fabric-X transaction with the fxadmin binary
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fxadmin
+    tasks_from: bin/tx/submit
+  when:
+    - fxadmin_use_bin
+
+- name: Submit the Fabric-X transaction with the fxadmin container
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fxadmin
+    tasks_from: container/tx/submit
+  when:
+    - not fxadmin_use_bin

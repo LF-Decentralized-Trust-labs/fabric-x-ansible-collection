@@ -379,3 +379,9 @@ limit-rate:
 benchmark-volume:
 	@printf "$(COLOR_CYAN)🚩 Benchmarking volume performance on hosts [$(COLOR_GREEN)$(TARGET_HOSTS)$(COLOR_CYAN)]...$(COLOR_RESET)\n"
 	$(ANSIBLE_PLAYBOOK) hyperledger.fabricx.benchmark_volume --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
+
+# Change an orderer Assembler's port at the network-config level only; run `make <assembler_host> configs restart` afterwards to apply it (e.g. make reconfigure-assembler-port ASSEMBLER_HOST=orderer-assembler-1 NEW_PORT=7065). TARGET_HOSTS selects the admin hosts that take part (default: all).
+.PHONY: reconfigure-assembler-port
+reconfigure-assembler-port:
+	@printf "$(COLOR_CYAN)🚩 Reconfiguring the port of Assembler [$(COLOR_GREEN)$(ASSEMBLER_HOST)$(COLOR_CYAN)] to $(COLOR_GREEN)$(NEW_PORT)$(COLOR_CYAN)...$(COLOR_RESET)\n"
+	$(ANSIBLE_PLAYBOOK) hyperledger.fabricx.fxadmin.reconfigure_assembler_port --extra-vars '{"target_hosts": "$(TARGET_HOSTS)", "assembler_host": "$(ASSEMBLER_HOST)", "new_assembler_port": "$(NEW_PORT)"}'

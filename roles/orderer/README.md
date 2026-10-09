@@ -911,7 +911,7 @@ Fetches the orderer sign certificate, TLS server certificate, and TLS CA certifi
 
 > Remove orderer crypto material
 
-Deletes the orderer MSP and TLS directories from the config path. In Kubernetes mode, also delegates deletion of the Secret that mounted MSP and TLS material into the workload.
+Deletes the orderer MSP and TLS directories from the config path, and the users directory when `organization.user` is defined. In Kubernetes mode, also delegates deletion of the Secret that mounted MSP and TLS material into the workload.
 
 ```yaml
 - name: Remove orderer crypto material
@@ -924,6 +924,15 @@ Deletes the orderer MSP and TLS directories from the config path. In Kubernetes 
     orderer_use_k8s: false
     # Selects the OpenShift deployment branch.
     orderer_use_openshift: false
+    # Organization metadata shared by the orderer crypto and config branches.
+    organization:
+      name: "OrdererOrg1"
+      domain: "ordererorg1.example.com"
+      role: "orderer"
+      fabric_ca_host: "fca-orderer-org1"
+      orderer:
+        name: "orderer-router-1"
+        secret: "orderer-router-1PWD"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: crypto/rm

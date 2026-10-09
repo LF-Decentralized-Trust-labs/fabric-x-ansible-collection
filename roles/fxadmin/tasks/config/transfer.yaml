@@ -1,0 +1,49 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# =========================
+# Configuration
+# =========================
+- name: Ensure the config directory for fxadmin exists
+  ansible.builtin.file:
+    path: "{{ fxadmin_remote_config_dir }}"
+    state: directory
+    mode: "0o755"
+
+- name: Setup the fxadmin configuration file
+  vars:
+    fxadmin_config_dir: >-
+      {{
+        fxadmin_remote_config_dir
+        if fxadmin_use_bin
+        else fxadmin_container_config_dir
+      }}
+  ansible.builtin.template:
+    src: "admin.yaml.j2"
+    dest: "{{ fxadmin_remote_config_dir }}/{{ fxadmin_config_file }}"
+    mode: "0o644"
+
+# =========================
+# MSP material
+# =========================
+# The organization user's MSP is already on this host, produced by the crypto
+# setup of the component it runs next to, so it is copied locally as fxconfig does.
+- name: Transfer the MSP material
+  ansible.builtin.copy:
+    src: "{{ fxadmin_msp_config_path }}"
+    dest: "{{ fxadmin_remote_config_dir }}"
+    remote_src: true
+    mode: "preserve"
+
+# =========================
+# mTLS material
+# =========================
+- name: Setup mTLS material for fxadmin
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fxadmin
+    tasks_from: config/mtls/transfer
+  when:
+    - fxadmin_use_mtls

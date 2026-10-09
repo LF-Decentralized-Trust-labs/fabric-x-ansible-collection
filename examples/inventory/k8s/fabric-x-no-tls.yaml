@@ -139,7 +139,7 @@ all:
               children:
                 fabric_x_orderer_1:
                   vars:
-                    organization:
+                    organization: &OrdererOrg1Node
                       <<: *OrdererOrg1
                       fabric_ca_host: fca-orderer-org1
                       role: orderer
@@ -154,6 +154,12 @@ all:
                       orderer_operations_port: 7060
                       orderer_k8s_rpc_node_port: 30050
                     orderer-consenter-1:
+                      organization:
+                        <<: *OrdererOrg1Node
+                        user:
+                          name: ordererorg1-admin
+                          secret: ordererorg1-adminPWD
+                          type: admin
                       orderer_component_type: consensus
                       orderer_rpc_port: 7051
                       orderer_operations_port: 7061
@@ -168,7 +174,7 @@ all:
                       orderer_operations_port: 7063
                 fabric_x_orderer_2:
                   vars:
-                    organization:
+                    organization: &OrdererOrg2Node
                       <<: *OrdererOrg2
                       fabric_ca_host: fca-orderer-org2
                       role: orderer
@@ -183,6 +189,12 @@ all:
                       orderer_operations_port: 7160
                       orderer_k8s_rpc_node_port: 30150
                     orderer-consenter-2:
+                      organization:
+                        <<: *OrdererOrg2Node
+                        user:
+                          name: ordererorg2-admin
+                          secret: ordererorg2-adminPWD
+                          type: admin
                       orderer_component_type: consensus
                       orderer_rpc_port: 7151
                       orderer_operations_port: 7161
@@ -197,7 +209,7 @@ all:
                       orderer_operations_port: 7163
                 fabric_x_orderer_3:
                   vars:
-                    organization:
+                    organization: &OrdererOrg3Node
                       <<: *OrdererOrg3
                       fabric_ca_host: fca-orderer-org3
                       role: orderer
@@ -212,6 +224,12 @@ all:
                       orderer_operations_port: 7260
                       orderer_k8s_rpc_node_port: 30250
                     orderer-consenter-3:
+                      organization:
+                        <<: *OrdererOrg3Node
+                        user:
+                          name: ordererorg3-admin
+                          secret: ordererorg3-adminPWD
+                          type: admin
                       orderer_component_type: consensus
                       orderer_rpc_port: 7251
                       orderer_operations_port: 7261
@@ -226,7 +244,7 @@ all:
                       orderer_operations_port: 7263
                 fabric_x_orderer_4:
                   vars:
-                    organization:
+                    organization: &OrdererOrg4Node
                       <<: *OrdererOrg4
                       fabric_ca_host: fca-orderer-org4
                       role: orderer
@@ -241,6 +259,12 @@ all:
                       orderer_operations_port: 7360
                       orderer_k8s_rpc_node_port: 30350
                     orderer-consenter-4:
+                      organization:
+                        <<: *OrdererOrg4Node
+                        user:
+                          name: ordererorg4-admin
+                          secret: ordererorg4-adminPWD
+                          type: admin
                       orderer_component_type: consensus
                       orderer_rpc_port: 7351
                       orderer_operations_port: 7361

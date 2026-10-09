@@ -1,0 +1,42 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Define fxadmin output directory
+  ansible.builtin.set_fact:
+    fxadmin_output_dir: "{{ fxadmin_output | dirname }}"
+
+- name: Ensure fxadmin output directory exists
+  ansible.builtin.file:
+    path: "{{ fxadmin_output_dir }}"
+    state: directory
+    mode: "0o755"
+
+- name: Transfer the reference configuration block
+  ansible.builtin.copy:
+    src: "{{ fxadmin_current_block }}"
+    dest: "{{ fxadmin_output_dir }}/current_block.pb"
+    mode: preserve
+
+- name: Follow the ledger with the fxadmin binary
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fxadmin
+    tasks_from: bin/follow
+  when:
+    - fxadmin_use_bin
+
+- name: Follow the ledger with the fxadmin container
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fxadmin
+    tasks_from: container/follow
+  when:
+    - not fxadmin_use_bin
+
+- name: Fetch the committed configuration block back to the control node
+  ansible.builtin.fetch:
+    src: "{{ fxadmin_output }}"
+    dest: "{{ fxadmin_output_fetch_dest }}"
+    flat: true
+    mode: preserve

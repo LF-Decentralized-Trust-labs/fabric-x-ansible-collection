@@ -1,0 +1,21 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Merge multiple endorsements into a single ConfigUpdateEnvelope
+  vars:
+    bin_command: >-
+      {{ fxadmin_bin_name }} tx
+      merge
+      {% for fxadmin_endorsement in fxadmin_endorsements %}
+      {{ fxadmin_endorsement }}
+      {% endfor %}
+      --output={{ fxadmin_output }}
+    bin_remote_dir: "{{ cli_bin_dir }}"
+    bin_run_with_tmux: false
+    bin_collect_logs: false
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.bin
+    tasks_from: start

@@ -1,0 +1,73 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# fxadmin runs on every host, in any inventory group, that declares an admin
+# organization.user (see configs.yaml and README.md). The binary is built once per
+# target platform on the control node, which also runs the control-node-only steps
+# (decode, compute_update, tx/merge), then delivered to those hosts only.
+#
+# Delivery is a second play because bin/install builds into the control node's
+# bin directory, and only bin/transfer copies it onto a remote host. The same
+# split is used by playbooks/fxconfig/binaries.yaml. The transfer runs in each
+# host's own context, since its source path depends on that host's platform.
+- name: Install the fxadmin binary on the control node
+  hosts: localhost
+  vars:
+    # Only the hosts declaring an admin organization.user receive the binary.
+    fxadmin_bin_hosts: >-
+      {{
+        groups['all']
+        | map('extract', hostvars)
+        | selectattr('organization', 'defined')
+        | selectattr('organization.user', 'defined')
+        | selectattr('organization.user.type', 'defined')
+        | selectattr('organization.user.type', 'eq', 'admin')
+        | selectattr('fxadmin_use_bin', 'defined')
+        | selectattr('fxadmin_use_bin', 'eq', true)
+        | selectattr('bin_build_on_control_node', 'defined')
+        | selectattr('bin_build_on_control_node', 'eq', true)
+        | map(attribute='inventory_hostname')
+        | list
+      }}
+  tasks:
+    - name: Install the fxadmin binary for the platforms of the admin hosts
+      vars:
+        bin_build_on_control_node: true
+        bin_hosts: "{{ fxadmin_bin_hosts }}"
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fxadmin
+        tasks_from: bin/install
+      when:
+        - fxadmin_bin_hosts | length > 0
+
+    - name: Install the fxadmin binary on the control node for its own steps
+      vars:
+        bin_build_on_control_node: true
+        bin_dir: "{{ cli_bin_dir }}"
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fxadmin
+        tasks_from: bin/install
+      when:
+        - fxadmin_use_bin is defined
+        - fxadmin_use_bin
+
+- name: Deliver the fxadmin binary to each admin host
+  hosts: "{{ target_hosts | default('all') }}"
+  tasks:
+    # Hosts without an admin organization.user are skipped: fxadmin only runs where
+    # an identity able to sign channel configuration updates is declared.
+    - name: Transfer the fxadmin binary to the admin host
+      vars:
+        bin_operation: "{{ 'transfer' if (bin_build_on_control_node | default(false)) else 'install' }}"
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fxadmin
+        tasks_from: "bin/{{ bin_operation }}"
+      when:
+        - fxadmin_use_bin is defined
+        - fxadmin_use_bin
+        - organization is defined
+        - organization.user is defined
+        - organization.user.type | default('') == 'admin'
