@@ -100,31 +100,29 @@
         fxadmin_assembler_organization: "{{ hostvars[assembler_host].organization.name }}"
         fxadmin_assembler_party_id: "{{ hostvars[assembler_host].orderer_group }}"
 
-- name: Fetch the latest Fabric-X channel configuration block on each admin host
+- name: Fetch the latest Fabric-X channel configuration block on the leader
   hosts: "{{ target_hosts | default('all') }}"
   vars:
     fxadmin_artifacts_dir: "{{ config_build_dir }}/fxadmin-artifacts"
   tasks:
-    # Hosts without an admin organization.user are skipped: fxadmin only runs where
-    # an identity able to sign channel configuration updates is declared.
-    - name: Fetch the latest configuration block as the organization's admin identity
+    # Only the leader connects to the ordering service later on, so it alone
+    # fetches the block. It stays on the leader for submit and follow, and its
+    # copy on the control node feeds decode and compute-update.
+    - name: Fetch the latest configuration block as the leader's admin identity
       vars:
         fxadmin_output: "{{ fxadmin_remote_config_dir }}/config.pb"
-        # One file per host, so parallel forks never write the same path.
-        fxadmin_output_fetch_dest: "{{ fxadmin_artifacts_dir }}/{{ inventory_hostname }}/config.pb"
+        fxadmin_output_fetch_dest: "{{ fxadmin_artifacts_dir }}/config.pb"
       ansible.builtin.include_role:
         name: hyperledger.fabricx.fxadmin
         tasks_from: ledger/config_latest
       when:
-        - organization is defined
-        - organization.user is defined
-        - organization.user.type | default('') == 'admin'
+        - hostvars['localhost'].fxadmin_hosts[0] == inventory_hostname
 
 - name: Compute the Fabric-X ConfigUpdate on the control node
   hosts: localhost
   vars:
     fxadmin_artifacts_dir: "{{ config_build_dir }}/fxadmin-artifacts"
-    fxadmin_latest_block: "{{ fxadmin_artifacts_dir }}/{{ fxadmin_hosts[0] }}/config.pb"
+    fxadmin_latest_block: "{{ fxadmin_artifacts_dir }}/config.pb"
   tasks:
     - name: Decode the current channel configuration to JSON
       vars:
@@ -229,15 +227,15 @@
 
         - name: Submit the transaction
           vars:
-            fxadmin_config_tx: "{{ fxadmin_artifacts_dir }}/config_tx.pb"
-            fxadmin_current_block: "{{ fxadmin_artifacts_dir }}/{{ inventory_hostname }}/config.pb"
+            fxadmin_config_tx: "{{ fxadmin_remote_config_dir }}/config_tx.pb"
+            fxadmin_latest_block: "{{ fxadmin_remote_config_dir }}/config.pb"
           ansible.builtin.include_role:
             name: hyperledger.fabricx.fxadmin
             tasks_from: tx/submit
 
         - name: Follow the ledger until the new configuration commits
           vars:
-            fxadmin_current_block: "{{ fxadmin_artifacts_dir }}/{{ inventory_hostname }}/config.pb"
+            fxadmin_latest_block: "{{ fxadmin_remote_config_dir }}/config.pb"
             fxadmin_output: "{{ fxadmin_remote_config_dir }}/next_config.pb"
             fxadmin_output_fetch_dest: "{{ fxadmin_artifacts_dir }}/next_config.pb"
           ansible.builtin.include_role:

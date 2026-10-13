@@ -145,6 +145,8 @@ Runs `fxadmin follow` on the host with the rendered admin configuration to confi
     fxadmin_config_file: admin.yaml
     # Defines how long `follow` waits for the submitted configuration update to commit.
     fxadmin_follow_timeout: 60s
+    # Defines the latest channel configuration block on the host, as written by `ledger/config_latest`, that fxadmin uses for endpoint discovery.
+    fxadmin_latest_block: "/tmp/fabricx/orderer-consenter-1/config/fxadmin/config.pb"
     # Defines the output artifact path written by the current fxadmin command, local to the host the task runs on.
     fxadmin_output: "/tmp/fabricx/config-build/fxadmin-artifacts/config_update.pb"
     # Defines the fxadmin remote configuration directory.
@@ -319,6 +321,10 @@ Runs `fxadmin tx submit` on the host with the rendered admin configuration to br
     fxadmin_bin_name: fxadmin
     # Defines the fxadmin admin configuration filename.
     fxadmin_config_file: admin.yaml
+    # Defines the prepared transaction file to submit, on the host that submits it.
+    fxadmin_config_tx: "/tmp/fabricx/orderer-consenter-1/config/fxadmin/config_tx.pb"
+    # Defines the latest channel configuration block on the host, as written by `ledger/config_latest`, that fxadmin uses for endpoint discovery.
+    fxadmin_latest_block: "/tmp/fabricx/orderer-consenter-1/config/fxadmin/config.pb"
     # Defines the fxadmin remote configuration directory.
     fxadmin_remote_config_dir: "{{ remote_config_dir }}/fxadmin"
     # Provides the base remote configuration directory used by the role.
@@ -412,7 +418,7 @@ Creates the remote fxadmin configuration directory, renders the admin configurat
 
 > Compute a ConfigUpdate with the fxadmin container
 
-Stages the current and modified configuration JSON files and the reference block into the output directory, then runs `fxadmin compute-update` in a transient container that mounts it.
+Mounts the current and modified configuration JSON files and the reference block read-only into a transient container that runs `fxadmin compute-update`.
 
 ```yaml
 - name: Compute a ConfigUpdate with the fxadmin container
@@ -480,7 +486,7 @@ Stages the configuration block into the output directory, then runs `fxadmin dec
 
 > Follow the ledger with the fxadmin container
 
-Mounts the rendered admin configuration and the staged reference block into a transient fxadmin container and runs `fxadmin follow`.
+Mounts the rendered admin configuration and the latest block into a transient fxadmin container and runs `fxadmin follow`.
 
 ```yaml
 - name: Follow the ledger with the fxadmin container
@@ -501,6 +507,8 @@ Mounts the rendered admin configuration and the staged reference block into a tr
     fxadmin_image_name: fabric-x-tools
     # Defines the image tag used by the fxadmin container image, which must be at least 1.0.2 because earlier tags do not bundle the fxadmin binary.
     fxadmin_image_tag: 1.0.2
+    # Defines the latest channel configuration block on the host, as written by `ledger/config_latest`, that fxadmin uses for endpoint discovery.
+    fxadmin_latest_block: "/tmp/fabricx/orderer-consenter-1/config/fxadmin/config.pb"
     # Defines the output artifact path written by the current fxadmin command, local to the host the task runs on.
     fxadmin_output: "/tmp/fabricx/config-build/fxadmin-artifacts/config_update.pb"
     # Defines the registry endpoint used by the fxadmin container image.
@@ -656,7 +664,7 @@ Mounts the staged endorsed ConfigUpdate and the rendered admin configuration int
 
 > Submit a transaction with the fxadmin container
 
-Mounts the staged transaction, the reference block and the rendered admin configuration into a transient fxadmin container that runs `fxadmin tx submit`.
+Mounts the transaction, the latest block and the rendered admin configuration into a transient fxadmin container that runs `fxadmin tx submit`.
 
 ```yaml
 - name: Submit a transaction with the fxadmin container
@@ -665,6 +673,8 @@ Mounts the staged transaction, the reference block and the rendered admin config
     fxadmin_bin_name: fxadmin
     # Defines the fxadmin admin configuration filename.
     fxadmin_config_file: admin.yaml
+    # Defines the prepared transaction file to submit, on the host that submits it.
+    fxadmin_config_tx: "/tmp/fabricx/orderer-consenter-1/config/fxadmin/config_tx.pb"
     # Defines the configuration directory mounted inside the fxadmin container.
     fxadmin_container_config_dir: /config
     # Defines the base container name used by fxadmin workflows, suffixed per host so parallel runs never collide.
@@ -675,6 +685,8 @@ Mounts the staged transaction, the reference block and the rendered admin config
     fxadmin_image_name: fabric-x-tools
     # Defines the image tag used by the fxadmin container image, which must be at least 1.0.2 because earlier tags do not bundle the fxadmin binary.
     fxadmin_image_tag: 1.0.2
+    # Defines the latest channel configuration block on the host, as written by `ledger/config_latest`, that fxadmin uses for endpoint discovery.
+    fxadmin_latest_block: "/tmp/fabricx/orderer-consenter-1/config/fxadmin/config.pb"
     # Defines the registry endpoint used by the fxadmin container image.
     fxadmin_registry_endpoint: "{{ lookup('env', 'FXADMIN_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
     # Defines the fxadmin remote configuration directory.
@@ -713,12 +725,6 @@ Dispatches ledger following to either the host binary or a transient container b
 ```yaml
 - name: Follow the ledger until a configuration update commits
   vars:
-    # Defines the channel identifier used to derive the genesis block filename.
-    channel_id: "fabricx-main-channel"
-    # Defines the control-node directory where configtxgen writes the genesis block.
-    configtxgen_artifacts_dir: "/tmp/fabricx/config-build/configtxgen-artifacts"
-    # Defines the control-node reference configuration block fxadmin uses for endpoint discovery, defaulting to the genesis block produced by configtxgen.
-    fxadmin_current_block: "{{ configtxgen_artifacts_dir }}/{{ channel_id }}_block.pb"
     # Defines the output artifact path written by the current fxadmin command, local to the host the task runs on.
     fxadmin_output: "/tmp/fabricx/config-build/fxadmin-artifacts/config_update.pb"
     # Defines the control-node path that `fxadmin_output` is fetched back to once the command completes on a remote host.
@@ -846,19 +852,11 @@ Stages the merged, endorsed ConfigUpdate, dispatches transaction preparation to 
 
 > Submit a transaction
 
-Stages the prepared transaction and the reference block, then dispatches submission to either the host binary or a transient container based on `fxadmin_use_bin`.
+Dispatches submission of the prepared transaction to either the host binary or a transient container based on `fxadmin_use_bin`.
 
 ```yaml
 - name: Submit a transaction
   vars:
-    # Defines the channel identifier used to derive the genesis block filename.
-    channel_id: "fabricx-main-channel"
-    # Defines the control-node directory where configtxgen writes the genesis block.
-    configtxgen_artifacts_dir: "/tmp/fabricx/config-build/configtxgen-artifacts"
-    # Defines the local prepared transaction file to submit.
-    fxadmin_config_tx: "/tmp/fabricx/config-build/fxadmin-artifacts/config_tx.pb"
-    # Defines the control-node reference configuration block fxadmin uses for endpoint discovery, defaulting to the genesis block produced by configtxgen.
-    fxadmin_current_block: "{{ configtxgen_artifacts_dir }}/{{ channel_id }}_block.pb"
     # Selects the host-binary workflow instead of the container workflow.
     fxadmin_use_bin: false
   ansible.builtin.include_role:

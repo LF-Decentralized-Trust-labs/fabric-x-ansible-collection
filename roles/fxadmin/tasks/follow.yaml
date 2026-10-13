@@ -14,12 +14,6 @@
     state: directory
     mode: "0o755"
 
-- name: Transfer the reference configuration block
-  ansible.builtin.copy:
-    src: "{{ fxadmin_current_block }}"
-    dest: "{{ fxadmin_output_dir }}/follow_current_block.pb"
-    mode: preserve
-
 - name: Follow the ledger with the fxadmin binary
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fxadmin

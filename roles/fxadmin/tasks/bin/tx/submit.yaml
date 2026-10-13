@@ -9,9 +9,9 @@
     bin_command: >-
       {{ fxadmin_bin_name }} tx
       submit
-      {{ fxadmin_output_dir }}/config_tx.pb
+      {{ fxadmin_config_tx }}
       --config={{ fxadmin_remote_config_dir }}/{{ fxadmin_config_file }}
-      --current-block={{ fxadmin_output_dir }}/submit_current_block.pb
+      --current-block={{ fxadmin_latest_block }}
     bin_run_with_tmux: false
     bin_collect_logs: false
   ansible.builtin.include_role:

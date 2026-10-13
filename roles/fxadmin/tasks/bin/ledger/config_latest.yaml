@@ -9,7 +9,7 @@
     bin_command: >-
       {{ fxadmin_bin_name }} ledger
       --config={{ fxadmin_remote_config_dir }}/{{ fxadmin_config_file }}
-      --current-block={{ fxadmin_output_dir }}/config_latest_current_block.pb
+      --current-block={{ fxadmin_output_dir }}/current_block.pb
       config latest
       --output={{ fxadmin_output }}
     bin_run_with_tmux: false

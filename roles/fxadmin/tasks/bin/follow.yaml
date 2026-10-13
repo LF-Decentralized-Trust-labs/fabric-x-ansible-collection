@@ -9,7 +9,7 @@
     bin_command: >-
       {{ fxadmin_bin_name }} follow
       --config={{ fxadmin_remote_config_dir }}/{{ fxadmin_config_file }}
-      --current-block={{ fxadmin_output_dir }}/follow_current_block.pb
+      --current-block={{ fxadmin_latest_block }}
       --timeout={{ fxadmin_follow_timeout }}
       --output={{ fxadmin_output }}
     bin_run_with_tmux: false

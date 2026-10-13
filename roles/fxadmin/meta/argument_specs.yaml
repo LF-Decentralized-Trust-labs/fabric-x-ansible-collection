@@ -48,8 +48,8 @@ argument_specs:
         type: path
         required: true
         description:
-          - "Defines the local prepared transaction file to submit."
-          - "Example: C(/tmp/fabricx/config-build/fxadmin-artifacts/config_tx.pb)."
+          - "Defines the prepared transaction file to submit, on the host that submits it."
+          - "Example: C(/tmp/fabricx/orderer-consenter-1/config/fxadmin/config_tx.pb)."
       fxadmin_config_update: &fxadmin_config_update
         type: path
         required: true
@@ -135,6 +135,12 @@ argument_specs:
         description:
           - "Defines the jq filter applied to the decoded current configuration to produce the modified configuration."
           - "Example: C(.channel_group.groups.Orderer.values.ConsensusType.value.metadata.PartiesConfig[0].AssemblerConfig.port = $args.port)."
+      fxadmin_latest_block: &fxadmin_latest_block
+        type: path
+        required: true
+        description:
+          - "Defines the latest channel configuration block on the host, as written by C(ledger/config_latest), that fxadmin uses for endpoint discovery."
+          - "Example: C(/tmp/fabricx/orderer-consenter-1/config/fxadmin/config.pb)."
       fxadmin_mtls_client_cert_path: &fxadmin_mtls_client_cert_path
         type: path
         default: "{{ remote_config_dir }}/tls/server.crt"
@@ -258,6 +264,7 @@ argument_specs:
       fxadmin_bin_name: *fxadmin_bin_name
       fxadmin_config_file: *fxadmin_config_file
       fxadmin_follow_timeout: *fxadmin_follow_timeout
+      fxadmin_latest_block: *fxadmin_latest_block
       fxadmin_output: *fxadmin_output
       fxadmin_remote_config_dir: *fxadmin_remote_config_dir
       remote_config_dir: *remote_config_dir
@@ -337,6 +344,8 @@ argument_specs:
     options:
       fxadmin_bin_name: *fxadmin_bin_name
       fxadmin_config_file: *fxadmin_config_file
+      fxadmin_config_tx: *fxadmin_config_tx
+      fxadmin_latest_block: *fxadmin_latest_block
       fxadmin_remote_config_dir: *fxadmin_remote_config_dir
       remote_config_dir: *remote_config_dir
 
@@ -377,7 +386,7 @@ argument_specs:
   container/compute_update:
     short_description: Compute a ConfigUpdate with the fxadmin container
     description:
-      - "Stages the current and modified configuration JSON files and the reference block into the output directory, then runs C(fxadmin compute-update) in a transient container that mounts it."
+      - "Mounts the current and modified configuration JSON files and the reference block read-only into a transient container that runs C(fxadmin compute-update)."
     options:
       channel_id: *channel_id
       configtxgen_artifacts_dir: *configtxgen_artifacts_dir
@@ -409,7 +418,7 @@ argument_specs:
   container/follow:
     short_description: Follow the ledger with the fxadmin container
     description:
-      - "Mounts the rendered admin configuration and the staged reference block into a transient fxadmin container and runs C(fxadmin follow)."
+      - "Mounts the rendered admin configuration and the latest block into a transient fxadmin container and runs C(fxadmin follow)."
     options:
       fxadmin_bin_name: *fxadmin_bin_name
       fxadmin_config_file: *fxadmin_config_file
@@ -419,6 +428,7 @@ argument_specs:
       fxadmin_image: *fxadmin_image
       fxadmin_image_name: *fxadmin_image_name
       fxadmin_image_tag: *fxadmin_image_tag
+      fxadmin_latest_block: *fxadmin_latest_block
       fxadmin_output: *fxadmin_output
       fxadmin_registry_endpoint: *fxadmin_registry_endpoint
       fxadmin_remote_config_dir: *fxadmin_remote_config_dir
@@ -492,15 +502,17 @@ argument_specs:
   container/tx/submit:
     short_description: Submit a transaction with the fxadmin container
     description:
-      - "Mounts the staged transaction, the reference block and the rendered admin configuration into a transient fxadmin container that runs C(fxadmin tx submit)."
+      - "Mounts the transaction, the latest block and the rendered admin configuration into a transient fxadmin container that runs C(fxadmin tx submit)."
     options:
       fxadmin_bin_name: *fxadmin_bin_name
       fxadmin_config_file: *fxadmin_config_file
+      fxadmin_config_tx: *fxadmin_config_tx
       fxadmin_container_config_dir: *fxadmin_container_config_dir
       fxadmin_container_name: *fxadmin_container_name
       fxadmin_image: *fxadmin_image
       fxadmin_image_name: *fxadmin_image_name
       fxadmin_image_tag: *fxadmin_image_tag
+      fxadmin_latest_block: *fxadmin_latest_block
       fxadmin_registry_endpoint: *fxadmin_registry_endpoint
       fxadmin_remote_config_dir: *fxadmin_remote_config_dir
       remote_config_dir: *remote_config_dir
@@ -518,9 +530,6 @@ argument_specs:
     description:
       - "Dispatches ledger following to either the host binary or a transient container based on C(fxadmin_use_bin), then fetches the committed block back to the control node."
     options:
-      channel_id: *channel_id
-      configtxgen_artifacts_dir: *configtxgen_artifacts_dir
-      fxadmin_current_block: *fxadmin_current_block
       fxadmin_output: *fxadmin_output
       fxadmin_output_fetch_dest: *fxadmin_output_fetch_dest
       fxadmin_use_bin: *fxadmin_use_bin
@@ -581,12 +590,8 @@ argument_specs:
   tx/submit:
     short_description: Submit a transaction
     description:
-      - "Stages the prepared transaction and the reference block, then dispatches submission to either the host binary or a transient container based on C(fxadmin_use_bin)."
+      - "Dispatches submission of the prepared transaction to either the host binary or a transient container based on C(fxadmin_use_bin)."
     options:
-      channel_id: *channel_id
-      configtxgen_artifacts_dir: *configtxgen_artifacts_dir
-      fxadmin_config_tx: *fxadmin_config_tx
-      fxadmin_current_block: *fxadmin_current_block
       fxadmin_use_bin: *fxadmin_use_bin
 
   wipe:
