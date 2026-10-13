@@ -32,7 +32,7 @@ All playbooks act on the **admin hosts**: the hosts whose `organization.user` ha
 
 ## binaries.yaml
 
-[`binaries.yaml`](./binaries.yaml) builds the `fxadmin` CLI on the control node and delivers it to every admin host.
+[`binaries.yaml`](./binaries.yaml) prepares the `fxadmin` CLI on the control node and on every admin host.
 
 ```shell
 ansible-playbook hyperledger.fabricx.fxadmin.binaries
@@ -41,7 +41,8 @@ ansible-playbook hyperledger.fabricx.fxadmin.binaries
 Properties:
 
 - Binary activation: only runs when `fxadmin_use_bin: true`.
-- Build location: with `bin_build_on_control_node: true` the binary is built once on the control node and transferred; otherwise each admin host installs it with `go install`.
+- Build location: with `bin_build_on_control_node: true` the binary is prepared once on the control node and transferred; otherwise each admin host prepares it itself, so `go` must be installed there.
+- Build method: with `fxadmin_build_bin: true` the binary is built from source; otherwise it is installed with `go install`.
 
 ## configs.yaml
 

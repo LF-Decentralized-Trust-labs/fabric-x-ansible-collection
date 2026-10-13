@@ -27,19 +27,23 @@
         | map(attribute='inventory_hostname')
         | list
       }}
+    # The subset built from source; every other host gets `go install`.
+    build_bin_hosts: >-
+      {{
+        base_bin_hosts
+        | map('extract', hostvars)
+        | selectattr('fxconfig_build_bin', 'defined')
+        | selectattr('fxconfig_build_bin', 'eq', true)
+        | map(attribute='inventory_hostname')
+        | list
+      }}
   tasks:
     # =========================
     # Install on the control node
     # =========================
     - name: Install the fxconfig binary on the control node for the remote nodes
       vars:
-        bin_hosts: >-
-          {{
-            base_bin_hosts
-            | map('extract', hostvars)
-            | selectattr('fxconfig_build_bin', 'undefined')
-            | map(attribute='inventory_hostname')
-          }}
+        bin_hosts: "{{ base_bin_hosts | difference(build_bin_hosts) }}"
       ansible.builtin.include_role:
         name: hyperledger.fabricx.fxconfig
         tasks_from: bin/install
@@ -50,14 +54,7 @@
     # =========================
     - name: Build the fxconfig binary on the control node for the remote nodes
       vars:
-        bin_hosts: >-
-          {{
-            base_bin_hosts
-            | map('extract', hostvars)
-            | selectattr('fxconfig_build_bin', 'defined')
-            | selectattr('fxconfig_build_bin', 'eq', true)
-            | map(attribute='inventory_hostname')
-          }}
+        bin_hosts: "{{ build_bin_hosts }}"
       ansible.builtin.include_role:
         name: hyperledger.fabricx.fxconfig
         tasks_from: bin/build
@@ -89,7 +86,7 @@
             name: hyperledger.fabricx.fxconfig
             tasks_from: bin/install
           when:
-            - fxconfig_build_bin is undefined
+            - fxconfig_build_bin is undefined or not fxconfig_build_bin
 
 - name: Ensure fxconfig binaries are on remote nodes
   hosts: "{{ target_hosts | default('all') }}"
