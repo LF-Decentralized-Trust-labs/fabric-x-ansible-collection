@@ -5,8 +5,9 @@
 #
 
 # Reconfigures the network-level port of one Fabric-X orderer Assembler.
-# Does not restart the Assembler process -- run
-# `make <assembler_host> configs restart` afterwards to pick up the new port.
+# Does not restart the Assembler process -- afterwards set `orderer_rpc_port`
+# of <assembler_host> to the new port in the inventory, then run
+# `make <assembler_host> configs restart` to pick up the new port.
 #
 # Every admin host, i.e. every host declaring an admin organization.user, takes
 # part. Only the orderer organizations' admins count toward the Orderer group's

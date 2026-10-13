@@ -11,7 +11,7 @@
     container_command: >-
       {{ fxadmin_bin_name }} ledger
       --config={{ fxadmin_container_config_dir }}/{{ fxadmin_config_file }}
-      --current-block=/tmp/current_block.pb
+      --current-block=/tmp/config_latest_current_block.pb
       config latest
       --output=/tmp/{{ fxadmin_output | basename }}
     container_volumes:

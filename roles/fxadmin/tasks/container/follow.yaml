@@ -11,7 +11,7 @@
     container_command: >-
       {{ fxadmin_bin_name }} follow
       --config={{ fxadmin_container_config_dir }}/{{ fxadmin_config_file }}
-      --current-block=/tmp/current_block.pb
+      --current-block=/tmp/follow_current_block.pb
       --timeout={{ fxadmin_follow_timeout }}
       --output=/tmp/{{ fxadmin_output | basename }}
     container_volumes:

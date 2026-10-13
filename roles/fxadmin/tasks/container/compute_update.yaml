@@ -17,7 +17,7 @@
     - src: "{{ fxadmin_modified_config_json }}"
       dest: modified_config.json
     - src: "{{ fxadmin_current_block }}"
-      dest: current_block.pb
+      dest: compute_update_current_block.pb
   loop_control:
     loop_var: current_input_file
     label: "{{ current_input_file.dest }}"
@@ -30,7 +30,7 @@
       {{ fxadmin_bin_name }} compute-update
       /tmp/current_config.json
       /tmp/modified_config.json
-      --current-block=/tmp/current_block.pb
+      --current-block=/tmp/compute_update_current_block.pb
       --output=/tmp/{{ fxadmin_output | basename }}
     container_volumes:
       - "{{ fxadmin_output_dir }}:/tmp:z"

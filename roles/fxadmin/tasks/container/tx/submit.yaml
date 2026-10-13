@@ -13,7 +13,7 @@
       submit
       /tmp/config_tx.pb
       --config={{ fxadmin_container_config_dir }}/{{ fxadmin_config_file }}
-      --current-block=/tmp/current_block.pb
+      --current-block=/tmp/submit_current_block.pb
     container_volumes:
       - "{{ fxadmin_remote_config_dir }}:{{ fxadmin_container_config_dir }}:z,ro"
       - "{{ fxadmin_output_dir }}:/tmp:z"

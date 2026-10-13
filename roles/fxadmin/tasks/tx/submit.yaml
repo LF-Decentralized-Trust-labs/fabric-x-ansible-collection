@@ -23,7 +23,7 @@
     - src: "{{ fxadmin_config_tx }}"
       dest: config_tx.pb
     - src: "{{ fxadmin_current_block }}"
-      dest: current_block.pb
+      dest: submit_current_block.pb
   loop_control:
     loop_var: current_transfer_input
     label: "{{ current_transfer_input.dest }}"

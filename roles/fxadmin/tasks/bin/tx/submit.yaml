@@ -11,7 +11,7 @@
       submit
       {{ fxadmin_output_dir }}/config_tx.pb
       --config={{ fxadmin_remote_config_dir }}/{{ fxadmin_config_file }}
-      --current-block={{ fxadmin_output_dir }}/current_block.pb
+      --current-block={{ fxadmin_output_dir }}/submit_current_block.pb
     bin_run_with_tmux: false
     bin_collect_logs: false
   ansible.builtin.include_role:
