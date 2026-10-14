@@ -1,0 +1,19 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Build {{ fxadmin_bin_name }}
+  vars:
+    # Git vars
+    git_hub_url: "{{ fxadmin_git_hub_url }}"
+    git_repo: "{{ fxadmin_git_repo }}"
+    git_commit: "{{ fxadmin_git_commit }}"
+    # Bin vars
+    bin_name: "{{ fxadmin_bin_name }}"
+    # Go vars
+    go_source_code_package: "{{ fxadmin_source_code_package }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.bin
+    tasks_from: go/build

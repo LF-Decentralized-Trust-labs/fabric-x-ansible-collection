@@ -9,6 +9,13 @@
     path: "{{ orderer_remote_config_dir }}/msp"
     state: absent
 
+- name: Remove Fabric-X Orderer users directory
+  ansible.builtin.file:
+    path: "{{ orderer_remote_config_dir }}/users"
+    state: absent
+  when:
+    - organization.user is defined
+
 - name: Remove Fabric-X Orderer TLS directory
   ansible.builtin.file:
     path: "{{ orderer_remote_config_dir }}/tls"

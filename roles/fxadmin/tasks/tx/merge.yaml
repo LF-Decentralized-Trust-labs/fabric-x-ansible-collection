@@ -1,0 +1,70 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Define fxadmin output directory
+  ansible.builtin.set_fact:
+    fxadmin_output_dir: "{{ fxadmin_output | dirname }}"
+
+- name: Ensure fxadmin output directory exists
+  ansible.builtin.file:
+    path: "{{ fxadmin_output_dir }}"
+    state: directory
+    mode: "0o755"
+
+- name: Find all endorsements to merge
+  ansible.builtin.find:
+    paths: "{{ fxadmin_endorsements_dir }}"
+    patterns: "*.pb"
+    recurse: true
+    file_type: file
+  register: fxadmin_endorsements_find_result
+
+- name: Set found endorsements
+  ansible.builtin.set_fact:
+    fxadmin_endorsements: >-
+      {{
+        fxadmin_endorsements_find_result.files
+        | map(attribute='path')
+        | list
+      }}
+
+- name: Fail when no endorsements were collected
+  ansible.builtin.fail:
+    msg: >-
+      No endorsements found under {{ fxadmin_endorsements_dir }}: every
+      tx/endorse call must have failed or been skipped upstream. Refusing to
+      write an empty merged ConfigUpdateEnvelope.
+  when:
+    - fxadmin_endorsements | length == 0
+
+- name: Set single endorsement as merged one
+  ansible.builtin.copy:
+    src: "{{ fxadmin_endorsements[0] }}"
+    dest: "{{ fxadmin_output }}"
+    mode: preserve
+  when:
+    - fxadmin_endorsements | length == 1
+
+- name: Merge multiple endorsements with the fxadmin binary
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fxadmin
+    tasks_from: bin/tx/merge
+  when:
+    - fxadmin_use_bin
+    - fxadmin_endorsements | length > 1
+
+- name: Merge multiple endorsements with the fxadmin container
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fxadmin
+    tasks_from: container/tx/merge
+  when:
+    - not fxadmin_use_bin
+    - fxadmin_endorsements | length > 1
+
+- name: Remove merged endorsement files
+  ansible.builtin.file:
+    path: "{{ fxadmin_endorsements_dir }}"
+    state: absent

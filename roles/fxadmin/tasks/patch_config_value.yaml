@@ -1,0 +1,31 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# jq edits nested fields and list items in place, which Jinja cannot do without
+# rebuilding whole lists. The caller's values reach the filter as $args.
+- name: Apply the jq filter to the decoded Fabric-X channel configuration
+  ansible.builtin.command:
+    argv:
+      - jq
+      - --argjson
+      - args
+      - "{{ fxadmin_jq_args | to_json }}"
+      - "{{ fxadmin_jq_filter }}"
+      - "{{ fxadmin_current_config_json }}"
+  register: fxadmin_patched_config
+  changed_when: false
+
+- name: Ensure the modified configuration output directory exists
+  ansible.builtin.file:
+    path: "{{ fxadmin_modified_config_json | dirname }}"
+    state: directory
+    mode: "0o755"
+
+- name: Write the patched Fabric-X channel configuration
+  ansible.builtin.copy:
+    content: "{{ fxadmin_patched_config.stdout }}\n"
+    dest: "{{ fxadmin_modified_config_json }}"
+    mode: "0o644"

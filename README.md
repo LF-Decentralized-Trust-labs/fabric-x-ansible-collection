@@ -113,6 +113,7 @@ To run such Ansible collection, you need to have the following prerequisites ins
 - `python` >= 3.11;
 - `docker` or `podman`;
 - `go` >= 2.16 (only needed if you run binary-based inventories);
+- `jq`;
 - `kubectl` (needed to run [k8s inventories](./examples/inventory/README.md#kubernetes)).
 
 After having cloned this repository, run:

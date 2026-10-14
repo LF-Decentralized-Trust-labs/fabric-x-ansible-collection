@@ -29,3 +29,23 @@
     dest: "{{ committer_remote_config_dir }}"
   when:
     - committer_use_tls
+
+# =========================
+# User MSP
+# =========================
+# The organization user declared on this host (e.g. the admin identity used by fxadmin)
+# is shipped next to the node identity, so any tool running here can sign with it.
+- name: Ensure the committer users config directory exists
+  ansible.builtin.file:
+    path: "{{ committer_remote_config_dir }}/users"
+    state: directory
+    mode: "0o755"
+  when:
+    - organization.user is defined
+
+- name: Transfer the user crypto material generated with cryptogen
+  ansible.posix.synchronize:
+    src: "{{ cryptogen_artifacts_dir }}/crypto/organizations/{{ organization.domain }}/users/{{ organization.user.name }}@{{ organization.domain }}"
+    dest: "{{ committer_remote_config_dir }}/users"
+  when:
+    - organization.user is defined

@@ -783,7 +783,7 @@ Copy monitoring mTLS certificates for Prometheus scraping. Builds monitoring tru
 
 > Remove committer crypto material
 
-Remove local TLS assets and the Kubernetes Secret when enabled. Cleans TLS material under `committer_remote_config_dir` for the selected component.
+Remove local TLS assets, user assets when `organization.user` is defined, and the Kubernetes Secret when enabled. Cleans TLS material under `committer_remote_config_dir` for the selected component.
 
 ```yaml
 - name: Remove committer crypto material
@@ -796,6 +796,18 @@ Remove local TLS assets and the Kubernetes Secret when enabled. Cleans TLS mater
     committer_use_openshift: false
     # Enable TLS material for the selected component.
     committer_use_tls: false
+    # Organization definition consumed by crypto and sidecar configuration tasks.
+    organization:
+      name: "Org1"
+      domain: "org1.example.com"
+      role: "peer"
+      fabric_ca_host: "fca-org1"
+      peer:
+        name: "committer-sidecar"
+        secret: "committer-sidecarPWD"
+      users:
+        - name: "committer-sidecar"
+          secret: "committer-sidecarPWD"
     # Remote config directory used by delegated crypto tasks.
     remote_config_dir: "/opt/fabricx/committer/config"
   ansible.builtin.include_role:

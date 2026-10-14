@@ -1020,13 +1020,14 @@ argument_specs:
   crypto/rm:
     short_description: Remove orderer crypto material
     description:
-      - "Deletes the orderer MSP and TLS directories from the config path."
+      - "Deletes the orderer MSP and TLS directories from the config path, and the users directory when C(organization.user) is defined."
       - "In Kubernetes mode, also delegates deletion of the Secret that mounted MSP and TLS material into the workload."
     options:
       remote_config_dir: *remote_config_dir
       orderer_remote_config_dir: *orderer_remote_config_dir
       orderer_use_k8s: *orderer_use_k8s
       orderer_use_openshift: *orderer_use_openshift
+      organization: *organization
 
   k8s/start:
     short_description: Create the orderer Kubernetes workload

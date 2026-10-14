@@ -1,0 +1,19 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Wipe the fxadmin binary and configuration from every admin host
+  hosts: "{{ target_hosts | default('all') }}"
+  tasks:
+    # Hosts without an admin organization.user are skipped: fxadmin only runs where
+    # an identity able to sign channel configuration updates is declared.
+    - name: Wipe the fxadmin binary and configuration
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fxadmin
+        tasks_from: wipe
+      when:
+        - organization is defined
+        - organization.user is defined
+        - organization.user.type | default('') == 'admin'
