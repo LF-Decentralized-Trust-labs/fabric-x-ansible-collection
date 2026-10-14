@@ -7,12 +7,7 @@
 - name: Build list of unique (host, network) pairs
   hosts: localhost
   vars:
-    targeted_hosts: >-
-      {{
-        groups[target_hosts]
-        if target_hosts in groups
-        else [target_hosts]
-      }}
+    targeted_hosts: "{{ query('ansible.builtin.inventory_hostnames', target_hosts | default('all')) }}"
   tasks:
     - name: Collect candidate hosts
       vars:
