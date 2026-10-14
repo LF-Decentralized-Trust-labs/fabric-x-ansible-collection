@@ -766,7 +766,7 @@ Dispatches fetching the latest channel configuration block to either the host bi
 
 > Patch a decoded channel configuration
 
-Applies a caller-supplied jq filter to the decoded current channel configuration JSON on the control node, and writes the resulting modified configuration JSON. Contains no business logic of its own, so the caller supplies the exact change as a jq filter. Requires jq on the control node, installed by the `hyperledger.fabricx.install_prerequisites` playbook.
+Applies a caller-supplied jq filter to the decoded current channel configuration JSON on the control node, and writes the resulting modified configuration JSON. Contains no business logic of its own, so the caller supplies the exact change as a jq filter. Requires jq on the control node.
 
 ```yaml
 - name: Patch a decoded channel configuration

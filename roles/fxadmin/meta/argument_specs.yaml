@@ -550,7 +550,7 @@ argument_specs:
     short_description: Patch a decoded channel configuration
     description:
       - "Applies a caller-supplied jq filter to the decoded current channel configuration JSON on the control node, and writes the resulting modified configuration JSON."
-      - "Contains no business logic of its own, so the caller supplies the exact change as a jq filter. Requires jq on the control node, installed by the C(hyperledger.fabricx.install_prerequisites) playbook."
+      - "Contains no business logic of its own, so the caller supplies the exact change as a jq filter. Requires jq on the control node."
     options:
       fxadmin_current_config_json: *fxadmin_current_config_json
       fxadmin_jq_args: *fxadmin_jq_args
