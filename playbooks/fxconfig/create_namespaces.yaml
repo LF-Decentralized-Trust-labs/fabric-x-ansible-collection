@@ -20,12 +20,7 @@
   hosts: localhost
   vars:
     fxconfig_artifacts_dir: "{{ config_build_dir }}/fxconfig-artifacts"
-    targeted_hosts: >-
-      {{
-        groups[target_hosts]
-        if target_hosts in groups
-        else [target_hosts]
-      }}
+    targeted_hosts: "{{ query('ansible.builtin.inventory_hostnames', target_hosts | default('all')) }}"
     fxconfig_namespaces_to_create: >-
       {{
         targeted_hosts
@@ -137,12 +132,7 @@
   hosts: localhost
   vars:
     fxconfig_artifacts_dir: "{{ config_build_dir }}/fxconfig-artifacts"
-    targeted_hosts: >-
-      {{
-        groups[target_hosts]
-        if target_hosts in groups
-        else [target_hosts]
-      }}
+    targeted_hosts: "{{ query('ansible.builtin.inventory_hostnames', target_hosts | default('all')) }}"
     fxconfig_declared_namespaces: >-
       {{
         targeted_hosts
