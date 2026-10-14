@@ -7,12 +7,7 @@
 - name: Build the fxconfig binaries on the control node
   hosts: localhost
   vars:
-    targeted_hosts: >-
-      {{
-        groups[target_hosts]
-        if target_hosts in groups
-        else [target_hosts]
-      }}
+    targeted_hosts: "{{ query('ansible.builtin.inventory_hostnames', target_hosts | default('all')) }}"
     base_bin_hosts: >-
       {{
         targeted_hosts

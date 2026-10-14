@@ -11,9 +11,10 @@
   hosts: localhost
   vars:
     # Only the hosts declaring an admin organization.user receive the binary.
+    targeted_hosts: "{{ query('ansible.builtin.inventory_hostnames', target_hosts | default('all')) }}"
     fxadmin_bin_hosts: >-
       {{
-        groups['all']
+        targeted_hosts
         | map('extract', hostvars)
         | selectattr('organization', 'defined')
         | selectattr('organization.user', 'defined')
@@ -64,16 +65,30 @@
     # =========================
     # Build/Install for the control node
     # =========================
-    - name: Prepare the fxadmin binary on the control node for its own steps
-      vars:
-        bin_build_on_control_node: true
-        bin_dir: "{{ cli_bin_dir }}"
-      ansible.builtin.include_role:
-        name: hyperledger.fabricx.fxadmin
-        tasks_from: "bin/{{ 'build' if (fxadmin_build_bin is defined and fxadmin_build_bin) else 'install' }}"
+    - name: Handle fxadmin build for the control node
       when:
         - fxadmin_use_bin is defined
         - fxadmin_use_bin
+      block:
+        - name: Build the fxadmin binary on the control node for the control node
+          vars:
+            bin_build_on_control_node: true
+            bin_dir: "{{ cli_bin_dir }}"
+          ansible.builtin.include_role:
+            name: hyperledger.fabricx.fxadmin
+            tasks_from: bin/build
+          when:
+            - fxadmin_build_bin is defined
+            - fxadmin_build_bin
+        - name: Install the fxadmin binary on the control node for the control node
+          vars:
+            bin_build_on_control_node: true
+            bin_dir: "{{ cli_bin_dir }}"
+          ansible.builtin.include_role:
+            name: hyperledger.fabricx.fxadmin
+            tasks_from: bin/install
+          when:
+            - fxadmin_build_bin is undefined or not fxadmin_build_bin
 
 - name: Deliver the fxadmin binary to each admin host
   hosts: "{{ target_hosts | default('all') }}"
