@@ -24,7 +24,7 @@ argument_specs:
       committer_image_tag: &committer_image_tag
         type: str
         required: false
-        default: "1.0.5"
+        default: "1.0.7"
         description:
           - Image tag for the committer container.
       committer_image: &committer_image
@@ -50,7 +50,7 @@ argument_specs:
       committer_git_commit: &committer_git_commit
         type: str
         required: false
-        default: v1.0.5
+        default: v1.0.7
         description:
           - Git ref used for building or installing the binary.
       committer_source_code_package: &committer_source_code_package
@@ -594,6 +594,24 @@ argument_specs:
         description:
           - Sidecar internal channel buffer size.
           - "Example: C(100)."
+      committer_sidecar_checkpoint_hold_retry_interval:
+        &committer_sidecar_checkpoint_hold_retry_interval
+        type: str
+        description:
+          - How long the sidecar waits before fetching a held checkpoint block again.
+          - "Example: C(1m)."
+      committer_sidecar_max_workers_for_tx_parsing:
+        &committer_sidecar_max_workers_for_tx_parsing
+        type: int
+        description:
+          - Maximum number of goroutines parsing one block's transactions.
+          - "Example: C(1)."
+      committer_sidecar_min_tx_parsing_batch_size:
+        &committer_sidecar_min_tx_parsing_batch_size
+        type: int
+        description:
+          - Minimum number of transactions handed to one parsing goroutine.
+          - "Example: C(256)."
       committer_sidecar_ledger_sync_interval:
         &committer_sidecar_ledger_sync_interval
         type: int
@@ -1381,6 +1399,9 @@ argument_specs:
       committer_server_rate_limit_burst: *committer_server_rate_limit_burst
       committer_server_rate_limit_requests_per_second: *committer_server_rate_limit_requests_per_second
       committer_sidecar_channel_buffer_size: *committer_sidecar_channel_buffer_size
+      committer_sidecar_checkpoint_hold_retry_interval: *committer_sidecar_checkpoint_hold_retry_interval
+      committer_sidecar_max_workers_for_tx_parsing: *committer_sidecar_max_workers_for_tx_parsing
+      committer_sidecar_min_tx_parsing_batch_size: *committer_sidecar_min_tx_parsing_batch_size
       committer_sidecar_ledger_sync_interval: *committer_sidecar_ledger_sync_interval
       committer_sidecar_notification_max_timeout: *committer_sidecar_notification_max_timeout
       committer_sidecar_notification_max_active_tx_ids: *committer_sidecar_notification_max_active_tx_ids

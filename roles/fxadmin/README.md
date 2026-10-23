@@ -66,7 +66,7 @@ Builds the fxadmin Go binary from the configured Fabric-X source package by dele
     # Defines the fxadmin binary name.
     fxadmin_bin_name: fxadmin
     # Selects the Git ref used by build and install workflows.
-    fxadmin_git_commit: v1.0.2
+    fxadmin_git_commit: v1.0.3
     # Defines the Git host used to resolve the Fabric-X source repository.
     fxadmin_git_hub_url: github.com
     # Defines the Fabric-X source repository path.
@@ -172,7 +172,7 @@ Installs the fxadmin Go package from the configured Fabric-X source package by d
     # Defines the Go package path used to install fxadmin.
     fxadmin_bin_package: "{{ fxadmin_git_hub_url }}/{{ fxadmin_git_repo }}/{{ fxadmin_source_code_package }}"
     # Selects the Git ref used by build and install workflows.
-    fxadmin_git_commit: v1.0.2
+    fxadmin_git_commit: v1.0.3
     # Defines the Git host used to resolve the Fabric-X source repository.
     fxadmin_git_hub_url: github.com
     # Defines the Fabric-X source repository path.
@@ -440,7 +440,7 @@ Mounts the current and modified configuration JSON files and the reference block
     # Defines the image name used by the fxadmin container image.
     fxadmin_image_name: fabric-x-tools
     # Defines the image tag used by the fxadmin container image, which must be at least 1.0.2 because earlier tags do not bundle the fxadmin binary.
-    fxadmin_image_tag: 1.0.2
+    fxadmin_image_tag: 1.0.3
     # Defines the local modified channel configuration JSON file produced by `patch_config_value` and consumed by `compute_update`.
     fxadmin_modified_config_json: "/tmp/fabricx/config-build/fxadmin-artifacts/modified_config.json"
     # Defines the output artifact path written by the current fxadmin command, local to the host the task runs on.
@@ -472,7 +472,7 @@ Stages the configuration block into the output directory, then runs `fxadmin dec
     # Defines the image name used by the fxadmin container image.
     fxadmin_image_name: fabric-x-tools
     # Defines the image tag used by the fxadmin container image, which must be at least 1.0.2 because earlier tags do not bundle the fxadmin binary.
-    fxadmin_image_tag: 1.0.2
+    fxadmin_image_tag: 1.0.3
     # Defines the output artifact path written by the current fxadmin command, local to the host the task runs on.
     fxadmin_output: "/tmp/fabricx/config-build/fxadmin-artifacts/config_update.pb"
     # Defines the registry endpoint used by the fxadmin container image.
@@ -506,7 +506,7 @@ Mounts the rendered admin configuration and the latest block into a transient fx
     # Defines the image name used by the fxadmin container image.
     fxadmin_image_name: fabric-x-tools
     # Defines the image tag used by the fxadmin container image, which must be at least 1.0.2 because earlier tags do not bundle the fxadmin binary.
-    fxadmin_image_tag: 1.0.2
+    fxadmin_image_tag: 1.0.3
     # Defines the latest channel configuration block on the host, as written by `ledger/config_latest`, that fxadmin uses for endpoint discovery.
     fxadmin_latest_block: "/tmp/fabricx/orderer-consenter-1/config/fxadmin/config.pb"
     # Defines the output artifact path written by the current fxadmin command, local to the host the task runs on.
@@ -544,7 +544,7 @@ Mounts the rendered admin configuration and the staged reference block into a tr
     # Defines the image name used by the fxadmin container image.
     fxadmin_image_name: fabric-x-tools
     # Defines the image tag used by the fxadmin container image, which must be at least 1.0.2 because earlier tags do not bundle the fxadmin binary.
-    fxadmin_image_tag: 1.0.2
+    fxadmin_image_tag: 1.0.3
     # Defines the output artifact path written by the current fxadmin command, local to the host the task runs on.
     fxadmin_output: "/tmp/fabricx/config-build/fxadmin-artifacts/config_update.pb"
     # Defines the registry endpoint used by the fxadmin container image.
@@ -580,7 +580,7 @@ Mounts the staged ConfigUpdate and the rendered admin configuration into a trans
     # Defines the image name used by the fxadmin container image.
     fxadmin_image_name: fabric-x-tools
     # Defines the image tag used by the fxadmin container image, which must be at least 1.0.2 because earlier tags do not bundle the fxadmin binary.
-    fxadmin_image_tag: 1.0.2
+    fxadmin_image_tag: 1.0.3
     # Defines the output artifact path written by the current fxadmin command, local to the host the task runs on.
     fxadmin_output: "/tmp/fabricx/config-build/fxadmin-artifacts/config_update.pb"
     # Defines the registry endpoint used by the fxadmin container image.
@@ -614,7 +614,7 @@ Mounts the staged endorsements directory into a transient fxadmin container and 
     # Defines the image name used by the fxadmin container image.
     fxadmin_image_name: fabric-x-tools
     # Defines the image tag used by the fxadmin container image, which must be at least 1.0.2 because earlier tags do not bundle the fxadmin binary.
-    fxadmin_image_tag: 1.0.2
+    fxadmin_image_tag: 1.0.3
     # Defines the output artifact path written by the current fxadmin command, local to the host the task runs on.
     fxadmin_output: "/tmp/fabricx/config-build/fxadmin-artifacts/config_update.pb"
     # Defines the registry endpoint used by the fxadmin container image.
@@ -646,7 +646,7 @@ Mounts the staged endorsed ConfigUpdate and the rendered admin configuration int
     # Defines the image name used by the fxadmin container image.
     fxadmin_image_name: fabric-x-tools
     # Defines the image tag used by the fxadmin container image, which must be at least 1.0.2 because earlier tags do not bundle the fxadmin binary.
-    fxadmin_image_tag: 1.0.2
+    fxadmin_image_tag: 1.0.3
     # Defines the output artifact path written by the current fxadmin command, local to the host the task runs on.
     fxadmin_output: "/tmp/fabricx/config-build/fxadmin-artifacts/config_update.pb"
     # Defines the registry endpoint used by the fxadmin container image.
@@ -684,7 +684,7 @@ Mounts the transaction, the latest block and the rendered admin configuration in
     # Defines the image name used by the fxadmin container image.
     fxadmin_image_name: fabric-x-tools
     # Defines the image tag used by the fxadmin container image, which must be at least 1.0.2 because earlier tags do not bundle the fxadmin binary.
-    fxadmin_image_tag: 1.0.2
+    fxadmin_image_tag: 1.0.3
     # Defines the latest channel configuration block on the host, as written by `ledger/config_latest`, that fxadmin uses for endpoint discovery.
     fxadmin_latest_block: "/tmp/fabricx/orderer-consenter-1/config/fxadmin/config.pb"
     # Defines the registry endpoint used by the fxadmin container image.

@@ -22,6 +22,7 @@ Parties:
       - {{ cryptogen_artifacts_dir }}/crypto/organizations/{{ orderer_organization_domain }}/msp/tlscacerts/tlsca.{{ orderer_organization_domain }}-cert.pem
 {% endfor %}
     RouterConfig:
+      SignCert: {{ cryptogen_artifacts_dir }}/crypto/organizations/{{ orderer_group.router.organization.domain }}/orderers/{{ orderer_group.router.organization.orderer.name | default(orderer_group.router.inventory_hostname) }}.{{ orderer_group.router.organization.domain }}/msp/signcerts/{{ orderer_group.router.organization.orderer.name | default(orderer_group.router.inventory_hostname) }}.{{ orderer_group.router.organization.domain }}-cert.pem
       TLSCert: {{ cryptogen_artifacts_dir }}/crypto/organizations/{{ orderer_group.router.organization.domain }}/orderers/{{ orderer_group.router.organization.orderer.name | default(orderer_group.router.inventory_hostname) }}.{{ orderer_group.router.organization.domain }}/tls/server.crt
       Host: {{ orderer_group.router.ansible_host }}
       Port: {{ orderer_group.router.orderer_rpc_port}}
@@ -39,6 +40,7 @@ Parties:
       Host: {{ orderer_group.consensus.ansible_host }}
       Port: {{ orderer_group.consensus.orderer_rpc_port}}
     AssemblerConfig:
+      SignCert: {{ cryptogen_artifacts_dir }}/crypto/organizations/{{ orderer_group.assembler.organization.domain }}/orderers/{{ orderer_group.assembler.organization.orderer.name | default(orderer_group.assembler.inventory_hostname) }}.{{ orderer_group.assembler.organization.domain }}/msp/signcerts/{{ orderer_group.assembler.organization.orderer.name | default(orderer_group.assembler.inventory_hostname) }}.{{ orderer_group.assembler.organization.domain }}-cert.pem
       TLSCert: {{ cryptogen_artifacts_dir }}/crypto/organizations/{{ orderer_group.assembler.organization.domain}}/orderers/{{ orderer_group.assembler.organization.orderer.name | default(orderer_group.assembler.inventory_hostname) }}.{{ orderer_group.assembler.organization.domain}}/tls/server.crt
       Host: {{ orderer_group.assembler.ansible_host }}
       Port: {{ orderer_group.assembler.orderer_rpc_port}}
