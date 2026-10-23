@@ -391,7 +391,7 @@ Install the committer binary through the shared `bin` role Go installer entry po
     # Git repository that contains the committer sources.
     committer_git_repo: hyperledger/fabric-x-committer
     # Git ref used for building or installing the binary.
-    committer_git_commit: v1.0.5
+    committer_git_commit: v1.0.7
     # Go package path used as the build or install target.
     committer_source_code_package: cmd/committer
   ansible.builtin.include_role:
@@ -415,7 +415,7 @@ Build the committer binary through the shared `bin` role Go build entry point. P
     # Git repository that contains the committer sources.
     committer_git_repo: hyperledger/fabric-x-committer
     # Git ref used for building or installing the binary.
-    committer_git_commit: v1.0.5
+    committer_git_commit: v1.0.7
     # Go package path used as the build or install target.
     committer_source_code_package: cmd/committer
   ansible.builtin.include_role:
@@ -503,7 +503,7 @@ Run `committer init-db` as a one-shot, auto-removing container against the curre
     # Image name for the committer container.
     committer_image_name: fabric-x-committer
     # Image tag for the committer container.
-    committer_image_tag: 1.0.5
+    committer_image_tag: 1.0.7
     # Timeout passed to `committer init-db` while it waits for the database to become reachable.
     committer_init_db_timeout: 5m
     # Container registry endpoint for the committer image.
@@ -541,7 +541,7 @@ Run the container for the selected committer component, with its generated confi
     # Image name for the committer container.
     committer_image_name: fabric-x-committer
     # Image tag for the committer container.
-    committer_image_tag: 1.0.5
+    committer_image_tag: 1.0.7
     # Metrics port exposed by the selected committer component.
     committer_metrics_port: 9443
     # Container registry endpoint for the committer image.
@@ -1496,6 +1496,12 @@ Render sidecar configuration, upstream TLS bundles, and optional Kubernetes Conf
     committer_server_rate_limit_requests_per_second: 2000
     # Sidecar internal channel buffer size.
     committer_sidecar_channel_buffer_size: 100
+    # How long the sidecar waits before fetching a held checkpoint block again.
+    committer_sidecar_checkpoint_hold_retry_interval: "1m"
+    # Maximum number of goroutines parsing one block's transactions.
+    committer_sidecar_max_workers_for_tx_parsing: 1
+    # Minimum number of transactions handed to one parsing goroutine.
+    committer_sidecar_min_tx_parsing_batch_size: 256
     # Sidecar ledger sync interval.
     committer_sidecar_ledger_sync_interval: 100
     # Sidecar notification timeout.
@@ -1666,7 +1672,7 @@ Run `committer init-db` as a Job against the validator ConfigMap and Secret. Job
     # Image name for the committer container.
     committer_image_name: fabric-x-committer
     # Image tag for the committer container.
-    committer_image_tag: 1.0.5
+    committer_image_tag: 1.0.7
     # Timeout passed to `committer init-db` while it waits for the database to become reachable.
     committer_init_db_timeout: 5m
     # Filesystem group assigned to committer pods.
@@ -1736,7 +1742,7 @@ Creates the committer Service, and optional NodePort and LoadBalancer Services, 
     # Image name for the committer container.
     committer_image_name: fabric-x-committer
     # Image tag for the committer container.
-    committer_image_tag: 1.0.5
+    committer_image_tag: 1.0.7
     # Filesystem group assigned to committer pods.
     committer_k8s_fs_group: 10001
     # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.

@@ -96,7 +96,7 @@ argument_specs:
           - "Defines how long C(follow) waits for the submitted configuration update to commit."
       fxadmin_git_commit: &fxadmin_git_commit
         type: str
-        default: "v1.0.2"
+        default: "v1.0.3"
         description:
           - "Selects the Git ref used by build and install workflows."
       fxadmin_git_hub_url: &fxadmin_git_hub_url
@@ -121,7 +121,7 @@ argument_specs:
           - "Defines the image name used by the fxadmin container image."
       fxadmin_image_tag: &fxadmin_image_tag
         type: str
-        default: "1.0.2"
+        default: "1.0.3"
         description:
           - "Defines the image tag used by the fxadmin container image, which must be at least 1.0.2 because earlier tags do not bundle the fxadmin binary."
       fxadmin_jq_args: &fxadmin_jq_args

@@ -22,7 +22,7 @@ fxadmin_current_block: '{{ configtxgen_artifacts_dir }}/{{ channel_id }}_block.p
 # Defines how long C(follow) waits for the submitted configuration update to commit.
 fxadmin_follow_timeout: 60s
 # Selects the Git ref used by build and install workflows.
-fxadmin_git_commit: v1.0.2
+fxadmin_git_commit: v1.0.3
 # Defines the Git host used to resolve the Fabric-X source repository.
 fxadmin_git_hub_url: github.com
 # Defines the Fabric-X source repository path.
@@ -32,7 +32,7 @@ fxadmin_image: "{{ fxadmin_registry_endpoint }}/{{ fxadmin_image_name }}:{{ fxad
 # Defines the image name used by the fxadmin container image.
 fxadmin_image_name: fabric-x-tools
 # Defines the image tag used by the fxadmin container image, which must be at least 1.0.2 because earlier tags do not bundle the fxadmin binary.
-fxadmin_image_tag: 1.0.2
+fxadmin_image_tag: 1.0.3
 # Defines the values passed to C(fxadmin_jq_filter), which reads them as C($args).
 fxadmin_jq_args: {}
 # Defines the certificate path on the host, reused from the node's own TLS identity, that fxadmin presents for mTLS.

@@ -94,6 +94,13 @@ waiting-txs-limit: {{ committer_sidecar_waiting_txs_limit | default(20000000) }}
 # (block delivery, status updates, notifications). Larger buffers improve throughput
 # by reducing channel contention but increase memory usage.
 channel-buffer-size: {{ committer_sidecar_channel_buffer_size | default(100) }}
+# How long the sidecar waits before fetching a held checkpoint block again.
+# The pause gives the snapshot hasher time to finish computing the local hash.
+checkpoint-hold-retry-interval: {{ committer_sidecar_checkpoint_hold_retry_interval | default('1m') }}
+# Maximum number of goroutines one block's transactions are parsed on.
+max-workers-for-tx-parsing: {{ committer_sidecar_max_workers_for_tx_parsing | default(1) }}
+# Minimum number of transactions given to one parsing goroutine.
+min-tx-parsing-batch-size: {{ committer_sidecar_min_tx_parsing_batch_size | default(256) }}
 
 # ---------------------------------------------------------------------------
 # Ledger settings
