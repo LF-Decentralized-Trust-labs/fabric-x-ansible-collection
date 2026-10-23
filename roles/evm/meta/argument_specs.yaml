@@ -169,7 +169,7 @@ argument_specs:
           - Image name used by the EVM container.
       evm_image_tag: &evm_image_tag
         type: str
-        default: "0.2.1"
+        default: "0.2.2"
         description:
           - Image tag used by the EVM container.
       evm_image: &evm_image

@@ -242,7 +242,7 @@ Start the EVM gateway as a local container with the rendered config directory mo
     # Image name used by the EVM container.
     evm_image_name: fabric-x-evm
     # Image tag used by the EVM container.
-    evm_image_tag: 0.2.1
+    evm_image_tag: 0.2.2
     # Base remote config directory that feeds `evm_remote_config_dir`.
     remote_config_dir: "/var/hyperledger/fabricx/evm/config"
     # Remote config directory used by EVM.
@@ -603,7 +603,7 @@ Create or update Kubernetes resources for the EVM gateway. Ensures the namespace
     # Image name used by the EVM container.
     evm_image_name: fabric-x-evm
     # Image tag used by the EVM container.
-    evm_image_tag: 0.2.1
+    evm_image_tag: 0.2.2
     # Config mount path inside a container or pod.
     evm_container_config_dir: /config
     # Rendered EVM gateway configuration filename.
